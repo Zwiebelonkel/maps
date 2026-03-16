@@ -1,0 +1,125 @@
+<!-- Shop Overlay -->
+<div class="shop-overlay" *ngIf="isOpen" (click)="onClose()">
+  <div class="shop-modal" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="shop-header">
+      <div class="shop-title">
+        <span class="shop-icon">🏪</span>
+        <h2>Upgrade Shop</h2>
+      </div>
+      <button class="close-btn" (click)="onClose()">✕</button>
+    </div>
+
+    <!-- Coins Display -->
+    <div class="coins-display">
+      <span class="coin-icon">🪙</span>
+      <span class="coin-amount">{{ totalCoins }}</span>
+      <span class="coin-label">Coins</span>
+    </div>
+
+    <!-- Current Level -->
+    <div class="current-level" *ngIf="currentUpgrade">
+      <div class="level-badge">
+        <span class="badge-icon">⭐</span>
+        <span>Level {{ currentUpgrade.level }}</span>
+      </div>
+      <div class="level-info">
+        <h3>{{ currentUpgrade.description }}</h3>
+        <p class="level-radius">
+          <span class="radius-icon">📍</span>
+          Aktueller Radius: {{ currentUpgrade.radius }}m
+        </p>
+      </div>
+    </div>
+
+    <!-- Upgrades List -->
+    <div class="upgrades-section">
+      <h3 class="section-title">Verfügbare Upgrades</h3>
+
+      <div class="upgrades-list">
+        <div
+          *ngFor="let upgrade of nextUpgrades"
+          class="upgrade-card"
+          [class.affordable]="canAfford(upgrade)"
+          [class.locked]="!canAfford(upgrade)"
+        >
+          <!-- Upgrade Header -->
+          <div class="upgrade-header">
+            <div class="upgrade-level-badge">Level {{ upgrade.level }}</div>
+            <div class="upgrade-name">
+              {{ upgrade.description }}
+            </div>
+          </div>
+
+          <!-- Upgrade Stats -->
+          <div class="upgrade-stats">
+            <div class="stat-item">
+              <span class="stat-icon">📍</span>
+              <span class="stat-label">Radius:</span>
+              <span class="stat-value">{{ upgrade.radius }}m</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">⬆️</span>
+              <span class="stat-label">Verbesserung:</span>
+              <span class="stat-value"
+                >+{{ upgrade.radius - (currentUpgrade?.radius || 0) }}m</span
+              >
+            </div>
+          </div>
+
+          <!-- Cost & Progress -->
+          <div class="upgrade-cost">
+            <div class="cost-bar-container">
+              <div class="cost-bar-bg">
+                <div
+                  class="cost-bar-fill"
+                  [style.width.%]="getProgressToNextLevel(upgrade)"
+                ></div>
+              </div>
+              <div class="cost-text">
+                <span class="current-coins">{{ totalCoins }}</span>
+                <span class="separator">/</span>
+                <span class="required-coins">{{ upgrade.cost }}</span>
+                <span class="coin-icon-small">🪙</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Purchase Button -->
+          <button
+            class="purchase-btn"
+            [disabled]="!canAfford(upgrade)"
+            (click)="onPurchase(upgrade)"
+          >
+            <span *ngIf="canAfford(upgrade)">
+              <span class="btn-icon">✨</span>
+              Upgrade kaufen
+            </span>
+            <span *ngIf="!canAfford(upgrade)">
+              <span class="btn-icon">🔒</span>
+              Nicht genug Coins
+            </span>
+          </button>
+        </div>
+
+        <!-- No more upgrades -->
+        <div class="max-level-card" *ngIf="nextUpgrades.length === 0">
+          <div class="max-level-icon">👑</div>
+          <h3>Maximales Level erreicht!</h3>
+          <p>Du hast alle Upgrades freigeschaltet.</p>
+          <p class="congrats">Herzlichen Glückwunsch! 🎉</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="tips-section">
+      <h4>💡 Tipps</h4>
+      <ul>
+        <li>Erkunde neue Bereiche um Coins zu sammeln</li>
+        <li>Größerer Radius = Mehr Kacheln pro Sekunde</li>
+        <li>Dein Fortschritt wird automatisch gespeichert</li>
+      </ul>
+    </div>
+  </div>
+</div>
