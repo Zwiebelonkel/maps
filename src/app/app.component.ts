@@ -1,18 +1,51 @@
-// app.component.ts
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, interval } from 'rxjs';
-import { GameService } from '../services/game.service';
-import { LocationService, Location } from '../services/location.service';
-import { GAME_CONFIG, RadiusUpgrade } from '../../models/map.tile.model';
 import * as L from 'leaflet';
+
+// Models
+interface MapTile {
+  lat: number;
+  lng: number;
+  explored: boolean;
+  exploredAt?: Date;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+  timestamp: number;
+}
+
+interface RadiusUpgrade {
+  level: number;
+  radius: number;
+  cost: number;
+  description: string;
+}
+
+// Game Config - KLEINERE KACHELN (10m statt 25m)
+const GAME_CONFIG = {
+  TILE_SIZE: 10,           // 10 Meter pro Kachel - jetzt sieht man den Weg!
+  COINS_PER_TILE: 5,       // Weniger Coins weil mehr Kacheln
+  BASE_RADIUS: 50,
+  RADIUS_UPGRADES: [
+    { level: 1, radius: 50, cost: 0, description: 'Start' },
+    { level: 2, radius: 75, cost: 500, description: 'Explorer' },
+    { level: 3, radius: 100, cost: 1500, description: 'Adventurer' },
+    { level: 4, radius: 150, cost: 5000, description: 'Pathfinder' },
+    { level: 5, radius: 200, cost: 15000, description: 'Master Explorer' },
+    { level: 6, radius: 300, cost: 50000, description: 'Legend' }
+  ] as RadiusUpgrade[]
+};
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
@@ -20,156 +53,156 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private playerMarker!: L.Marker;
   private radiusCircle!: L.Circle;
   private exploredLayerGroup!: L.LayerGroup;
+  private watchId: number | null = null;
+  private exploredTiles = new Map<string, MapTile>();
 
-  // Player Position
+  // UI State
   currentLocation: Location | null = null;
-
-  // Game State
   totalCoins = 0;
   totalTilesExplored = 0;
   currentRadius = GAME_CONFIG.BASE_RADIUS;
   currentRadiusLevel = 1;
   nextUpgrade: RadiusUpgrade | null = null;
-
-  // UI State
   isLoading = true;
   errorMessage = '';
   lastExploredCount = 0;
   showCoinAnimation = false;
 
-  constructor(
-    private gameService: GameService,
-    private locationService: LocationService,
-  ) {}
-
-  async ngOnInit() {
-    try {
-      // Spielfortschritt abonnieren
-      this.gameService.progress$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((progress) => {
-          this.totalCoins = progress.totalCoins;
-          this.totalTilesExplored = progress.totalTilesExplored;
-          this.currentRadiusLevel = progress.currentRadiusLevel;
-          this.currentRadius = this.gameService.getCurrentRadius();
-          this.nextUpgrade = this.gameService.getNextUpgrade();
-
-          // Redraw explored tiles
-          if (this.map) {
-            this.drawExploredTiles();
-          }
-        });
-
-      // GPS-Tracking starten
-      await this.locationService.startTracking();
-
-      // Location Updates abonnieren
-      this.locationService.location$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((location) => {
-          if (location) {
-            this.currentLocation = location;
-            if (this.map) {
-              this.updatePlayerPosition(location);
-              this.exploreCurrentArea(location);
-            }
-          }
-        });
-
-      // Automatisches Erkunden alle 2 Sekunden
-      interval(2000)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(() => {
-          if (this.currentLocation) {
-            this.exploreCurrentArea(this.currentLocation);
-          }
-        });
-
-      this.isLoading = false;
-    } catch (error: any) {
-      this.errorMessage = `Fehler beim Zugriff auf GPS: ${error.message}`;
-      this.isLoading = false;
-    }
+  ngOnInit() {
+    this.loadProgress();
+    this.updateGameState();
+    this.startGPSTracking();
+    
+    // Auto-explore every 2 seconds
+    interval(2000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.currentLocation) {
+          this.exploreCurrentArea(this.currentLocation);
+        }
+      });
   }
 
   ngAfterViewInit() {
-    this.initMap();
+    setTimeout(() => this.initMap(), 100);
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    this.locationService.stopTracking();
-
+    this.stopGPSTracking();
     if (this.map) {
       this.map.remove();
     }
   }
 
-  /**
-   * Initialisiert die Leaflet Karte
-   */
   private initMap() {
-    // Karte initialisieren
+    // Leaflet Map mit TOUCH SUPPORT
     this.map = L.map('map', {
-      center: [51.1657, 10.4515], // Deutschland Center
+      center: [51.1657, 10.4515],
       zoom: 15,
       zoomControl: true,
+      
+      // MOBILE TOUCH OPTIMIERUNGEN
+      tap: true,                    // Touch-Events aktivieren
+      touchZoom: true,              // Pinch-to-Zoom
+      dragging: true,               // Touch-Dragging
+      scrollWheelZoom: true,        // Scroll-Zoom
+      doubleClickZoom: true,        // Doppelklick-Zoom
+      boxZoom: true,                // Box-Zoom
+      keyboard: true,               // Keyboard Navigation
+      
+      // Touch-Verzögerung reduzieren
+      tapTolerance: 15,             // Pixel-Toleranz für Tap
+      
+      // Inertia für smoothes Scrollen
+      inertia: true,
+      inertiaDeceleration: 3000,
+      inertiaMaxSpeed: 1500,
+      
+      // Zoom-Grenzen
+      minZoom: 10,
+      maxZoom: 19
     });
 
-    // OpenStreetMap Tiles hinzufügen
+    // OpenStreetMap Tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors',
+      attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-    // Layer Group für erkundete Kacheln
+    // Layer Group für Kacheln
     this.exploredLayerGroup = L.layerGroup().addTo(this.map);
 
-    // Player Marker (custom icon)
-    const playerIcon = L.divIcon({
-      className: 'player-marker',
-      html: '<div class="player-dot"></div>',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-    });
+    // Fix für Mobile: Map invalidate nach kurzer Verzögerung
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 200);
 
-    // Wenn bereits eine Position vorhanden ist
     if (this.currentLocation) {
-      this.playerMarker = L.marker(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        { icon: playerIcon },
-      ).addTo(this.map);
-
-      this.map.setView(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        16,
-      );
-
-      // Radius Circle
-      this.radiusCircle = L.circle(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        {
-          radius: this.currentRadius,
-          color: '#4285F4',
-          fillColor: '#4285F4',
-          fillOpacity: 0.15,
-          weight: 2,
-        },
-      ).addTo(this.map);
-
-      // Initial explore
+      this.updatePlayerPosition(this.currentLocation);
       this.drawExploredTiles();
     }
   }
 
-  /**
-   * Aktualisiert die Spieler-Position auf der Karte
-   */
+  private async startGPSTracking() {
+    try {
+      if (!navigator.geolocation) {
+        throw new Error('Geolocation wird nicht unterstützt');
+      }
+
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      });
+
+      this.updateLocation(position);
+      this.isLoading = false;
+
+      this.watchId = navigator.geolocation.watchPosition(
+        (pos) => this.updateLocation(pos),
+        (error) => console.error('GPS error:', error),
+        { 
+          enableHighAccuracy: true, 
+          maximumAge: 5000, 
+          timeout: 10000 
+        }
+      );
+    } catch (error: any) {
+      this.errorMessage = `GPS-Fehler: ${error.message}`;
+      this.isLoading = false;
+    }
+  }
+
+  private stopGPSTracking() {
+    if (this.watchId !== null) {
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = null;
+    }
+  }
+
+  private updateLocation(position: GeolocationPosition) {
+    this.currentLocation = {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      accuracy: position.coords.accuracy,
+      timestamp: position.timestamp
+    };
+
+    if (this.map) {
+      this.updatePlayerPosition(this.currentLocation);
+      this.exploreCurrentArea(this.currentLocation);
+    }
+  }
+
   private updatePlayerPosition(location: Location) {
     const latLng = L.latLng(location.lat, location.lng);
 
-    // Player Marker updaten oder erstellen
     if (this.playerMarker) {
       this.playerMarker.setLatLng(latLng);
     } else {
@@ -177,14 +210,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         className: 'player-marker',
         html: '<div class="player-dot"></div>',
         iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        iconAnchor: [10, 10]
       });
-      this.playerMarker = L.marker(latLng, { icon: playerIcon }).addTo(
-        this.map,
-      );
+      this.playerMarker = L.marker(latLng, { icon: playerIcon }).addTo(this.map);
     }
 
-    // Radius Circle updaten oder erstellen
     if (this.radiusCircle) {
       this.radiusCircle.setLatLng(latLng);
       this.radiusCircle.setRadius(this.currentRadius);
@@ -194,56 +224,90 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         color: '#4285F4',
         fillColor: '#4285F4',
         fillOpacity: 0.15,
-        weight: 2,
+        weight: 2
       }).addTo(this.map);
     }
 
-    // Karte zentrieren (nur wenn außerhalb des sichtbaren Bereichs)
+    // Zentriere nur beim ersten Mal
     if (!this.map.getBounds().contains(latLng)) {
       this.map.setView(latLng, this.map.getZoom());
     }
   }
 
-  /**
-   * Erkundet den aktuellen Bereich
-   */
   private exploreCurrentArea(location: Location) {
-    const newTiles = this.gameService.exploreTiles(location.lat, location.lng);
-
+    const newTiles = this.exploreTiles(location.lat, location.lng);
+    
     if (newTiles > 0) {
       this.lastExploredCount = newTiles;
       this.showCoinAnimation = true;
-      setTimeout(() => (this.showCoinAnimation = false), 2000);
+      this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
+      this.totalTilesExplored = this.exploredTiles.size;
+      this.updateGameState();
+      this.saveProgress();
+      this.drawExploredTiles();
+      
+      setTimeout(() => this.showCoinAnimation = false, 2000);
     }
   }
 
-  /**
-   * Zeichnet alle erkundeten Kacheln auf der Karte
-   */
+  private exploreTiles(centerLat: number, centerLng: number): number {
+    let newTilesCount = 0;
+    const tilesInRadius = Math.ceil(this.currentRadius / GAME_CONFIG.TILE_SIZE);
+    const centerGrid = this.latLngToGrid(centerLat, centerLng);
+
+    for (let x = -tilesInRadius; x <= tilesInRadius; x++) {
+      for (let y = -tilesInRadius; y <= tilesInRadius; y++) {
+        const gridX = centerGrid.gridX + x;
+        const gridY = centerGrid.gridY + y;
+        const key = `${gridX},${gridY}`;
+
+        // Konvertiere Grid zurück zu Lat/Lng
+        const tileLatLng = this.gridToLatLng(gridX, gridY, centerLat);
+        const distance = this.calculateDistance(centerLat, centerLng, tileLatLng.lat, tileLatLng.lng);
+
+        if (distance <= this.currentRadius && !this.exploredTiles.has(key)) {
+          this.exploredTiles.set(key, {
+            lat: tileLatLng.lat,
+            lng: tileLatLng.lng,
+            explored: true,
+            exploredAt: new Date()
+          });
+          newTilesCount++;
+        }
+      }
+    }
+
+    return newTilesCount;
+  }
+
   private drawExploredTiles() {
-    // Alle bisherigen Kacheln entfernen
+    if (!this.map) return;
+    
     this.exploredLayerGroup.clearLayers();
-
-    // Neue Kacheln zeichnen
-    const tiles = this.gameService.getExploredTiles();
     const tileSize = GAME_CONFIG.TILE_SIZE;
-
-    tiles.forEach((tile) => {
-      // Umrechnung Meter zu Grad (ungefähr)
-      const latOffset = tileSize / 110540;
-      const lngOffset = tileSize / 111320;
-
+    
+    // Berechne Offsets basierend auf aktueller Position
+    const centerLat = this.currentLocation?.lat || 51.1657;
+    const latDegreeInMeters = 111320;
+    const lngDegreeInMeters = 111320 * Math.cos(centerLat * Math.PI / 180);
+    
+    const latOffset = tileSize / latDegreeInMeters;
+    const lngOffset = tileSize / lngDegreeInMeters;
+    
+    this.exploredTiles.forEach(tile => {
       const bounds: L.LatLngBoundsExpression = [
         [tile.lat, tile.lng],
-        [tile.lat + latOffset, tile.lng + lngOffset],
+        [tile.lat + latOffset, tile.lng + lngOffset]
       ];
 
       const rectangle = L.rectangle(bounds, {
         color: '#00FF00',
         weight: 1,
-        opacity: 0.3,
+        opacity: 0.5,
         fillColor: '#00FF00',
-        fillOpacity: 0.1,
+        fillOpacity: 0.3,
+        // WICHTIG: Interactive false - verhindert dass Kacheln Touch blockieren
+        interactive: false
       });
 
       this.exploredLayerGroup.addLayer(rectangle);
@@ -251,40 +315,108 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /**
-   * Kauft das nächste Upgrade
+   * Konvertiert GPS-Koordinaten zu Grid-Koordinaten
+   * KORRIGIERTE VERSION - berücksichtigt Breitengrad-Kompression
    */
+  private latLngToGrid(lat: number, lng: number): { gridX: number; gridY: number } {
+    const latDegreeInMeters = 111320;
+    const lngDegreeInMeters = 111320 * Math.cos(lat * Math.PI / 180);
+    
+    return {
+      gridX: Math.floor(lng * lngDegreeInMeters / GAME_CONFIG.TILE_SIZE),
+      gridY: Math.floor(lat * latDegreeInMeters / GAME_CONFIG.TILE_SIZE)
+    };
+  }
+
+  /**
+   * Konvertiert Grid-Koordinaten zurück zu GPS
+   * NEUE FUNKTION - für korrekte Kachel-Positionierung
+   */
+  private gridToLatLng(gridX: number, gridY: number, refLat: number): { lat: number; lng: number } {
+    const latDegreeInMeters = 111320;
+    const lngDegreeInMeters = 111320 * Math.cos(refLat * Math.PI / 180);
+    
+    return {
+      lat: gridY * GAME_CONFIG.TILE_SIZE / latDegreeInMeters,
+      lng: gridX * GAME_CONFIG.TILE_SIZE / lngDegreeInMeters
+    };
+  }
+
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371000;
+    const dLat = this.toRad(lat2 - lat1);
+    const dLng = this.toRad(lng2 - lng1);
+    
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private toRad(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+
+  private updateGameState() {
+    this.currentRadius = GAME_CONFIG.RADIUS_UPGRADES.find(u => u.level === this.currentRadiusLevel)?.radius || GAME_CONFIG.BASE_RADIUS;
+    this.nextUpgrade = GAME_CONFIG.RADIUS_UPGRADES.find(u => u.level === this.currentRadiusLevel + 1) || null;
+  }
+
   buyUpgrade() {
-    const success = this.gameService.purchaseUpgrade();
-    if (success) {
-      console.log('Upgrade gekauft!');
-      // Update radius circle
+    if (this.nextUpgrade && this.totalCoins >= this.nextUpgrade.cost) {
+      this.totalCoins -= this.nextUpgrade.cost;
+      this.currentRadiusLevel = this.nextUpgrade.level;
+      this.updateGameState();
+      this.saveProgress();
+      
       if (this.radiusCircle && this.currentLocation) {
         this.radiusCircle.setRadius(this.currentRadius);
       }
-    } else {
-      console.log('Nicht genug Coins oder max Level erreicht');
     }
   }
 
-  /**
-   * Zentriert die Karte auf die aktuelle Position
-   */
   centerOnPlayer() {
     if (this.currentLocation && this.map) {
-      this.map.setView(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        16,
-      );
+      this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 18);
     }
   }
 
-  /**
-   * Reset für Testing
-   */
   resetGame() {
     if (confirm('Möchtest du wirklich deinen gesamten Fortschritt löschen?')) {
-      this.gameService.resetProgress();
+      localStorage.removeItem('map_explorer_progress');
+      this.exploredTiles.clear();
+      this.totalCoins = 0;
+      this.totalTilesExplored = 0;
+      this.currentRadiusLevel = 1;
+      this.updateGameState();
       this.exploredLayerGroup.clearLayers();
+    }
+  }
+
+  private saveProgress() {
+    const data = {
+      totalCoins: this.totalCoins,
+      exploredTiles: Array.from(this.exploredTiles.entries()),
+      currentRadiusLevel: this.currentRadiusLevel,
+      totalTilesExplored: this.totalTilesExplored
+    };
+    localStorage.setItem('map_explorer_progress', JSON.stringify(data));
+  }
+
+  private loadProgress() {
+    const saved = localStorage.getItem('map_explorer_progress');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        this.totalCoins = data.totalCoins || 0;
+        this.exploredTiles = new Map(data.exploredTiles || []);
+        this.currentRadiusLevel = data.currentRadiusLevel || 1;
+        this.totalTilesExplored = data.totalTilesExplored || 0;
+      } catch (e) {
+        console.error('Error loading progress:', e);
+      }
     }
   }
 }
