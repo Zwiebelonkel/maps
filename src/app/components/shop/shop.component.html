@@ -121,5 +121,23 @@
         <li>Dein Fortschritt wird automatisch gespeichert</li>
       </ul>
     </div>
+
+    <div class="admin-code-section">
+      <h4>🔐 Code eingeben</h4>
+
+      <div class="code-input-row">
+        <input
+          type="password"
+          placeholder="Code eingeben..."
+          [(ngModel)]="adminCode"
+        />
+
+        <button (click)="redeemCode()">Einlösen</button>
+      </div>
+
+      <div class="code-message" *ngIf="codeMessage">
+        {{ codeMessage }}
+      </div>
+    </div>
   </div>
 </div>
