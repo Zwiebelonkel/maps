@@ -55,20 +55,25 @@ interface GridCoordinate {
 
 // Game Config
 const GAME_CONFIG = {
-  TILE_SIZE: 10, // Meter
-  COINS_PER_TILE: 5,
-  BASE_RADIUS: 50,
-  MAX_TILES_RENDER: 1200,
-  MIN_GPS_MOVEMENT: 5, // Meter - kleine GPS-Sprünge ignorieren
-  MAX_ACCEPTED_ACCURACY: 50, // Meter
-  FOG_OPACITY: 0.96,
+  TILE_SIZE: 12, // kleiner
+  COINS_PER_TILE: 1, // stark genervt
+  BASE_RADIUS: 20, // Start kleiner
+
+  MAX_TILES_RENDER: 2000,
+  MIN_GPS_MOVEMENT: 4,
+  MAX_ACCEPTED_ACCURACY: 40,
+
+  FOG_OPACITY: 0.92,
+
   RADIUS_UPGRADES: [
-    { level: 1, radius: 50, cost: 0, description: 'Beginner' },
-    { level: 2, radius: 75, cost: 500, description: 'Explorer' },
-    { level: 3, radius: 100, cost: 1500, description: 'Adventurer' },
-    { level: 4, radius: 150, cost: 5000, description: 'Pathfinder' },
-    { level: 5, radius: 200, cost: 15000, description: 'Master Explorer' },
-    { level: 6, radius: 300, cost: 50000, description: 'Legend' },
+    { level: 1, radius: 20, cost: 0, description: 'Beginner' },
+    { level: 2, radius: 25, cost: 120, description: 'Explorer' },
+    { level: 3, radius: 30, cost: 260, description: 'Adventurer' },
+    { level: 4, radius: 35, cost: 450, description: 'Pathfinder' },
+    { level: 5, radius: 42, cost: 750, description: 'Scout' },
+    { level: 6, radius: 50, cost: 1100, description: 'Urban Explorer' },
+    { level: 7, radius: 60, cost: 1700, description: 'Regional Explorer' },
+    { level: 8, radius: 75, cost: 2600, description: 'Legendary Explorer' },
   ] as RadiusUpgrade[],
 };
 
@@ -151,7 +156,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       doubleClickZoom: true,
       minZoom: 10,
       maxZoom: 19,
-      preferCanvas: true,
+      // preferCanvas: true,
     } as L.MapOptions);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -166,7 +171,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 200);
 
     if (this.currentLocation) {
-      this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
+      this.map.setView(
+        [this.currentLocation.lat, this.currentLocation.lng],
+        16,
+      );
       this.updatePlayerPosition(this.currentLocation);
     }
 
@@ -297,7 +305,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private exploreCurrentArea(location: Location) {
     const currentGrid = this.latLngToGrid(location.lat, location.lng);
-    const currentGridKey = this.getTileKey(currentGrid.gridX, currentGrid.gridY);
+    const currentGridKey = this.getTileKey(
+      currentGrid.gridX,
+      currentGrid.gridY,
+    );
 
     // Wenn wir immer noch im selben Grid stehen, nicht erneut komplett rechnen
     if (this.lastExploredGridKey === currentGridKey) {
@@ -435,10 +446,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       const tileSizeLat = GAME_CONFIG.TILE_SIZE / metersPerLat;
       const tileSizeLng = GAME_CONFIG.TILE_SIZE / metersPerLng;
 
-      const south = tile.lat - tileSizeLat / 2;
-      const north = tile.lat + tileSizeLat / 2;
-      const west = tile.lng - tileSizeLng / 2;
-      const east = tile.lng + tileSizeLng / 2;
+      const overlap = 0.00001;
+      const south = tile.lat - tileSizeLat / 2 - overlap;
+      const north = tile.lat + tileSizeLat / 2 + overlap;
+      const west = tile.lng - tileSizeLng / 2 - overlap;
+      const east = tile.lng + tileSizeLng / 2 + overlap;
 
       holes.push([
         [south, west],
@@ -493,6 +505,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       GAME_CONFIG.RADIUS_UPGRADES.find(
         (u) => u.level === this.currentRadiusLevel,
       )?.radius || GAME_CONFIG.BASE_RADIUS;
+
+    // Radius Circle auf der Karte aktualisieren
+    if (this.radiusCircle) {
+      this.radiusCircle.setRadius(this.currentRadius);
+    }
   }
 
   // Shop Methods
@@ -524,7 +541,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   centerOnPlayer() {
     if (this.currentLocation && this.map) {
-      this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 17);
+      this.map.setView(
+        [this.currentLocation.lat, this.currentLocation.lng],
+        17,
+      );
     }
   }
 
