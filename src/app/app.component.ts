@@ -135,6 +135,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       attribution: '© OpenStreetMap',
     }).addTo(this.map);
 
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      this.addClickCoins();
+      this.showCoin(e.latlng);
+    });
+
     setTimeout(() => {
       if (this.map) {
         this.map.invalidateSize();
@@ -417,7 +422,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       const tileSizeLat = GAME_CONFIG.TILE_SIZE / metersPerLat;
       const tileSizeLng = GAME_CONFIG.TILE_SIZE / metersPerLng;
 
-      const overlap = 0.00001;
+      const overlap = 0.00000000000001;
       const south = tile.lat - tileSizeLat / 2 - overlap;
       const north = tile.lat + tileSizeLat / 2 + overlap;
       const west = tile.lng - tileSizeLng / 2 - overlap;
@@ -517,6 +522,33 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         17,
       );
     }
+  }
+
+  private addClickCoins() {
+    this.totalCoins += 0.05;
+
+    // optional runden (sonst kommen viele Nachkommastellen)
+    this.totalCoins = Math.round(this.totalCoins * 100) / 100;
+
+    this.saveProgress();
+  }
+
+  private showCoin(latlng: L.LatLng) {
+    const coinIcon = L.divIcon({
+      className: '',
+      html: `<div class="coin-effect"></div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+
+    const marker = L.marker(latlng, {
+      icon: coinIcon,
+      interactive: false,
+    }).addTo(this.map);
+
+    setTimeout(() => {
+      this.map.removeLayer(marker);
+    }, 900);
   }
 
   resetGame() {
