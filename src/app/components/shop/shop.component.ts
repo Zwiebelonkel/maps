@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GAME_CONFIG } from '../../config/game.config';
 
 interface RadiusUpgrade {
   level: number;
@@ -31,7 +32,9 @@ export class ShopComponent {
   get currentUpgrade(): RadiusUpgrade {
     return {
       level: this.currentLevel,
-      radius: 20 + this.currentLevel * 5,
+      radius:
+        GAME_CONFIG.BASE_RADIUS +
+        this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
       cost: 0,
       description: 'Explorer ' + this.currentLevel,
     };
@@ -47,8 +50,13 @@ export class ShopComponent {
 
       upgrades.push({
         level,
-        radius: 20 + level * 5,
-        cost: Math.floor(120 * Math.pow(level, 1.35)),
+        radius:
+          GAME_CONFIG.BASE_RADIUS +
+          level * GAME_CONFIG.RADIUS_GROWTH,
+        cost: Math.floor(
+          GAME_CONFIG.BASE_UPGRADE_COST *
+          Math.pow(level, GAME_CONFIG.COST_MULTIPLIER)
+        ),
         description: 'Explorer ' + level,
       });
 
@@ -77,6 +85,7 @@ export class ShopComponent {
   }
 
   redeemCode() {
+
     if (this.adminCode === '1906') {
 
       this.purchaseUpgrade.emit({
@@ -94,6 +103,7 @@ export class ShopComponent {
       this.codeMessage = '❌ Falscher Code';
 
     }
+
   }
 
 }
