@@ -1,6 +1,5 @@
-// services/location.service.ts
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface Location {
   lat: number;
@@ -10,7 +9,7 @@ export interface Location {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class LocationService {
   private locationSubject = new BehaviorSubject<Location | null>(null);
@@ -19,17 +18,18 @@ export class LocationService {
 
   private watchId: number | null = null;
   private isTracking = false;
+  private lastAcceptedLocation: Location | null = null;
+
+  // Kleine GPS-Sprünge ignorieren
+  private readonly MIN_DISTANCE_CHANGE = 5; // Meter
 
   constructor() {}
 
-  /**
-   * Startet GPS-Tracking
-   */
   startTracking(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(
-          new Error("Geolocation wird von diesem Browser nicht unterstützt"),
+          new Error('Geolocation wird von diesem Browser nicht unterstützt'),
         );
         return;
       }
@@ -39,16 +39,14 @@ export class LocationService {
         return;
       }
 
-      // Erste Position sofort abrufen
       navigator.geolocation.getCurrentPosition(
         (position) => {
           this.updateLocation(position);
           this.isTracking = true;
 
-          // Kontinuierliches Tracking starten
           this.watchId = navigator.geolocation.watchPosition(
             (pos) => this.updateLocation(pos),
-            (error) => console.error("Location error:", error),
+            (error) => console.error('Location error:', error),
             {
               enableHighAccuracy: true,
               maximumAge: 5000,
@@ -58,9 +56,7 @@ export class LocationService {
 
           resolve();
         },
-        (error) => {
-          reject(error);
-        },
+        (error) => reject(error),
         {
           enableHighAccuracy: true,
           timeout: 10000,
@@ -69,9 +65,6 @@ export class LocationService {
     });
   }
 
-  /**
-   * Stoppt GPS-Tracking
-   */
   stopTracking(): void {
     if (this.watchId !== null) {
       navigator.geolocation.clearWatch(this.watchId);
@@ -80,16 +73,14 @@ export class LocationService {
     }
   }
 
-  /**
-   * Gibt die aktuelle Position zurück
-   */
   getCurrentLocation(): Location | null {
     return this.locationSubject.value;
   }
 
-  /**
-   * Aktualisiert die Location
-   */
+  isTrackingActive(): boolean {
+    return this.isTracking;
+  }
+
   private updateLocation(position: GeolocationPosition): void {
     const location: Location = {
       lat: position.coords.latitude,
@@ -97,13 +88,51 @@ export class LocationService {
       accuracy: position.coords.accuracy,
       timestamp: position.timestamp,
     };
+
+    // Schlechte Genauigkeit ignorieren
+    if (location.accuracy && location.accuracy > 50) {
+      return;
+    }
+
+    if (this.lastAcceptedLocation) {
+      const distance = this.calculateDistance(
+        this.lastAcceptedLocation.lat,
+        this.lastAcceptedLocation.lng,
+        location.lat,
+        location.lng,
+      );
+
+      if (distance < this.MIN_DISTANCE_CHANGE) {
+        return;
+      }
+    }
+
+    this.lastAcceptedLocation = location;
     this.locationSubject.next(location);
   }
 
-  /**
-   * Prüft ob Tracking aktiv ist
-   */
-  isTrackingActive(): boolean {
-    return this.isTracking;
+  private calculateDistance(
+    lat1: number,
+    lng1: number,
+    lat2: number,
+    lng2: number,
+  ): number {
+    const R = 6371000;
+    const dLat = this.toRad(lat2 - lat1);
+    const dLng = this.toRad(lng2 - lng1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) *
+        Math.cos(this.toRad(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private toRad(degrees: number): number {
+    return degrees * (Math.PI / 180);
   }
 }
