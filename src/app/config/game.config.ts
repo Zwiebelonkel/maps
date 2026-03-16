@@ -16,14 +16,8 @@ export const GAME_CONFIG = {
 
   FOG_OPACITY: 0.92,
 
-  RADIUS_UPGRADES: [
-    { level: 1, radius: 20, cost: 0, description: 'Beginner' },
-    { level: 2, radius: 25, cost: 120, description: 'Explorer' },
-    { level: 3, radius: 30, cost: 260, description: 'Adventurer' },
-    { level: 4, radius: 35, cost: 450, description: 'Pathfinder' },
-    { level: 5, radius: 42, cost: 750, description: 'Scout' },
-    { level: 6, radius: 50, cost: 1100, description: 'Urban Explorer' },
-    { level: 7, radius: 60, cost: 1700, description: 'Regional Explorer' },
-    { level: 8, radius: 75, cost: 2600, description: 'Legendary Explorer' },
-  ] as RadiusUpgrade[],
+BASE_RADIUS: 20,
+RADIUS_GROWTH: 5,
+BASE_UPGRADE_COST: 120,
+COST_MULTIPLIER: 1.35,
 };
