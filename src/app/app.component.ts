@@ -458,10 +458,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.fogLayer.bringToFront();
 
-    if (this.playerMarker) {
-      this.playerMarker.bringToFront();
-    }
-
     if (this.radiusCircle) {
       this.radiusCircle.bringToFront();
     }
