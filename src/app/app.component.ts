@@ -80,7 +80,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Shop State
   isShopOpen = false;
-  allUpgrades = GAME_CONFIG.RADIUS_UPGRADES;
+
 
   ngOnInit() {
     this.loadProgress();
