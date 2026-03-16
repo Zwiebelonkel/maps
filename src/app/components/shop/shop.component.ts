@@ -17,22 +17,44 @@ interface RadiusUpgrade {
   styleUrls: ['./shop.component.scss'],
 })
 export class ShopComponent {
+
   @Input() isOpen = false;
   @Input() totalCoins = 0;
   @Input() currentLevel = 1;
-  @Input() availableUpgrades: RadiusUpgrade[] = [];
 
   @Output() close = new EventEmitter<void>();
   @Output() purchaseUpgrade = new EventEmitter<RadiusUpgrade>();
+
   adminCode = '';
   codeMessage = '';
 
-  get currentUpgrade(): RadiusUpgrade | undefined {
-    return this.availableUpgrades.find((u) => u.level === this.currentLevel);
+  get currentUpgrade(): RadiusUpgrade {
+    return {
+      level: this.currentLevel,
+      radius: 20 + this.currentLevel * 5,
+      cost: 0,
+      description: 'Explorer ' + this.currentLevel,
+    };
   }
 
   get nextUpgrades(): RadiusUpgrade[] {
-    return this.availableUpgrades.filter((u) => u.level > this.currentLevel);
+
+    const upgrades: RadiusUpgrade[] = [];
+
+    for (let i = 1; i <= 5; i++) {
+
+      const level = this.currentLevel + i;
+
+      upgrades.push({
+        level,
+        radius: 20 + level * 5,
+        cost: Math.floor(120 * Math.pow(level, 1.35)),
+        description: 'Explorer ' + level,
+      });
+
+    }
+
+    return upgrades;
   }
 
   canAfford(upgrade: RadiusUpgrade): boolean {
@@ -56,6 +78,7 @@ export class ShopComponent {
 
   redeemCode() {
     if (this.adminCode === '1906') {
+
       this.purchaseUpgrade.emit({
         level: -1,
         radius: 0,
@@ -65,8 +88,12 @@ export class ShopComponent {
 
       this.codeMessage = '💰 10.000.000 Coins erhalten!';
       this.adminCode = '';
+
     } else {
+
       this.codeMessage = '❌ Falscher Code';
+
     }
   }
+
 }
