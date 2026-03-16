@@ -1,22 +1,13 @@
 // shop.component.scss
 
-// :host {
-//   position: fixed;
-//   inset: 0;
-//   display: block;
-//   width: 100vw;
-//   height: 100vh;
-//   z-index: 3000;
-// }
-
 .shop-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(5, 5, 5, 0.92);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,22 +16,20 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .shop-modal {
-  background: white;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(12px);
   border-radius: 24px;
   width: 90%;
   max-width: 600px;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
   animation: slideUp 0.3s ease-out;
 
   @media (max-width: 768px) {
@@ -62,15 +51,16 @@
 }
 
 // Header
+
 .shop-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   position: sticky;
   top: 0;
-  background: white;
+  background: rgba(20,20,20,0.95);
   z-index: 10;
   border-radius: 24px 24px 0 0;
 }
@@ -87,7 +77,7 @@
   h2 {
     margin: 0;
     font-size: 1.8rem;
-    color: #333;
+    color: #ffffff;
     font-weight: 700;
   }
 }
@@ -96,33 +86,30 @@
   width: 40px;
   height: 40px;
   border: none;
-  background: #f5f5f5;
+  background: rgba(255,255,255,0.05);
   border-radius: 50%;
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #666;
+  color: #aaa;
 
   &:hover {
-    background: #e0e0e0;
+    background: rgba(255,255,255,0.1);
     transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
   }
 }
 
 // Coins Display
+
 .coins-display {
   margin: 20px 24px;
   padding: 20px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  background: linear-gradient(135deg,#ffd700,#ffb300);
   border-radius: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 4px 18px rgba(255,215,0,0.4);
 
   .coin-icon {
     font-size: 2.5rem;
@@ -132,21 +119,21 @@
     font-size: 2.2rem;
     font-weight: 800;
     color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   }
 
   .coin-label {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255,255,255,0.9);
     font-weight: 600;
   }
 }
 
 // Current Level
+
 .current-level {
   margin: 20px 24px;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg,#4da3ff,#667eea);
   border-radius: 16px;
   color: white;
 
@@ -154,15 +141,11 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255,255,255,0.2);
     padding: 8px 16px;
     border-radius: 20px;
     font-weight: 700;
     margin-bottom: 12px;
-
-    .badge-icon {
-      font-size: 1.2rem;
-    }
   }
 
   .level-info {
@@ -179,22 +162,19 @@
       gap: 8px;
       font-size: 1.1rem;
       opacity: 0.95;
-
-      .radius-icon {
-        font-size: 1.3rem;
-      }
     }
   }
 }
 
-// Upgrades Section
+// Upgrades
+
 .upgrades-section {
   padding: 24px;
 
   .section-title {
     margin: 0 0 16px 0;
     font-size: 1.3rem;
-    color: #333;
+    color: #ffffff;
     font-weight: 700;
   }
 }
@@ -206,27 +186,27 @@
 }
 
 // Upgrade Card
+
 .upgrade-card {
-  border: 2px solid #e0e0e0;
+  border: 1px solid rgba(255,255,255,0.05);
   border-radius: 16px;
   padding: 20px;
   transition: all 0.3s;
-  background: white;
+  background: rgba(25,25,25,0.9);
 
   &.affordable {
-    border-color: #4caf50;
-    background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    border-color: #4da3ff;
+    box-shadow: 0 0 18px rgba(77,163,255,0.25);
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+      box-shadow: 0 0 25px rgba(77,163,255,0.4);
     }
   }
 
   &.locked {
-    opacity: 0.6;
-    background: #f9f9f9;
+    opacity: 0.5;
+    background: rgba(25,25,25,0.6);
   }
 }
 
@@ -237,7 +217,7 @@
   margin-bottom: 16px;
 
   .upgrade-level-badge {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg,#4da3ff,#667eea);
     color: white;
     padding: 6px 14px;
     border-radius: 12px;
@@ -248,7 +228,7 @@
   .upgrade-name {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #333;
+    color: #ffffff;
   }
 }
 
@@ -263,20 +243,18 @@
     gap: 6px;
     font-size: 0.95rem;
 
-    .stat-icon {
-      font-size: 1.2rem;
-    }
-
     .stat-label {
-      color: #666;
+      color: #aaa;
     }
 
     .stat-value {
       font-weight: 700;
-      color: #333;
+      color: #fff;
     }
   }
 }
+
+// Cost Bar
 
 .upgrade-cost {
   margin-bottom: 16px;
@@ -286,13 +264,13 @@
 
     .cost-bar-bg {
       height: 32px;
-      background: #e0e0e0;
+      background: rgba(255,255,255,0.05);
       border-radius: 16px;
       overflow: hidden;
 
       .cost-bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+        background: linear-gradient(90deg,#4da3ff,#00e5ff);
         transition: width 0.5s ease;
       }
     }
@@ -301,32 +279,30 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%,-50%);
       display: flex;
       align-items: center;
       gap: 4px;
       font-weight: 700;
       font-size: 1rem;
-      color: #333;
+      color: white;
 
       .current-coins {
-        color: #4caf50;
+        color: #4da3ff;
       }
 
       .separator {
-        color: #999;
+        color: #888;
       }
 
       .required-coins {
-        color: #666;
-      }
-
-      .coin-icon-small {
-        font-size: 1.1rem;
+        color: #aaa;
       }
     }
   }
 }
+
+// Purchase Button
 
 .purchase-btn {
   width: 100%;
@@ -337,42 +313,31 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  .btn-icon {
-    font-size: 1.3rem;
-  }
 
   &:not(:disabled) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg,#4da3ff,#667eea);
     color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 14px rgba(77,163,255,0.4);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-    }
-
-    &:active {
-      transform: translateY(0);
+      box-shadow: 0 6px 20px rgba(77,163,255,0.5);
     }
   }
 
   &:disabled {
-    background: #ccc;
-    color: #888;
+    background: #333;
+    color: #777;
     cursor: not-allowed;
   }
 }
 
-// Max Level Card
+// Max Level
+
 .max-level-card {
   text-align: center;
   padding: 40px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  background: linear-gradient(135deg,#ffd700,#ffa500);
   border-radius: 16px;
   color: white;
 
@@ -390,26 +355,22 @@
   p {
     margin: 8px 0;
     font-size: 1.1rem;
-    opacity: 0.95;
-  }
-
-  .congrats {
-    font-size: 1.3rem;
-    margin-top: 16px;
   }
 }
 
-// Tips Section
+// Tips
+
 .tips-section {
   padding: 24px;
-  background: #f9f9f9;
+  background: rgba(20,20,20,0.9);
   border-radius: 0 0 24px 24px;
   margin-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
 
   h4 {
     margin: 0 0 12px 0;
     font-size: 1.1rem;
-    color: #333;
+    color: #fff;
     font-weight: 700;
   }
 
@@ -419,21 +380,19 @@
 
     li {
       margin-bottom: 8px;
-      color: #666;
+      color: #aaa;
       line-height: 1.5;
     }
   }
 }
 
-// Mobile Optimizations
 @media (max-width: 768px) {
+
   .shop-header {
     padding: 20px;
 
-    .shop-title {
-      h2 {
-        font-size: 1.5rem;
-      }
+    .shop-title h2 {
+      font-size: 1.5rem;
     }
   }
 
@@ -463,4 +422,5 @@
     flex-direction: column;
     gap: 8px;
   }
+
 }
