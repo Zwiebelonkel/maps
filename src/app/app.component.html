@@ -1,0 +1,116 @@
+<!-- app.component.html -->
+<div class="app-container">
+  
+  <!-- Loading Screen -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>GPS wird aktiviert...</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-overlay" *ngIf="errorMessage && !isLoading">
+    <div class="error-content">
+      <h2>⚠️ GPS-Fehler</h2>
+      <p>{{ errorMessage }}</p>
+      <p class="error-hint">Bitte erlaube den Standortzugriff in deinem Browser.</p>
+    </div>
+  </div>
+
+  <!-- Leaflet Map Container -->
+  <div id="map" class="map-container"></div>
+
+  <!-- Stats Panel -->
+  <div class="stats-panel">
+    <div class="stat-item">
+      <span class="stat-icon">💰</span>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalCoins }}</div>
+        <div class="stat-label">Coins</div>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <span class="stat-icon">🗺️</span>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalTilesExplored }}</div>
+        <div class="stat-label">Kacheln</div>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <span class="stat-icon">📡</span>
+      <div class="stat-content">
+        <div class="stat-value">{{ currentRadius }}m</div>
+        <div class="stat-label">Radius</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coin Animation -->
+  <div class="coin-animation" *ngIf="showCoinAnimation">
+    <div class="coin-popup">
+      +{{ lastExploredCount * 10 }} 💰
+    </div>
+  </div>
+
+  <!-- Upgrade Panel -->
+  <div class="upgrade-panel" *ngIf="nextUpgrade">
+    <div class="upgrade-header">
+      <h3>📈 Nächstes Upgrade</h3>
+      <span class="upgrade-level">Level {{ nextUpgrade.level }}</span>
+    </div>
+    
+    <div class="upgrade-info">
+      <div class="upgrade-name">{{ nextUpgrade.description }}</div>
+      <div class="upgrade-benefit">Radius: {{ nextUpgrade.radius }}m</div>
+      <div class="upgrade-cost">
+        <span class="cost-label">Kosten:</span>
+        <span class="cost-value" [class.affordable]="totalCoins >= nextUpgrade.cost">
+          {{ nextUpgrade.cost }} 💰
+        </span>
+      </div>
+    </div>
+
+    <button 
+      class="upgrade-button"
+      [disabled]="totalCoins < nextUpgrade.cost"
+      (click)="buyUpgrade()">
+      {{ totalCoins >= nextUpgrade.cost ? 'Upgrade kaufen' : 'Nicht genug Coins' }}
+    </button>
+  </div>
+
+  <!-- Max Level Message -->
+  <div class="upgrade-panel max-level" *ngIf="!nextUpgrade">
+    <div class="upgrade-header">
+      <h3>🏆 Maximales Level erreicht!</h3>
+    </div>
+    <p>Du hast alle Upgrades freigeschaltet!</p>
+  </div>
+
+  <!-- Control Buttons -->
+  <div class="control-buttons">
+    <button class="control-btn" (click)="centerOnPlayer()" title="Auf Spieler zentrieren">
+      📍
+    </button>
+    <button class="control-btn reset-btn" (click)="resetGame()" title="Fortschritt zurücksetzen">
+      🔄
+    </button>
+  </div>
+
+  <!-- Info Box -->
+  <div class="info-box">
+    <h4>🎮 Map Explorer</h4>
+    <p>Bewege dich in der echten Welt, um die Karte aufzudecken!</p>
+    <ul>
+      <li>Erkunde neue Bereiche für Coins</li>
+      <li>Kaufe Upgrades für größeren Radius</li>
+      <li>Grüne Bereiche = bereits erkundet</li>
+    </ul>
+    <div class="osm-credit">
+      <small>Powered by OpenStreetMap</small>
+    </div>
+  </div>
+
+</div>
