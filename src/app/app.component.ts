@@ -10,6 +10,7 @@ const iconRetinaUrl =
 const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
 const shadowUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+
 const iconDefault = L.icon({
   iconRetinaUrl,
   iconUrl,
@@ -20,14 +21,17 @@ const iconDefault = L.icon({
   tooltipAnchor: [16, -28],
   shadowSize: [41, 41],
 });
+
 L.Marker.prototype.options.icon = iconDefault;
 
 // Models
 interface MapTile {
-  lat: number;
-  lng: number;
+  lat: number; // Tile-Zentrum
+  lng: number; // Tile-Zentrum
   explored: boolean;
   exploredAt?: Date;
+  gridX: number;
+  gridY: number;
 }
 
 interface Location {
@@ -44,12 +48,20 @@ export interface RadiusUpgrade {
   description: string;
 }
 
+interface GridCoordinate {
+  gridX: number;
+  gridY: number;
+}
+
 // Game Config
 const GAME_CONFIG = {
-  TILE_SIZE: 10,
+  TILE_SIZE: 10, // Meter
   COINS_PER_TILE: 5,
   BASE_RADIUS: 50,
-  MAX_TILES_RENDER: 500,
+  MAX_TILES_RENDER: 1200,
+  MIN_GPS_MOVEMENT: 5, // Meter - kleine GPS-Sprünge ignorieren
+  MAX_ACCEPTED_ACCURACY: 50, // Meter
+  FOG_OPACITY: 0.88,
   RADIUS_UPGRADES: [
     { level: 1, radius: 50, cost: 0, description: 'Beginner' },
     { level: 2, radius: 75, cost: 500, description: 'Explorer' },
@@ -72,9 +84,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private map!: L.Map;
   private playerMarker!: L.Marker;
   private radiusCircle!: L.Circle;
-  private exploredLayerGroup!: L.LayerGroup;
+  private fogLayer!: L.Polygon;
   private watchId: number | null = null;
+
   private exploredTiles = new Map<string, MapTile>();
+  private lastAcceptedLocation: Location | null = null;
+  private lastExploredGridKey: string | null = null;
 
   // UI State
   currentLocation: Location | null = null;
@@ -113,6 +128,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.next();
     this.destroy$.complete();
     this.stopGPSTracking();
+
     if (this.map) {
       this.map.remove();
     }
@@ -143,8 +159,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       attribution: '© OpenStreetMap',
     }).addTo(this.map);
 
-    this.exploredLayerGroup = L.layerGroup().addTo(this.map);
-
     setTimeout(() => {
       if (this.map) {
         this.map.invalidateSize();
@@ -152,13 +166,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 200);
 
     if (this.currentLocation) {
-      this.map.setView(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        16,
-      );
+      this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 16);
       this.updatePlayerPosition(this.currentLocation);
-      this.drawExploredTiles();
     }
+
+    this.drawFogOfWar();
   }
 
   private async startGPSTracking() {
@@ -214,6 +226,29 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       timestamp: position.timestamp,
     };
 
+    // Schlechte GPS-Genauigkeit ignorieren
+    if (
+      newLocation.accuracy &&
+      newLocation.accuracy > GAME_CONFIG.MAX_ACCEPTED_ACCURACY
+    ) {
+      return;
+    }
+
+    // Kleine GPS-Sprünge ignorieren
+    if (this.lastAcceptedLocation) {
+      const movedDistance = this.calculateDistance(
+        this.lastAcceptedLocation.lat,
+        this.lastAcceptedLocation.lng,
+        newLocation.lat,
+        newLocation.lng,
+      );
+
+      if (movedDistance < GAME_CONFIG.MIN_GPS_MOVEMENT) {
+        return;
+      }
+    }
+
+    this.lastAcceptedLocation = newLocation;
     this.currentLocation = newLocation;
 
     if (this.map) {
@@ -234,6 +269,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         iconSize: [20, 20],
         iconAnchor: [10, 10],
       });
+
       this.playerMarker = L.marker(latLng, {
         icon: playerIcon,
         zIndexOffset: 1000,
@@ -248,7 +284,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         radius: this.currentRadius,
         color: '#4285F4',
         fillColor: '#4285F4',
-        fillOpacity: 0.15,
+        fillOpacity: 0.1,
         weight: 2,
       }).addTo(this.map);
     }
@@ -260,6 +296,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private exploreCurrentArea(location: Location) {
+    const currentGrid = this.latLngToGrid(location.lat, location.lng);
+    const currentGridKey = this.getTileKey(currentGrid.gridX, currentGrid.gridY);
+
+    // Wenn wir immer noch im selben Grid stehen, nicht erneut komplett rechnen
+    if (this.lastExploredGridKey === currentGridKey) {
+      return;
+    }
+
     const newTiles = this.exploreTiles(location.lat, location.lng);
 
     if (newTiles > 0) {
@@ -269,47 +313,90 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.totalTilesExplored = this.exploredTiles.size;
       this.updateGameState();
       this.saveProgress();
-      this.drawExploredTiles();
+      this.drawFogOfWar();
 
       setTimeout(() => (this.showCoinAnimation = false), 2000);
     }
+
+    this.lastExploredGridKey = currentGridKey;
+  }
+
+  /**
+   * Stabile Grid-Koordinaten aus echter GPS-Position
+   */
+  private latLngToGrid(lat: number, lng: number): GridCoordinate {
+    const metersPerLat = 111320;
+    const metersPerLng = 111320 * Math.cos(this.toRad(lat));
+
+    const xMeters = lng * metersPerLng;
+    const yMeters = lat * metersPerLat;
+
+    const gridX = Math.floor(xMeters / GAME_CONFIG.TILE_SIZE);
+    const gridY = Math.floor(yMeters / GAME_CONFIG.TILE_SIZE);
+
+    return { gridX, gridY };
+  }
+
+  /**
+   * Tile-Zentrum aus Grid berechnen
+   */
+  private gridToTileCenter(
+    gridX: number,
+    gridY: number,
+    referenceLat: number,
+  ): { lat: number; lng: number } {
+    const metersPerLat = 111320;
+    const metersPerLng = 111320 * Math.cos(this.toRad(referenceLat));
+
+    const centerXMeters = (gridX + 0.5) * GAME_CONFIG.TILE_SIZE;
+    const centerYMeters = (gridY + 0.5) * GAME_CONFIG.TILE_SIZE;
+
+    const lng = centerXMeters / metersPerLng;
+    const lat = centerYMeters / metersPerLat;
+
+    return { lat, lng };
+  }
+
+  private getTileKey(gridX: number, gridY: number): string {
+    return `${gridX},${gridY}`;
   }
 
   private exploreTiles(centerLat: number, centerLng: number): number {
     let newTilesCount = 0;
-    const tileSize = GAME_CONFIG.TILE_SIZE;
-    const tilesInRadius = Math.ceil(this.currentRadius / tileSize);
-
-    const metersPerDegreeLat = 111320;
-    const metersPerDegreeLng = 111320 * Math.cos((centerLat * Math.PI) / 180);
-
-    const tileSizeLat = tileSize / metersPerDegreeLat;
-    const tileSizeLng = tileSize / metersPerDegreeLng;
+    const tilesInRadius = Math.ceil(this.currentRadius / GAME_CONFIG.TILE_SIZE);
+    const centerGrid = this.latLngToGrid(centerLat, centerLng);
 
     for (let dx = -tilesInRadius; dx <= tilesInRadius; dx++) {
       for (let dy = -tilesInRadius; dy <= tilesInRadius; dy++) {
-        const tileLat = centerLat + dy * tileSizeLat;
-        const tileLng = centerLng + dx * tileSizeLng;
+        const gridX = centerGrid.gridX + dx;
+        const gridY = centerGrid.gridY + dy;
+        const key = this.getTileKey(gridX, gridY);
 
+        // Bereits entdeckt
+        if (this.exploredTiles.has(key)) {
+          continue;
+        }
+
+        const tileCenter = this.gridToTileCenter(gridX, gridY, centerLat);
+
+        // Distanz sauber zum Tile-Zentrum berechnen
         const distance = this.calculateDistance(
           centerLat,
           centerLng,
-          tileLat,
-          tileLng,
+          tileCenter.lat,
+          tileCenter.lng,
         );
 
         if (distance <= this.currentRadius) {
-          const key = `${tileLat.toFixed(6)},${tileLng.toFixed(6)}`;
-
-          if (!this.exploredTiles.has(key)) {
-            this.exploredTiles.set(key, {
-              lat: tileLat,
-              lng: tileLng,
-              explored: true,
-              exploredAt: new Date(),
-            });
-            newTilesCount++;
-          }
+          this.exploredTiles.set(key, {
+            lat: tileCenter.lat,
+            lng: tileCenter.lng,
+            explored: true,
+            exploredAt: new Date(),
+            gridX,
+            gridY,
+          });
+          newTilesCount++;
         }
       }
     }
@@ -317,40 +404,67 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return newTilesCount;
   }
 
-  private drawExploredTiles() {
+  /**
+   * Fog of War:
+   * Ganze Welt dunkel, erkundete Tiles = Löcher
+   */
+  private drawFogOfWar() {
     if (!this.map) return;
 
-    this.exploredLayerGroup.clearLayers();
+    if (this.fogLayer) {
+      this.map.removeLayer(this.fogLayer);
+    }
 
-    const tileSize = GAME_CONFIG.TILE_SIZE;
-    const centerLat = this.currentLocation?.lat || 53.0793;
+    const worldBounds: L.LatLngExpression[] = [
+      [-90, -180],
+      [-90, 180],
+      [90, 180],
+      [90, -180],
+    ];
 
-    const metersPerDegreeLat = 111320;
-    const metersPerDegreeLng = 111320 * Math.cos((centerLat * Math.PI) / 180);
+    const holes: L.LatLngExpression[][] = [];
 
-    const tileSizeLat = tileSize / metersPerDegreeLat;
-    const tileSizeLng = tileSize / metersPerDegreeLng;
+    const tiles = Array.from(this.exploredTiles.values()).slice(
+      -GAME_CONFIG.MAX_TILES_RENDER,
+    );
 
-    const tiles = Array.from(this.exploredTiles.values());
-    const tilesToDraw = tiles.slice(-GAME_CONFIG.MAX_TILES_RENDER);
+    for (const tile of tiles) {
+      const metersPerLat = 111320;
+      const metersPerLng = 111320 * Math.cos(this.toRad(tile.lat));
 
-    tilesToDraw.forEach((tile) => {
-      const bounds: L.LatLngBoundsExpression = [
-        [tile.lat, tile.lng],
-        [tile.lat + tileSizeLat, tile.lng + tileSizeLng],
-      ];
+      const tileSizeLat = GAME_CONFIG.TILE_SIZE / metersPerLat;
+      const tileSizeLng = GAME_CONFIG.TILE_SIZE / metersPerLng;
 
-      const rectangle = L.rectangle(bounds, {
-        color: '#00FF00',
-        weight: 1,
-        opacity: 0.4,
-        fillColor: '#00FF00',
-        fillOpacity: 0.25,
-        interactive: false,
-      });
+      const south = tile.lat - tileSizeLat / 2;
+      const north = tile.lat + tileSizeLat / 2;
+      const west = tile.lng - tileSizeLng / 2;
+      const east = tile.lng + tileSizeLng / 2;
 
-      this.exploredLayerGroup.addLayer(rectangle);
-    });
+      holes.push([
+        [south, west],
+        [south, east],
+        [north, east],
+        [north, west],
+      ]);
+    }
+
+    this.fogLayer = L.polygon([worldBounds, ...holes], {
+      stroke: false,
+      fillColor: '#050505',
+      fillOpacity: GAME_CONFIG.FOG_OPACITY,
+      interactive: false,
+      smoothFactor: 0,
+    }).addTo(this.map);
+
+    this.fogLayer.bringToFront();
+
+    if (this.playerMarker) {
+      this.playerMarker.bringToFront();
+    }
+
+    if (this.radiusCircle) {
+      this.radiusCircle.bringToFront();
+    }
   }
 
   private calculateDistance(
@@ -388,7 +502,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // Shop Methods
   toggleShop() {
     this.isShopOpen = !this.isShopOpen;
-    console.log('Shop toggled:', this.isShopOpen);
   }
 
   closeShop() {
@@ -406,17 +519,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.radiusCircle.setRadius(this.currentRadius);
       }
 
-      // Optional: Close shop after purchase
-      // this.closeShop();
+      if (this.currentLocation) {
+        this.lastExploredGridKey = null;
+        this.exploreCurrentArea(this.currentLocation);
+      }
     }
   }
 
   centerOnPlayer() {
     if (this.currentLocation && this.map) {
-      this.map.setView(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        17,
-      );
+      this.map.setView([this.currentLocation.lat, this.currentLocation.lng], 17);
     }
   }
 
@@ -427,8 +539,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.totalCoins = 0;
       this.totalTilesExplored = 0;
       this.currentRadiusLevel = 1;
+      this.lastExploredGridKey = null;
       this.updateGameState();
-      this.exploredLayerGroup.clearLayers();
+
+      if (this.currentLocation) {
+        this.updatePlayerPosition(this.currentLocation);
+      }
+
+      this.drawFogOfWar();
     }
   }
 
@@ -439,6 +557,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       currentRadiusLevel: this.currentRadiusLevel,
       totalTilesExplored: this.totalTilesExplored,
     };
+
     localStorage.setItem('map_explorer_progress', JSON.stringify(data));
   }
 
