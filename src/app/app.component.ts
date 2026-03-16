@@ -476,17 +476,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return degrees * (Math.PI / 180);
   }
 
-  private updateGameState() {
-    this.currentRadius =
-      GAME_CONFIG.RADIUS_UPGRADES.find(
-        (u) => u.level === this.currentRadiusLevel,
-      )?.radius || GAME_CONFIG.BASE_RADIUS;
+private updateGameState() {
 
-    // Radius Circle auf der Karte aktualisieren
-    if (this.radiusCircle) {
-      this.radiusCircle.setRadius(this.currentRadius);
-    }
+  this.currentRadius =
+    GAME_CONFIG.BASE_RADIUS +
+    this.currentRadiusLevel * GAME_CONFIG.RADIUS_GROWTH;
+
+  if (this.radiusCircle) {
+    this.radiusCircle.setRadius(this.currentRadius);
   }
+
+}
 
   // Shop Methods
   toggleShop() {
