@@ -61,7 +61,7 @@ const GAME_CONFIG = {
   MAX_TILES_RENDER: 1200,
   MIN_GPS_MOVEMENT: 5, // Meter - kleine GPS-Sprünge ignorieren
   MAX_ACCEPTED_ACCURACY: 50, // Meter
-  FOG_OPACITY: 0.88,
+  FOG_OPACITY: 0.96,
   RADIUS_UPGRADES: [
     { level: 1, radius: 50, cost: 0, description: 'Beginner' },
     { level: 2, radius: 75, cost: 500, description: 'Explorer' },
