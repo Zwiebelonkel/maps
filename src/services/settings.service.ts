@@ -4,6 +4,7 @@ export interface GameSettings {
   maxRenderTiles: number;
   volume: number;
   powerSave: boolean;
+  darkMap: boolean;
 }
 
 @Injectable({
@@ -14,6 +15,7 @@ export class SettingsService {
     maxRenderTiles: 2000,
     volume: 0.5,
     powerSave: false,
+    darkMap: true,
   };
 
   constructor() {
@@ -32,7 +34,13 @@ export class SettingsService {
   private load() {
     const saved = localStorage.getItem('game_settings');
     if (saved) {
-      this.settings = JSON.parse(saved);
+      try {
+        const parsed = JSON.parse(saved);
+        // darkMap mit Default absichern falls alter Save ohne darkMap
+        this.settings = { ...this.settings, ...parsed };
+      } catch (e) {
+        console.error('Error loading settings:', e);
+      }
     }
   }
 
@@ -41,6 +49,7 @@ export class SettingsService {
       maxRenderTiles: 2000,
       volume: 0.5,
       powerSave: false,
+      darkMap: true,
     };
     this.update(this.settings);
   }
