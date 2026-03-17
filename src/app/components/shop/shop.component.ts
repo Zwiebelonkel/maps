@@ -28,14 +28,18 @@ export class ShopComponent {
   adminCode = '';
   codeMessage = '';
   activeTab: 'radius' | 'click' | 'items' = 'radius';
+  isClosing = false;
+
   private touchStartY = 0;
   private touchCurrentY = 0;
+  private isDraggingHeader = false;
+
+  // ── Getters ─────────────────────────────────────────────────
 
   get currentUpgrade(): RadiusUpgrade {
     return {
       level: this.currentLevel,
-      radius:
-        GAME_CONFIG.BASE_RADIUS + this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
+      radius: GAME_CONFIG.BASE_RADIUS + this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
       cost: 0,
       description: 'Explorer ' + this.currentLevel,
     };
@@ -43,9 +47,8 @@ export class ShopComponent {
 
   get currentClickUpgrade(): ClickUpgrade {
     return (
-      GAME_CONFIG.CLICK_UPGRADES.find(
-        (u) => u.level === this.currentClickLevel,
-      ) || GAME_CONFIG.CLICK_UPGRADES[0]
+      GAME_CONFIG.CLICK_UPGRADES.find(u => u.level === this.currentClickLevel)
+      || GAME_CONFIG.CLICK_UPGRADES[0]
     );
   }
 
@@ -57,8 +60,7 @@ export class ShopComponent {
         level,
         radius: GAME_CONFIG.BASE_RADIUS + level * GAME_CONFIG.RADIUS_GROWTH,
         cost: Math.floor(
-          GAME_CONFIG.BASE_UPGRADE_COST *
-            Math.pow(level, GAME_CONFIG.COST_MULTIPLIER),
+          GAME_CONFIG.BASE_UPGRADE_COST * Math.pow(level, GAME_CONFIG.COST_MULTIPLIER),
         ),
         description: 'Explorer ' + level,
       });
@@ -67,40 +69,60 @@ export class ShopComponent {
   }
 
   get nextClickUpgrades(): ClickUpgrade[] {
-    return GAME_CONFIG.CLICK_UPGRADES.filter(
-      (u) => u.level > this.currentClickLevel,
-    );
+    return GAME_CONFIG.CLICK_UPGRADES.filter(u => u.level > this.currentClickLevel);
   }
 
   get shopItems(): ShopItem[] {
     return GAME_CONFIG.SHOP_ITEMS;
   }
 
+  // ── Affordability ────────────────────────────────────────────
+
   canAfford(cost: number): boolean {
     return this.totalCoins >= cost;
   }
+
+  getProgress(current: number, required: number): number {
+    if (current >= required) return 100;
+    return (current / required) * 100;
+  }
+
+  // ── Close & Swipe ────────────────────────────────────────────
 
   onClose() {
     this.close.emit();
   }
 
-  onTouchStart(e: TouchEvent) {
-  this.touchStartY = e.touches[0].clientY;
-}
-
-onTouchMove(e: TouchEvent) {
-  this.touchCurrentY = e.touches[0].clientY;
-}
-
-onTouchEnd() {
-  const diff = this.touchCurrentY - this.touchStartY;
-  if (diff > 80) {
-    this.onClose();
+  closeWithAnimation() {
+    this.isClosing = true;
+    setTimeout(() => {
+      this.isClosing = false;
+      this.onClose();
+    }, 320);
   }
-  this.touchStartY = 0;
-  this.touchCurrentY = 0;
-}
-  
+
+  onHeaderTouchStart(e: TouchEvent) {
+    this.touchStartY = e.touches[0].clientY;
+    this.isDraggingHeader = true;
+  }
+
+  onHeaderTouchMove(e: TouchEvent) {
+    if (!this.isDraggingHeader) return;
+    this.touchCurrentY = e.touches[0].clientY;
+  }
+
+  onHeaderTouchEnd() {
+    if (!this.isDraggingHeader) return;
+    const diff = this.touchCurrentY - this.touchStartY;
+    if (diff > 80) {
+      this.closeWithAnimation();
+    }
+    this.touchStartY = 0;
+    this.touchCurrentY = 0;
+    this.isDraggingHeader = false;
+  }
+
+  // ── Purchases ────────────────────────────────────────────────
 
   onPurchase(upgrade: RadiusUpgrade) {
     if (this.canAfford(upgrade.cost)) this.purchaseUpgrade.emit(upgrade);
@@ -114,18 +136,12 @@ onTouchEnd() {
     if (this.canAfford(item.cost)) this.purchaseItem.emit(item);
   }
 
-  getProgress(current: number, required: number): number {
-    if (current >= required) return 100;
-    return (current / required) * 100;
-  }
+  // ── Admin Code ───────────────────────────────────────────────
 
   redeemCode() {
     if (this.adminCode === '1906') {
       this.purchaseUpgrade.emit({
-        level: -1,
-        radius: 0,
-        cost: -10000000,
-        description: 'ADMIN_COINS',
+        level: -1, radius: 0, cost: -10000000, description: 'ADMIN_COINS',
       });
       this.codeMessage = '💰 10.000.000 Coins erhalten!';
       this.adminCode = '';
