@@ -10,6 +10,11 @@
   animation: fadeIn 0.2s ease;
 }
 
+@keyframes slideDown {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -28,6 +33,10 @@
   overflow-y: auto;
   animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   touch-action: pan-y;
+
+    &.closing {
+    animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
 }
 
 @keyframes slideUp {
