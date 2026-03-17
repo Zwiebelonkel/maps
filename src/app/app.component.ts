@@ -149,7 +149,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       scrollWheelZoom: true,
       doubleClickZoom: false,
       minZoom: 10,
-      maxZoom: 19,
+      maxZoom: 25,
       preferCanvas: true,
     } as L.MapOptions);
 
