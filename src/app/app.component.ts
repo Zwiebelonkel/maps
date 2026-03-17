@@ -143,11 +143,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.map = L.map('map', {
       center: [53.0793, 8.8017],
       zoom: 16,
-      zoomControl: true,
+      zoomControl: false,
       touchZoom: true,
       dragging: true,
       scrollWheelZoom: true,
-      doubleClickZoom: true,
+      doubleClickZoom: false,
       minZoom: 10,
       maxZoom: 19,
       preferCanvas: true,
