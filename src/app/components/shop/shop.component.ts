@@ -28,6 +28,8 @@ export class ShopComponent {
   adminCode = '';
   codeMessage = '';
   activeTab: 'radius' | 'click' | 'items' = 'radius';
+  private touchStartY = 0;
+  private touchCurrentY = 0;
 
   get currentUpgrade(): RadiusUpgrade {
     return {
@@ -81,6 +83,24 @@ export class ShopComponent {
   onClose() {
     this.close.emit();
   }
+
+  onTouchStart(e: TouchEvent) {
+  this.touchStartY = e.touches[0].clientY;
+}
+
+onTouchMove(e: TouchEvent) {
+  this.touchCurrentY = e.touches[0].clientY;
+}
+
+onTouchEnd() {
+  const diff = this.touchCurrentY - this.touchStartY;
+  if (diff > 80) {
+    this.onClose();
+  }
+  this.touchStartY = 0;
+  this.touchCurrentY = 0;
+}
+  
 
   onPurchase(upgrade: RadiusUpgrade) {
     if (this.canAfford(upgrade.cost)) this.purchaseUpgrade.emit(upgrade);
