@@ -183,10 +183,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       preferCanvas: true,
     } as L.MapOptions);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 25,
-      attribution: '© OpenStreetMap',
-    }).addTo(this.map);
+ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB',
+  subdomains: 'abcd',
+  maxZoom: 25,
+}).addTo(this.map);
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       if (this.activeBombItem) {
