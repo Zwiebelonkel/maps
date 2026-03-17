@@ -89,6 +89,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   showCoinAnimation = false;
   coinsPerTile = GAME_CONFIG.COINS_PER_TILE;
   flashActive = false;
+  private tileLayer!: L.TileLayer;
 
   // Shop / Bomb
   isShopOpen = false;
@@ -166,54 +167,74 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ── Map ─────────────────────────────────────────────────────
 
-  private initMap() {
-    const mapElement = document.getElementById('map');
-    if (!mapElement) return;
+private initMap() {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) return;
 
-    this.map = L.map('map', {
-      center: [53.0793, 8.8017],
-      zoom: 16,
-      zoomControl: false,
-      touchZoom: true,
-      dragging: true,
-      scrollWheelZoom: true,
-      doubleClickZoom: false,
-      minZoom: 10,
-      maxZoom: 25,
-      preferCanvas: true,
-    } as L.MapOptions);
+  this.map = L.map('map', {
+    center: [53.0793, 8.8017],
+    zoom: 16,
+    zoomControl: false,
+    touchZoom: true,
+    dragging: true,
+    scrollWheelZoom: true,
+    doubleClickZoom: false,
+    minZoom: 10,
+    maxZoom: 25,
+    preferCanvas: true,
+  } as L.MapOptions);
 
- L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & CartoDB',
-  subdomains: 'abcd',
-  maxZoom: 25,
-}).addTo(this.map);
+  this.tileLayer = this.createTileLayer();
+  this.tileLayer.addTo(this.map);
 
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      if (this.activeBombItem) {
-        this.detonateBomb(e.latlng, this.activeBombItem);
-        this.activeBombItem = null;
-        document.getElementById('map')!.style.cursor = '';
-        return;
-      }
-      this.addClickCoins();
-      this.showCoin(e.originalEvent as MouseEvent);
-    });
-
-    setTimeout(() => {
-      if (this.map) this.map.invalidateSize();
-    }, 200);
-
-    if (this.currentLocation) {
-      this.map.setView(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        16,
-      );
-      this.updatePlayerPosition(this.currentLocation);
+  this.map.on('click', (e: L.LeafletMouseEvent) => {
+    if (this.activeBombItem) {
+      this.detonateBomb(e.latlng, this.activeBombItem);
+      this.activeBombItem = null;
+      document.getElementById('map')!.style.cursor = '';
+      return;
     }
+    this.addClickCoins();
+    this.showCoin(e.originalEvent as MouseEvent);
+  });
 
-    this.drawFogOfWar();
+  setTimeout(() => {
+    if (this.map) this.map.invalidateSize();
+  }, 200);
+
+  if (this.currentLocation) {
+    this.map.setView(
+      [this.currentLocation.lat, this.currentLocation.lng],
+      16,
+    );
+    this.updatePlayerPosition(this.currentLocation);
   }
+
+  this.drawFogOfWar();
+}
+
+private createTileLayer(): L.TileLayer {
+  if (this.settingsService.snapshot.darkMap) {
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap & CartoDB',
+      subdomains: 'abcd',
+      maxZoom: 25,
+    });
+  } else {
+    return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 25,
+    });
+  }
+}
+
+onDarkMapChanged(darkMap: boolean) {
+  if (!this.map) return;
+  this.map.removeLayer(this.tileLayer);
+  this.tileLayer = this.createTileLayer();
+  this.tileLayer.addTo(this.map);
+  this.tileLayer.bringToBack();
+}
 
   // ── Bomb ────────────────────────────────────────────────────
 
