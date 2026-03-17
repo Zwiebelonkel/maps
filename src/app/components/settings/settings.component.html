@@ -1,12 +1,26 @@
-<div class="settings-overlay" *ngIf="isOpen" (click)="toggle()">
-  <div class="settings-modal" (click)="$event.stopPropagation()">
+<div class="settings-overlay" *ngIf="isOpen" (click)="closeWithAnimation()">
+  <div class="settings-modal"
+    (click)="$event.stopPropagation()"
+    [class.closing]="isClosing">
+
+    <!-- Drag Handle -->
+    <div class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()">
+      <div class="drag-handle-bar"></div>
+    </div>
+
     <!-- Header -->
-    <div class="settings-header">
+    <div class="settings-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()">
       <div class="settings-title">
         <span class="settings-icon">⚙️</span>
         <h2>Einstellungen</h2>
       </div>
-      <button class="close-btn" (click)="toggle()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>
 
     <!-- Max Render Tiles -->
@@ -19,14 +33,9 @@
         </div>
         <div class="setting-value">{{ maxRenderTiles }}</div>
       </div>
-      <input
-        type="range"
-        min="100"
-        max="50000"
-        step="100"
+      <input type="range" min="100" max="50000" step="100"
         [value]="maxRenderTiles"
-        (input)="updateMaxRenderTiles(+$any($event.target).value)"
-      />
+        (input)="updateMaxRenderTiles(+$any($event.target).value)" />
     </div>
 
     <!-- Stromsparmodus -->
@@ -37,22 +46,19 @@
           <div class="setting-label">Stromsparmodus</div>
           <div class="setting-desc">Doppeltippen zum Deaktivieren</div>
         </div>
-        <button
-          class="toggle-btn"
+        <button class="toggle-btn"
           [class.active]="settings.snapshot.powerSave"
-          (click)="settings.update({ powerSave: !settings.snapshot.powerSave })"
-        >
-          {{ settings.snapshot.powerSave ? "AN" : "AUS" }}
+          (click)="settings.update({ powerSave: !settings.snapshot.powerSave })">
+          {{ settings.snapshot.powerSave ? 'AN' : 'AUS' }}
         </button>
       </div>
     </div>
 
-    <!-- Reset -->
- <!-- Footer -->
-<div class="settings-footer">
-  <button class="reset-settings-btn" (click)="reset()">♻️ Einstellungen zurücksetzen</button>
-  <button class="reset-game-btn" (click)="resetGame()">🗑️ Spielfortschritt löschen</button>
-</div>
+    <!-- Footer -->
+    <div class="settings-footer">
+      <button class="reset-settings-btn" (click)="reset()">♻️ Einstellungen zurücksetzen</button>
+      <button class="reset-game-btn" (click)="resetGame()">🗑️ Spielfortschritt löschen</button>
+    </div>
 
   </div>
 </div>
