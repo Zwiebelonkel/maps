@@ -1,14 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GAME_CONFIG } from '../../config/game.config';
-
-interface RadiusUpgrade {
-  level: number;
-  radius: number;
-  cost: number;
-  description: string;
-}
+import {
+  GAME_CONFIG,
+  RadiusUpgrade,
+  ClickUpgrade,
+  ShopItem,
+} from '../../config/game.config';
 
 @Component({
   selector: 'app-shop',
@@ -18,55 +16,66 @@ interface RadiusUpgrade {
   styleUrls: ['./shop.component.scss'],
 })
 export class ShopComponent {
-
   @Input() isOpen = false;
   @Input() totalCoins = 0;
   @Input() currentLevel = 1;
-
+  @Input() currentClickLevel = 1;
   @Output() close = new EventEmitter<void>();
   @Output() purchaseUpgrade = new EventEmitter<RadiusUpgrade>();
+  @Output() purchaseClickUpgrade = new EventEmitter<ClickUpgrade>();
+  @Output() purchaseItem = new EventEmitter<ShopItem>();
 
   adminCode = '';
   codeMessage = '';
+  activeTab: 'radius' | 'click' | 'items' = 'radius';
 
   get currentUpgrade(): RadiusUpgrade {
     return {
       level: this.currentLevel,
       radius:
-        GAME_CONFIG.BASE_RADIUS +
-        this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
+        GAME_CONFIG.BASE_RADIUS + this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
       cost: 0,
       description: 'Explorer ' + this.currentLevel,
     };
   }
 
+  get currentClickUpgrade(): ClickUpgrade {
+    return (
+      GAME_CONFIG.CLICK_UPGRADES.find(
+        (u) => u.level === this.currentClickLevel,
+      ) || GAME_CONFIG.CLICK_UPGRADES[0]
+    );
+  }
+
   get nextUpgrades(): RadiusUpgrade[] {
-
     const upgrades: RadiusUpgrade[] = [];
-
     for (let i = 1; i <= 5; i++) {
-
       const level = this.currentLevel + i;
-
       upgrades.push({
         level,
-        radius:
-          GAME_CONFIG.BASE_RADIUS +
-          level * GAME_CONFIG.RADIUS_GROWTH,
+        radius: GAME_CONFIG.BASE_RADIUS + level * GAME_CONFIG.RADIUS_GROWTH,
         cost: Math.floor(
           GAME_CONFIG.BASE_UPGRADE_COST *
-          Math.pow(level, GAME_CONFIG.COST_MULTIPLIER)
+            Math.pow(level, GAME_CONFIG.COST_MULTIPLIER),
         ),
         description: 'Explorer ' + level,
       });
-
     }
-
     return upgrades;
   }
 
-  canAfford(upgrade: RadiusUpgrade): boolean {
-    return this.totalCoins >= upgrade.cost;
+  get nextClickUpgrades(): ClickUpgrade[] {
+    return GAME_CONFIG.CLICK_UPGRADES.filter(
+      (u) => u.level > this.currentClickLevel,
+    );
+  }
+
+  get shopItems(): ShopItem[] {
+    return GAME_CONFIG.SHOP_ITEMS;
+  }
+
+  canAfford(cost: number): boolean {
+    return this.totalCoins >= cost;
   }
 
   onClose() {
@@ -74,36 +83,34 @@ export class ShopComponent {
   }
 
   onPurchase(upgrade: RadiusUpgrade) {
-    if (this.canAfford(upgrade)) {
-      this.purchaseUpgrade.emit(upgrade);
-    }
+    if (this.canAfford(upgrade.cost)) this.purchaseUpgrade.emit(upgrade);
   }
 
-  getProgressToNextLevel(upgrade: RadiusUpgrade): number {
-    if (this.totalCoins >= upgrade.cost) return 100;
-    return (this.totalCoins / upgrade.cost) * 100;
+  onPurchaseClick(upgrade: ClickUpgrade) {
+    if (this.canAfford(upgrade.cost)) this.purchaseClickUpgrade.emit(upgrade);
+  }
+
+  onPurchaseItem(item: ShopItem) {
+    if (this.canAfford(item.cost)) this.purchaseItem.emit(item);
+  }
+
+  getProgress(current: number, required: number): number {
+    if (current >= required) return 100;
+    return (current / required) * 100;
   }
 
   redeemCode() {
-
     if (this.adminCode === '1906') {
-
       this.purchaseUpgrade.emit({
         level: -1,
         radius: 0,
         cost: -10000000,
         description: 'ADMIN_COINS',
       });
-
       this.codeMessage = '💰 10.000.000 Coins erhalten!';
       this.adminCode = '';
-
     } else {
-
       this.codeMessage = '❌ Falscher Code';
-
     }
-
   }
-
 }

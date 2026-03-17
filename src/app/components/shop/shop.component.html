@@ -1,4 +1,3 @@
-<!-- Shop Overlay -->
 <div class="shop-overlay" *ngIf="isOpen" (click)="onClose()">
   <div class="shop-modal" (click)="$event.stopPropagation()">
     <!-- Header -->
@@ -10,134 +9,240 @@
       <button class="close-btn" (click)="onClose()">✕</button>
     </div>
 
-    <!-- Coins Display -->
+    <!-- Coins -->
     <div class="coins-display">
       <span class="coin-icon">🪙</span>
-      <span class="coin-amount">{{ totalCoins }}</span>
+      <span class="coin-amount">{{ totalCoins | number: "1.0-2" }}</span>
       <span class="coin-label">Coins</span>
     </div>
 
-    <!-- Current Level -->
-    <div class="current-level" *ngIf="currentUpgrade">
-      <div class="level-badge">
-        <span class="badge-icon">⭐</span>
-        <span>Level {{ currentUpgrade.level }}</span>
-      </div>
-      <div class="level-info">
-        <h3>{{ currentUpgrade.description }}</h3>
-        <p class="level-radius">
-          <span class="radius-icon">📍</span>
-          Aktueller Radius: {{ currentUpgrade.radius }}m
-        </p>
-      </div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'radius'"
+        (click)="activeTab = 'radius'"
+      >
+        📍 Radius
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'click'"
+        (click)="activeTab = 'click'"
+      >
+        👆 Click
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'items'"
+        (click)="activeTab = 'items'"
+      >
+        🎒 Items
+      </button>
     </div>
 
-    <!-- Upgrades List -->
-    <div class="upgrades-section">
-      <h3 class="section-title">Verfügbare Upgrades</h3>
+    <!-- Tab: Radius -->
+    <div class="tab-content" *ngIf="activeTab === 'radius'">
+      <div class="current-level">
+        <div class="level-badge">⭐ Level {{ currentUpgrade.level }}</div>
+        <div class="level-info">
+          <h3>{{ currentUpgrade.description }}</h3>
+          <p>📍 Radius: {{ currentUpgrade.radius }}m</p>
+        </div>
+      </div>
 
       <div class="upgrades-list">
         <div
           *ngFor="let upgrade of nextUpgrades"
           class="upgrade-card"
-          [class.affordable]="canAfford(upgrade)"
-          [class.locked]="!canAfford(upgrade)"
+          [class.affordable]="canAfford(upgrade.cost)"
+          [class.locked]="!canAfford(upgrade.cost)"
         >
-          <!-- Upgrade Header -->
           <div class="upgrade-header">
             <div class="upgrade-level-badge">Level {{ upgrade.level }}</div>
-            <div class="upgrade-name">
-              {{ upgrade.description }}
-            </div>
+            <div class="upgrade-name">{{ upgrade.description }}</div>
           </div>
-
-          <!-- Upgrade Stats -->
           <div class="upgrade-stats">
             <div class="stat-item">
-              <span class="stat-icon">📍</span>
-              <span class="stat-label">Radius:</span>
+              <span>📍</span><span class="stat-label">Radius:</span>
               <span class="stat-value">{{ upgrade.radius }}m</span>
             </div>
             <div class="stat-item">
-              <span class="stat-icon">⬆️</span>
-              <span class="stat-label">Verbesserung:</span>
+              <span>⬆️</span><span class="stat-label">+</span>
               <span class="stat-value"
-                >+{{ upgrade.radius - (currentUpgrade?.radius || 0) }}m</span
+                >{{ upgrade.radius - currentUpgrade.radius }}m</span
               >
             </div>
           </div>
-
-          <!-- Cost & Progress -->
-          <div class="upgrade-cost">
-            <div class="cost-bar-container">
-              <div class="cost-bar-bg">
-                <div
-                  class="cost-bar-fill"
-                  [style.width.%]="getProgressToNextLevel(upgrade)"
-                ></div>
-              </div>
-              <div class="cost-text">
-                <span class="current-coins">{{ totalCoins }}</span>
-                <span class="separator">/</span>
-                <span class="required-coins">{{ upgrade.cost }}</span>
-                <span class="coin-icon-small">🪙</span>
-              </div>
+          <div class="cost-bar-container">
+            <div class="cost-bar-bg">
+              <div
+                class="cost-bar-fill"
+                [style.width.%]="getProgress(totalCoins, upgrade.cost)"
+              ></div>
+            </div>
+            <div class="cost-text">
+              <span class="current-coins">{{
+                totalCoins | number: "1.0-0"
+              }}</span>
+              <span class="separator">/</span>
+              <span class="required-coins">{{ upgrade.cost }}</span>
+              <span>🪙</span>
             </div>
           </div>
-
-          <!-- Purchase Button -->
           <button
             class="purchase-btn"
-            [disabled]="!canAfford(upgrade)"
+            [disabled]="!canAfford(upgrade.cost)"
             (click)="onPurchase(upgrade)"
           >
-            <span *ngIf="canAfford(upgrade)">
-              <span class="btn-icon">✨</span>
-              Upgrade kaufen
-            </span>
-            <span *ngIf="!canAfford(upgrade)">
-              <span class="btn-icon">🔒</span>
-              Nicht genug Coins
-            </span>
+            <span *ngIf="canAfford(upgrade.cost)">✨ Upgrade kaufen</span>
+            <span *ngIf="!canAfford(upgrade.cost)">🔒 Nicht genug Coins</span>
           </button>
         </div>
-
-        <!-- No more upgrades -->
         <div class="max-level-card" *ngIf="nextUpgrades.length === 0">
           <div class="max-level-icon">👑</div>
-          <h3>Maximales Level erreicht!</h3>
-          <p>Du hast alle Upgrades freigeschaltet.</p>
-          <p class="congrats">Herzlichen Glückwunsch! 🎉</p>
+          <h3>Max Level erreicht!</h3>
         </div>
       </div>
     </div>
 
-    <!-- Tips Section -->
+    <!-- Tab: Click -->
+    <div class="tab-content" *ngIf="activeTab === 'click'">
+      <div class="current-level">
+        <div class="level-badge">👆 Level {{ currentClickUpgrade.level }}</div>
+        <div class="level-info">
+          <h3>{{ currentClickUpgrade.description }}</h3>
+          <p>🪙 {{ currentClickUpgrade.coinsPerClick }} Coins pro Klick</p>
+        </div>
+      </div>
+
+      <div class="upgrades-list">
+        <div
+          *ngFor="let upgrade of nextClickUpgrades"
+          class="upgrade-card"
+          [class.affordable]="canAfford(upgrade.cost)"
+          [class.locked]="!canAfford(upgrade.cost)"
+        >
+          <div class="upgrade-header">
+            <div class="upgrade-level-badge">Level {{ upgrade.level }}</div>
+            <div class="upgrade-name">{{ upgrade.description }}</div>
+          </div>
+          <div class="upgrade-stats">
+            <div class="stat-item">
+              <span>🪙</span><span class="stat-label">Pro Klick:</span>
+              <span class="stat-value">{{ upgrade.coinsPerClick }}</span>
+            </div>
+            <div class="stat-item">
+              <span>⬆️</span><span class="stat-label">+</span>
+              <span class="stat-value">{{
+                upgrade.coinsPerClick - currentClickUpgrade.coinsPerClick
+                  | number: "1.0-2"
+              }}</span>
+            </div>
+          </div>
+          <div class="cost-bar-container">
+            <div class="cost-bar-bg">
+              <div
+                class="cost-bar-fill"
+                [style.width.%]="getProgress(totalCoins, upgrade.cost)"
+              ></div>
+            </div>
+            <div class="cost-text">
+              <span class="current-coins">{{
+                totalCoins | number: "1.0-0"
+              }}</span>
+              <span class="separator">/</span>
+              <span class="required-coins">{{ upgrade.cost }}</span>
+              <span>🪙</span>
+            </div>
+          </div>
+          <button
+            class="purchase-btn"
+            [disabled]="!canAfford(upgrade.cost)"
+            (click)="onPurchaseClick(upgrade)"
+          >
+            <span *ngIf="canAfford(upgrade.cost)">✨ Upgrade kaufen</span>
+            <span *ngIf="!canAfford(upgrade.cost)">🔒 Nicht genug Coins</span>
+          </button>
+        </div>
+        <div class="max-level-card" *ngIf="nextClickUpgrades.length === 0">
+          <div class="max-level-icon">👑</div>
+          <h3>Max Level erreicht!</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Items -->
+    <div class="tab-content" *ngIf="activeTab === 'items'">
+      <p class="items-hint">
+        🎯 Nach dem Kauf auf die Karte klicken um das Item einzusetzen
+      </p>
+      <div class="upgrades-list">
+        <div
+          *ngFor="let item of shopItems"
+          class="upgrade-card item-card"
+          [class.affordable]="canAfford(item.cost)"
+          [class.locked]="!canAfford(item.cost)"
+        >
+          <div class="upgrade-header">
+            <div class="item-icon-big">{{ item.icon }}</div>
+            <div>
+              <div class="upgrade-name">{{ item.name }}</div>
+              <div class="item-description">{{ item.description }}</div>
+            </div>
+          </div>
+          <div class="cost-bar-container">
+            <div class="cost-bar-bg">
+              <div
+                class="cost-bar-fill"
+                [style.width.%]="getProgress(totalCoins, item.cost)"
+              ></div>
+            </div>
+            <div class="cost-text">
+              <span class="current-coins">{{
+                totalCoins | number: "1.0-0"
+              }}</span>
+              <span class="separator">/</span>
+              <span class="required-coins">{{ item.cost }}</span>
+              <span>🪙</span>
+            </div>
+          </div>
+          <button
+            class="purchase-btn"
+            [disabled]="!canAfford(item.cost)"
+            (click)="onPurchaseItem(item)"
+          >
+            <span *ngIf="canAfford(item.cost)"
+              >{{ item.icon }} Kaufen & aktivieren</span
+            >
+            <span *ngIf="!canAfford(item.cost)">🔒 Nicht genug Coins</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips -->
     <div class="tips-section">
       <h4>💡 Tipps</h4>
       <ul>
         <li>Erkunde neue Bereiche um Coins zu sammeln</li>
-        <li>Größerer Radius = Mehr Kacheln pro Sekunde</li>
-        <li>Dein Fortschritt wird automatisch gespeichert</li>
+        <li>Größerer Radius = Mehr Kacheln pro Schritt</li>
+        <li>Bomben legen große Bereiche auf der Karte frei</li>
       </ul>
     </div>
 
+    <!-- Admin Code -->
     <div class="admin-code-section">
       <h4>🔐 Code eingeben</h4>
-
       <div class="code-input-row">
         <input
           type="password"
           placeholder="Code eingeben..."
           [(ngModel)]="adminCode"
         />
-
         <button (click)="redeemCode()">Einlösen</button>
       </div>
-
-      <div class="code-message" *ngIf="codeMessage">
-        {{ codeMessage }}
-      </div>
+      <div class="code-message" *ngIf="codeMessage">{{ codeMessage }}</div>
     </div>
   </div>
 </div>

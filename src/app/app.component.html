@@ -47,9 +47,9 @@
   </div>
 
   <!-- Coin Animation -->
-<div class="coin-popup">
-  +{{ lastExploredCount * coinsPerTile }} 🪙
-</div>
+  <div class="coin-popup" *ngIf="showCoinAnimation">
+    +{{ lastExploredCount * coinsPerTile }} 🪙
+  </div>
 
   <!-- Control Buttons -->
   <div class="control-buttons">
@@ -73,9 +73,13 @@
     [isOpen]="isShopOpen"
     [totalCoins]="totalCoins"
     [currentLevel]="currentRadiusLevel"
+    [currentClickLevel]="currentClickLevel"
     (close)="closeShop()"
     (purchaseUpgrade)="onPurchaseUpgrade($event)"
-  ></app-shop>
+    (purchaseClickUpgrade)="onPurchaseClickUpgrade($event)"
+    (purchaseItem)="onPurchaseShopItem($event)"
+  >
+  </app-shop>
 
   <!-- Info Box (Desktop only) -->
   <div class="info-box">

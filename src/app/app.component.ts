@@ -3,10 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, interval } from 'rxjs';
 import * as L from 'leaflet';
 import { ShopComponent } from './components/shop/shop.component';
-import { GAME_CONFIG } from './config/game.config';
-import { RadiusUpgrade } from './config/game.config';
+import {
+  GAME_CONFIG,
+  RadiusUpgrade,
+  ClickUpgrade,
+  ShopItem,
+} from './config/game.config';
+import { UpgradeService } from '../services/upgrade.service';
 
-// FIX: Leaflet default icon paths
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
 const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
@@ -23,13 +27,11 @@ const iconDefault = L.icon({
   tooltipAnchor: [16, -28],
   shadowSize: [41, 41],
 });
-
 L.Marker.prototype.options.icon = iconDefault;
 
-// Models
 interface MapTile {
-  lat: number; // Tile-Zentrum
-  lng: number; // Tile-Zentrum
+  lat: number;
+  lng: number;
   explored: boolean;
   exploredAt?: Date;
   gridX: number;
@@ -71,8 +73,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   currentLocation: Location | null = null;
   totalCoins = 0;
   totalTilesExplored = 0;
-  currentRadius = GAME_CONFIG.BASE_RADIUS;
-  currentRadiusLevel = 1;
   isLoading = true;
   errorMessage = '';
   lastExploredCount = 0;
@@ -81,7 +81,33 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Shop State
   isShopOpen = false;
+  activeBombItem: ShopItem | null = null;
 
+  // Getters delegieren an UpgradeService
+  get currentRadius() {
+    return this.upgradeService.snapshot.currentRadius;
+  }
+  get currentRadiusLevel() {
+    return this.upgradeService.snapshot.currentRadiusLevel;
+  }
+  get currentClickLevel() {
+    return this.upgradeService.snapshot.currentClickLevel;
+  }
+  get coinsPerClick() {
+    return this.upgradeService.snapshot.coinsPerClick;
+  }
+
+  constructor(private upgradeService: UpgradeService) {}
+
+  // ── Vibration Helper ────────────────────────────────────────
+
+  private vibrate(pattern: number | number[]) {
+    if (navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  }
+
+  // ── Lifecycle ───────────────────────────────────────────────
 
   ngOnInit() {
     this.loadProgress();
@@ -105,18 +131,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.next();
     this.destroy$.complete();
     this.stopGPSTracking();
-
-    if (this.map) {
-      this.map.remove();
-    }
+    if (this.map) this.map.remove();
   }
+
+  // ── Map ─────────────────────────────────────────────────────
 
   private initMap() {
     const mapElement = document.getElementById('map');
-    if (!mapElement) {
-      console.error('Map element not found!');
-      return;
-    }
+    if (!mapElement) return;
 
     this.map = L.map('map', {
       center: [53.0793, 8.8017],
@@ -137,14 +159,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }).addTo(this.map);
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {
+      if (this.activeBombItem) {
+        this.detonateBomb(e.latlng, this.activeBombItem);
+        this.activeBombItem = null;
+        document.getElementById('map')!.style.cursor = '';
+        return;
+      }
       this.addClickCoins();
-      this.showCoin(e.latlng);
+      this.showCoin(e.originalEvent as MouseEvent);
     });
 
     setTimeout(() => {
-      if (this.map) {
-        this.map.invalidateSize();
-      }
+      if (this.map) this.map.invalidateSize();
     }, 200);
 
     if (this.currentLocation) {
@@ -158,11 +184,49 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.drawFogOfWar();
   }
 
+  // ── Bomb ────────────────────────────────────────────────────
+
+  private detonateBomb(latlng: L.LatLng, item: ShopItem) {
+    const radius = item.bombRadius || 50;
+
+    // Vibration: starkes Rumble für Explosion
+    this.vibrate([100, 50, 200, 50, 300]);
+
+    const newTiles = this.exploreTiles(latlng.lat, latlng.lng, radius);
+
+    const color =
+      item.id === 'bomb_mega'
+        ? '#ff4400'
+        : item.id === 'bomb_medium'
+          ? '#ff8800'
+          : '#ffd700';
+    const explosion = L.circle(latlng, {
+      radius,
+      color,
+      fillColor: color,
+      fillOpacity: 0.4,
+      weight: 3,
+    }).addTo(this.map);
+    setTimeout(() => this.map.removeLayer(explosion), 1000);
+
+    if (newTiles > 0) {
+      this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
+      this.totalTilesExplored = this.exploredTiles.size;
+      this.lastExploredCount = newTiles;
+      this.showCoinAnimation = true;
+      setTimeout(() => (this.showCoinAnimation = false), 2000);
+      this.updateGameState();
+      this.saveProgress();
+      this.drawFogOfWar();
+    }
+  }
+
+  // ── GPS ─────────────────────────────────────────────────────
+
   private async startGPSTracking() {
     try {
-      if (!navigator.geolocation) {
+      if (!navigator.geolocation)
         throw new Error('Geolocation wird nicht unterstützt');
-      }
 
       const position = await new Promise<GeolocationPosition>(
         (resolve, reject) => {
@@ -180,19 +244,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.watchId = navigator.geolocation.watchPosition(
         (pos) => this.updateLocation(pos),
         (error) => {
-          console.error('GPS error:', error);
           this.errorMessage = `GPS-Fehler: ${error.message}`;
         },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 5000,
-          timeout: 10000,
-        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
       );
     } catch (error: any) {
       this.errorMessage = `GPS-Fehler: ${error.message}. Bitte GPS aktivieren.`;
       this.isLoading = false;
-      console.error('GPS error:', error);
     }
   }
 
@@ -211,26 +269,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       timestamp: position.timestamp,
     };
 
-    // Schlechte GPS-Genauigkeit ignorieren
     if (
       newLocation.accuracy &&
       newLocation.accuracy > GAME_CONFIG.MAX_ACCEPTED_ACCURACY
-    ) {
+    )
       return;
-    }
 
-    // Kleine GPS-Sprünge ignorieren
     if (this.lastAcceptedLocation) {
-      const movedDistance = this.calculateDistance(
+      const moved = this.calculateDistance(
         this.lastAcceptedLocation.lat,
         this.lastAcceptedLocation.lng,
         newLocation.lat,
         newLocation.lng,
       );
-
-      if (movedDistance < GAME_CONFIG.MIN_GPS_MOVEMENT) {
-        return;
-      }
+      if (moved < GAME_CONFIG.MIN_GPS_MOVEMENT) return;
     }
 
     this.lastAcceptedLocation = newLocation;
@@ -241,6 +293,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.exploreCurrentArea(newLocation);
     }
   }
+
+  // ── Player ──────────────────────────────────────────────────
 
   private updatePlayerPosition(location: Location) {
     const latLng = L.latLng(location.lat, location.lng);
@@ -254,7 +308,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         iconSize: [20, 20],
         iconAnchor: [10, 10],
       });
-
       this.playerMarker = L.marker(latLng, {
         icon: playerIcon,
         zIndexOffset: 1000,
@@ -275,10 +328,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const bounds = this.map.getBounds();
-    if (!bounds.contains(latLng)) {
-      this.map.setView(latLng, 16);
-    }
+    if (!bounds.contains(latLng)) this.map.setView(latLng, 16);
   }
+
+  // ── Exploration ─────────────────────────────────────────────
 
   private exploreCurrentArea(location: Location) {
     const currentGrid = this.latLngToGrid(location.lat, location.lng);
@@ -287,14 +340,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       currentGrid.gridY,
     );
 
-    // Wenn wir immer noch im selben Grid stehen, nicht erneut komplett rechnen
-    if (this.lastExploredGridKey === currentGridKey) {
-      return;
-    }
+    if (this.lastExploredGridKey === currentGridKey) return;
 
     const newTiles = this.exploreTiles(location.lat, location.lng);
 
     if (newTiles > 0) {
+      // Kurze Vibration beim Freischalten neuer Tiles
+      this.vibrate(40);
+
       this.lastExploredCount = newTiles;
       this.showCoinAnimation = true;
       this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
@@ -302,46 +355,29 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateGameState();
       this.saveProgress();
       this.drawFogOfWar();
-
       setTimeout(() => (this.showCoinAnimation = false), 2000);
     }
 
     this.lastExploredGridKey = currentGridKey;
   }
 
-  /**
-   * Stabile Grid-Koordinaten aus echter GPS-Position
-   */
   private latLngToGrid(lat: number, lng: number): GridCoordinate {
     const metersPerLat = 111320;
     const metersPerLng = 111320 * Math.cos(this.toRad(lat));
-
-    const xMeters = lng * metersPerLng;
-    const yMeters = lat * metersPerLat;
-
-    const gridX = Math.floor(xMeters / GAME_CONFIG.TILE_SIZE);
-    const gridY = Math.floor(yMeters / GAME_CONFIG.TILE_SIZE);
-
-    return { gridX, gridY };
+    return {
+      gridX: Math.floor((lng * metersPerLng) / GAME_CONFIG.TILE_SIZE),
+      gridY: Math.floor((lat * metersPerLat) / GAME_CONFIG.TILE_SIZE),
+    };
   }
 
-  /**
-   * Tile-Zentrum aus Grid berechnen
-   */
   private gridToTileCenter(
     gridX: number,
     gridY: number,
-    referenceLat: number,
   ): { lat: number; lng: number } {
     const metersPerLat = 111320;
-    const metersPerLng = 111320 * Math.cos(this.toRad(referenceLat));
-
-    const centerXMeters = (gridX + 0.5) * GAME_CONFIG.TILE_SIZE;
-    const centerYMeters = (gridY + 0.5) * GAME_CONFIG.TILE_SIZE;
-
-    const lng = centerXMeters / metersPerLng;
-    const lat = centerYMeters / metersPerLat;
-
+    const lat = ((gridY + 0.5) * GAME_CONFIG.TILE_SIZE) / metersPerLat;
+    const metersPerLng = 111320 * Math.cos(this.toRad(lat));
+    const lng = ((gridX + 0.5) * GAME_CONFIG.TILE_SIZE) / metersPerLng;
     return { lat, lng };
   }
 
@@ -349,9 +385,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${gridX},${gridY}`;
   }
 
-  private exploreTiles(centerLat: number, centerLng: number): number {
+  private exploreTiles(
+    centerLat: number,
+    centerLng: number,
+    radiusOverride?: number,
+  ): number {
+    const radius = radiusOverride ?? this.currentRadius;
     let newTilesCount = 0;
-    const tilesInRadius = Math.ceil(this.currentRadius / GAME_CONFIG.TILE_SIZE);
+    const tilesInRadius = Math.ceil(radius / GAME_CONFIG.TILE_SIZE);
     const centerGrid = this.latLngToGrid(centerLat, centerLng);
 
     for (let dx = -tilesInRadius; dx <= tilesInRadius; dx++) {
@@ -360,14 +401,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         const gridY = centerGrid.gridY + dy;
         const key = this.getTileKey(gridX, gridY);
 
-        // Bereits entdeckt
-        if (this.exploredTiles.has(key)) {
-          continue;
-        }
+        if (this.exploredTiles.has(key)) continue;
 
-        const tileCenter = this.gridToTileCenter(gridX, gridY, centerLat);
-
-        // Distanz sauber zum Tile-Zentrum berechnen
+        const tileCenter = this.gridToTileCenter(gridX, gridY);
         const distance = this.calculateDistance(
           centerLat,
           centerLng,
@@ -375,7 +411,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           tileCenter.lng,
         );
 
-        if (distance <= this.currentRadius) {
+        if (distance <= radius) {
           this.exploredTiles.set(key, {
             lat: tileCenter.lat,
             lng: tileCenter.lng,
@@ -392,16 +428,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return newTilesCount;
   }
 
-  /**
-   * Fog of War:
-   * Ganze Welt dunkel, erkundete Tiles = Löcher
-   */
+  // ── Fog of War ──────────────────────────────────────────────
+
   private drawFogOfWar() {
     if (!this.map) return;
-
-    if (this.fogLayer) {
-      this.map.removeLayer(this.fogLayer);
-    }
+    if (this.fogLayer) this.map.removeLayer(this.fogLayer);
 
     const worldBounds: L.LatLngExpression[] = [
       [-90, -180],
@@ -409,7 +440,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       [90, 180],
       [90, -180],
     ];
-
     const holes: L.LatLngExpression[][] = [];
 
     const tiles = Array.from(this.exploredTiles.values()).slice(
@@ -419,21 +449,27 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     for (const tile of tiles) {
       const metersPerLat = 111320;
       const metersPerLng = 111320 * Math.cos(this.toRad(tile.lat));
-
       const tileSizeLat = GAME_CONFIG.TILE_SIZE / metersPerLat;
       const tileSizeLng = GAME_CONFIG.TILE_SIZE / metersPerLng;
-
-      const overlap = 0.00000000000001;
-      const south = tile.lat - tileSizeLat / 2 - overlap;
-      const north = tile.lat + tileSizeLat / 2 + overlap;
-      const west = tile.lng - tileSizeLng / 2 - overlap;
-      const east = tile.lng + tileSizeLng / 2 + overlap;
+      const overlap = 0;
 
       holes.push([
-        [south, west],
-        [south, east],
-        [north, east],
-        [north, west],
+        [
+          tile.lat - tileSizeLat / 2 - overlap,
+          tile.lng - tileSizeLng / 2 - overlap,
+        ],
+        [
+          tile.lat - tileSizeLat / 2 - overlap,
+          tile.lng + tileSizeLng / 2 + overlap,
+        ],
+        [
+          tile.lat + tileSizeLat / 2 + overlap,
+          tile.lng + tileSizeLng / 2 + overlap,
+        ],
+        [
+          tile.lat + tileSizeLat / 2 + overlap,
+          tile.lng - tileSizeLng / 2 - overlap,
+        ],
       ]);
     }
 
@@ -443,14 +479,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       fillOpacity: GAME_CONFIG.FOG_OPACITY,
       interactive: false,
       smoothFactor: 0,
-    }).addTo(this.map);
+      bubblingMouseEvents: false,
+    } as any).addTo(this.map);
 
     this.fogLayer.bringToFront();
-
-    if (this.radiusCircle) {
-      this.radiusCircle.bringToFront();
-    }
+    if (this.radiusCircle) this.radiusCircle.bringToFront();
   }
+
+  // ── Math ────────────────────────────────────────────────────
 
   private calculateDistance(
     lat1: number,
@@ -461,54 +497,45 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     const R = 6371000;
     const dLat = this.toRad(lat2 - lat1);
     const dLng = this.toRad(lng2 - lng1);
-
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLat / 2) ** 2 +
       Math.cos(this.toRad(lat1)) *
         Math.cos(this.toRad(lat2)) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+        Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
   private toRad(degrees: number): number {
     return degrees * (Math.PI / 180);
   }
 
-private updateGameState() {
-
-  this.currentRadius =
-    GAME_CONFIG.BASE_RADIUS +
-    this.currentRadiusLevel * GAME_CONFIG.RADIUS_GROWTH;
-
-  if (this.radiusCircle) {
-    this.radiusCircle.setRadius(this.currentRadius);
+  private updateGameState() {
+    if (this.radiusCircle) this.radiusCircle.setRadius(this.currentRadius);
   }
 
-}
+  // ── Shop ────────────────────────────────────────────────────
 
-  // Shop Methods
   toggleShop() {
     this.isShopOpen = !this.isShopOpen;
   }
-
   closeShop() {
     this.isShopOpen = false;
   }
 
   onPurchaseUpgrade(upgrade: RadiusUpgrade) {
+    if (upgrade.level === -1) {
+      this.totalCoins += 10_000_000;
+      this.saveProgress();
+      return;
+    }
     if (this.totalCoins >= upgrade.cost) {
+      // Vibration: doppelter Puls für Upgrade-Kauf
+      this.vibrate([80, 60, 120]);
+
       this.totalCoins -= upgrade.cost;
-      this.currentRadiusLevel = upgrade.level;
+      this.upgradeService.applyRadiusUpgrade(upgrade);
       this.updateGameState();
       this.saveProgress();
-
-      if (this.radiusCircle && this.currentLocation) {
-        this.radiusCircle.setRadius(this.currentRadius);
-      }
-
       if (this.currentLocation) {
         this.lastExploredGridKey = null;
         this.exploreCurrentArea(this.currentLocation);
@@ -516,41 +543,57 @@ private updateGameState() {
     }
   }
 
+  onPurchaseClickUpgrade(upgrade: ClickUpgrade) {
+    if (this.totalCoins >= upgrade.cost) {
+      // Vibration: kurzer Doppelpuls für Click-Upgrade
+      this.vibrate([60, 40, 60]);
+
+      this.totalCoins -= upgrade.cost;
+      this.upgradeService.applyClickUpgrade(upgrade);
+      this.saveProgress();
+    }
+  }
+
+  onPurchaseShopItem(item: ShopItem) {
+    if (this.totalCoins >= item.cost) {
+      // Vibration: einzelner mittlerer Puls — Item bereit
+      this.vibrate(100);
+
+      this.totalCoins -= item.cost;
+      this.activeBombItem = item;
+      this.isShopOpen = false;
+      this.saveProgress();
+      document.getElementById('map')!.style.cursor =
+        `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
+    }
+  }
+
   centerOnPlayer() {
-    if (this.currentLocation && this.map) {
+    if (this.currentLocation && this.map)
       this.map.setView(
         [this.currentLocation.lat, this.currentLocation.lng],
         17,
       );
-    }
   }
 
   private addClickCoins() {
-    this.totalCoins += 0.05;
-
-    // optional runden (sonst kommen viele Nachkommastellen)
-    this.totalCoins = Math.round(this.totalCoins * 100) / 100;
-
+    this.totalCoins =
+      Math.round((this.totalCoins + this.coinsPerClick) * 100) / 100;
     this.saveProgress();
   }
 
-  private showCoin(latlng: L.LatLng) {
-    const coinIcon = L.divIcon({
-      className: '',
-      html: `<div class="coin-effect"></div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-    });
-
-    const marker = L.marker(latlng, {
-      icon: coinIcon,
-      interactive: false,
-    }).addTo(this.map);
-
-    setTimeout(() => {
-      this.map.removeLayer(marker);
-    }, 900);
+  private showCoin(event: MouseEvent) {
+    const coin = document.createElement('div');
+    coin.className = 'coin-effect';
+    coin.textContent = `+${this.coinsPerClick}🪙`;
+    coin.style.left = event.clientX + 'px';
+    coin.style.top = event.clientY + 'px';
+    coin.style.position = 'fixed';
+    document.body.appendChild(coin);
+    setTimeout(() => coin.remove(), 900);
   }
+
+  // ── Reset & Persistence ─────────────────────────────────────
 
   resetGame() {
     if (confirm('Möchtest du wirklich deinen gesamten Fortschritt löschen?')) {
@@ -558,27 +601,24 @@ private updateGameState() {
       this.exploredTiles.clear();
       this.totalCoins = 0;
       this.totalTilesExplored = 0;
-      this.currentRadiusLevel = 1;
       this.lastExploredGridKey = null;
+      this.upgradeService.reset();
       this.updateGameState();
-
-      if (this.currentLocation) {
-        this.updatePlayerPosition(this.currentLocation);
-      }
-
+      if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
       this.drawFogOfWar();
     }
   }
 
   private saveProgress() {
-    const data = {
-      totalCoins: this.totalCoins,
-      exploredTiles: Array.from(this.exploredTiles.entries()),
-      currentRadiusLevel: this.currentRadiusLevel,
-      totalTilesExplored: this.totalTilesExplored,
-    };
-
-    localStorage.setItem('map_explorer_progress', JSON.stringify(data));
+    localStorage.setItem(
+      'map_explorer_progress',
+      JSON.stringify({
+        totalCoins: this.totalCoins,
+        exploredTiles: Array.from(this.exploredTiles.entries()),
+        totalTilesExplored: this.totalTilesExplored,
+        ...this.upgradeService.serialize(),
+      }),
+    );
   }
 
   private loadProgress() {
@@ -588,8 +628,8 @@ private updateGameState() {
         const data = JSON.parse(saved);
         this.totalCoins = data.totalCoins || 0;
         this.exploredTiles = new Map(data.exploredTiles || []);
-        this.currentRadiusLevel = data.currentRadiusLevel || 1;
         this.totalTilesExplored = data.totalTilesExplored || 0;
+        this.upgradeService.deserialize(data);
       } catch (e) {
         console.error('Error loading progress:', e);
       }

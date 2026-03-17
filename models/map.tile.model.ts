@@ -25,7 +25,6 @@ export interface RadiusUpgrade {
 }
 
 export const GAME_CONFIG = {
-
   // kleinere Tiles = präzisere Exploration
   TILE_SIZE: 12,
 
@@ -39,66 +38,63 @@ export const GAME_CONFIG = {
   FOG_OPACITY: 0.92,
 
   // Renderlimit für Performance
-  MAX_TILES_RENDER: 2000,
+  MAX_TILES_RENDER: 20000,
 
   RADIUS_UPGRADES: [
-
     {
       level: 1,
       radius: 20,
       cost: 0,
-      description: "Beginner Explorer"
+      description: 'Beginner Explorer',
     },
 
     {
       level: 2,
       radius: 25,
       cost: 120,
-      description: "Street Walker"
+      description: 'Street Walker',
     },
 
     {
       level: 3,
       radius: 30,
       cost: 260,
-      description: "Neighborhood Explorer"
+      description: 'Neighborhood Explorer',
     },
 
     {
       level: 4,
       radius: 35,
       cost: 450,
-      description: "District Scout"
+      description: 'District Scout',
     },
 
     {
       level: 5,
       radius: 42,
       cost: 750,
-      description: "City Adventurer"
+      description: 'City Adventurer',
     },
 
     {
       level: 6,
       radius: 50,
       cost: 1100,
-      description: "Urban Pathfinder"
+      description: 'Urban Pathfinder',
     },
 
     {
       level: 7,
       radius: 60,
       cost: 1700,
-      description: "Regional Explorer"
+      description: 'Regional Explorer',
     },
 
     {
       level: 8,
       radius: 75,
       cost: 2600,
-      description: "Legendary Explorer"
-    }
-
-  ] as RadiusUpgrade[]
-
+      description: 'Legendary Explorer',
+    },
+  ] as RadiusUpgrade[],
 };
