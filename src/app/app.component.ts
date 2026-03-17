@@ -128,7 +128,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       doubleClickZoom: true,
       minZoom: 10,
       maxZoom: 19,
-      // preferCanvas: true,
+      preferCanvas: true,
     } as L.MapOptions);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
