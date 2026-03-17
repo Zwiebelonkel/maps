@@ -217,38 +217,34 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Bomb ────────────────────────────────────────────────────
 
   private detonateBomb(latlng: L.LatLng, item: ShopItem) {
-    const radius = item.bombRadius || 50;
-    this.vibrate([100, 50, 200, 50, 300]);
+  const radius = item.bombRadius || 50;
+  this.vibrate([100, 50, 200, 50, 300]);
 
-    const newTiles = this.exploreTiles(latlng.lat, latlng.lng, radius);
+  // allowLoot = false → kein Loot bei Bomben
+  const newTiles = this.exploreTiles(latlng.lat, latlng.lng, radius, false);
 
-    const color =
-      item.id === 'bomb_mega' || item.id === 'bomb_ultra'
-        ? '#ff4400'
-        : item.id === 'bomb_medium'
-          ? '#ff8800'
-          : '#ffd700';
+  const color = item.id === 'bomb_mega'  ? '#ff4400'
+            : item.id === 'bomb_medium' ? '#ff8800'
+            : item.id === 'bomb_ultra'  ? '#00e676'
+            : '#ffd700';
 
-    const explosion = L.circle(latlng, {
-      radius,
-      color,
-      fillColor: color,
-      fillOpacity: 0.4,
-      weight: 3,
-    }).addTo(this.map);
-    setTimeout(() => this.map.removeLayer(explosion), 1000);
 
-    if (newTiles > 0) {
-      this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
-      this.totalTilesExplored = this.exploredTiles.size;
-      this.lastExploredCount = newTiles;
-      this.showCoinAnimation = true;
-      setTimeout(() => (this.showCoinAnimation = false), 2000);
-      this.updateGameState();
-      this.saveProgress();
-      this.drawFogOfWar();
-    }
+  const explosion = L.circle(latlng, {
+    radius, color, fillColor: color, fillOpacity: 0.4, weight: 3,
+  }).addTo(this.map);
+  setTimeout(() => this.map.removeLayer(explosion), 1000);
+
+  if (newTiles > 0) {
+    this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
+    this.totalTilesExplored = this.exploredTiles.size;
+    this.lastExploredCount = newTiles;
+    this.showCoinAnimation = true;
+    setTimeout(() => (this.showCoinAnimation = false), 2000);
+    this.updateGameState();
+    this.saveProgress();
+    this.drawFogOfWar();
   }
+}
 
   // ── GPS ─────────────────────────────────────────────────────
 
@@ -411,43 +407,30 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${gridX},${gridY}`;
   }
 
-  private exploreTiles(
-    centerLat: number,
-    centerLng: number,
-    radiusOverride?: number,
-  ): number {
-    const radius = radiusOverride ?? this.currentRadius;
-    let newTilesCount = 0;
-    const tilesInRadius = Math.ceil(radius / GAME_CONFIG.TILE_SIZE);
-    const centerGrid = this.latLngToGrid(centerLat, centerLng);
+private exploreTiles(centerLat: number, centerLng: number, radiusOverride?: number, allowLoot = true): number {
+  const radius = radiusOverride ?? this.currentRadius;
+  let newTilesCount = 0;
+  const tilesInRadius = Math.ceil(radius / GAME_CONFIG.TILE_SIZE);
+  const centerGrid = this.latLngToGrid(centerLat, centerLng);
 
-    for (let dx = -tilesInRadius; dx <= tilesInRadius; dx++) {
-      for (let dy = -tilesInRadius; dy <= tilesInRadius; dy++) {
-        const gridX = centerGrid.gridX + dx;
-        const gridY = centerGrid.gridY + dy;
-        const key = this.getTileKey(gridX, gridY);
-        if (this.exploredTiles.has(key)) continue;
+  for (let dx = -tilesInRadius; dx <= tilesInRadius; dx++) {
+    for (let dy = -tilesInRadius; dy <= tilesInRadius; dy++) {
+      const gridX = centerGrid.gridX + dx;
+      const gridY = centerGrid.gridY + dy;
+      const key = this.getTileKey(gridX, gridY);
+      if (this.exploredTiles.has(key)) continue;
 
-        const tileCenter = this.gridToTileCenter(gridX, gridY);
-        const distance = this.calculateDistance(
-          centerLat,
-          centerLng,
-          tileCenter.lat,
-          tileCenter.lng,
-        );
+      const tileCenter = this.gridToTileCenter(gridX, gridY);
+      const distance = this.calculateDistance(centerLat, centerLng, tileCenter.lat, tileCenter.lng);
 
-        if (distance <= radius) {
-          this.exploredTiles.set(key, {
-            lat: tileCenter.lat,
-            lng: tileCenter.lng,
-            explored: true,
-            exploredAt: new Date(),
-            gridX,
-            gridY,
-          });
-          newTilesCount++;
+      if (distance <= radius) {
+        this.exploredTiles.set(key, {
+          lat: tileCenter.lat, lng: tileCenter.lng,
+          explored: true, exploredAt: new Date(), gridX, gridY,
+        });
+        newTilesCount++;
 
-          // Loot Roll pro neuem Tile
+        if (allowLoot) {
           const loot = this.lootService.rollLoot();
           if (loot) {
             this.applyLoot(loot);
@@ -457,37 +440,37 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     }
-
-    return newTilesCount;
   }
+
+  return newTilesCount;
+}
 
   // ── Loot ────────────────────────────────────────────────────
 
-  private applyLoot(loot: LootResult) {
-    switch (loot.type) {
-      case 'coins':
-        this.totalCoins += loot.amount || 0;
-        break;
-      case 'bomb':
-        if (loot.item) {
-          this.activeBombItem = loot.item;
-          document.getElementById('map')!.style.cursor =
-            `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${loot.item.icon}</text></svg>") 16 16, crosshair`;
-        }
-        break;
-      case 'upgrade':
-        this.upgradeService.applyClickUpgrade({
-          level: this.currentClickLevel + 1,
-          cost: 0,
-          coinsPerClick: this.coinsPerClick + 1,
-          description: 'Loot Upgrade',
-        });
-        break;
-      case 'trophy':
-        // Für spätere Erweiterung
-        break;
-    }
+private applyLoot(loot: LootResult) {
+  switch (loot.type) {
+    case 'coins':
+      this.totalCoins += loot.amount || 0;
+      break;
+    case 'bomb':
+      if (loot.item) {
+        this.activeBombItem = loot.item;
+        document.getElementById('map')!.style.cursor =
+          `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${loot.item.icon}</text></svg>") 16 16, crosshair`;
+      }
+      break;
+    case 'upgrade':
+      const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
+        u => u.level === this.currentClickLevel + 1
+      );
+      if (nextClickUpgrade) {
+        this.upgradeService.applyClickUpgrade(nextClickUpgrade);
+      }
+      break;
+    case 'trophy':
+      break;
   }
+}
 
   // ── Fog of War ──────────────────────────────────────────────
 
