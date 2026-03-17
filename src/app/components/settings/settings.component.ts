@@ -12,13 +12,51 @@ import { SettingsService } from '../../../services/settings.service';
 })
 export class SettingsComponent {
   isOpen = false;
+  isClosing = false;
   @Output() gameReset = new EventEmitter<void>();
+
+  private touchStartY = 0;
+  private touchCurrentY = 0;
+  private isDraggingHeader = false;
 
   get maxRenderTiles() { return this.settings.snapshot.maxRenderTiles; }
 
   constructor(public settings: SettingsService) {}
 
-  toggle() { this.isOpen = !this.isOpen; }
+  toggle() {
+    if (this.isOpen) {
+      this.closeWithAnimation();
+    } else {
+      this.isOpen = true;
+    }
+  }
+
+  closeWithAnimation() {
+    this.isClosing = true;
+    setTimeout(() => {
+      this.isClosing = false;
+      this.isOpen = false;
+    }, 320);
+  }
+
+  onHeaderTouchStart(e: TouchEvent) {
+    this.touchStartY = e.touches[0].clientY;
+    this.isDraggingHeader = true;
+  }
+
+  onHeaderTouchMove(e: TouchEvent) {
+    if (!this.isDraggingHeader) return;
+    this.touchCurrentY = e.touches[0].clientY;
+  }
+
+  onHeaderTouchEnd() {
+    if (!this.isDraggingHeader) return;
+    const diff = this.touchCurrentY - this.touchStartY;
+    if (diff > 80) this.closeWithAnimation();
+    this.touchStartY = 0;
+    this.touchCurrentY = 0;
+    this.isDraggingHeader = false;
+  }
 
   updateMaxRenderTiles(val: number) {
     this.settings.update({ maxRenderTiles: val });
@@ -29,7 +67,7 @@ export class SettingsComponent {
   resetGame() {
     if (confirm('Möchtest du wirklich deinen gesamten Fortschritt löschen?')) {
       this.gameReset.emit();
-      this.isOpen = false;
+      this.closeWithAnimation();
     }
   }
 }
