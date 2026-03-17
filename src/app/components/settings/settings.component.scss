@@ -1,47 +1,60 @@
 .settings-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 5, 0.75);
-  backdrop-filter: blur(12px);
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(8px);
   z-index: 2000;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .settings-modal {
-  background: rgba(20, 20, 20, 0.9);
+  background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
+  border-radius: 20px 20px 0 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  padding: 15px;
-  width: 90%;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  animation: slideUp 0.3s ease;
+  border-bottom: none;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 600px;
+  padding-bottom: 24px;
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+
+  &.closing {
+    animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+// Drag Handle
+.drag-handle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+  cursor: grab;
+
+  &-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
   }
 }
 
@@ -50,8 +63,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   margin-bottom: 8px;
 }
 
@@ -60,9 +73,7 @@
   align-items: center;
   gap: 10px;
 
-  .settings-icon {
-    font-size: 2rem;
-  }
+  .settings-icon { font-size: 2rem; }
 
   h2 {
     margin: 0;
@@ -92,7 +103,7 @@
 
 // Setting Item
 .setting-item {
-  padding: 12px 0;
+  padding: 12px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
@@ -117,7 +128,7 @@
 }
 
 .setting-label {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #ffffff;
 }
@@ -130,22 +141,20 @@
 }
 
 .setting-value {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #ffffff;
-  min-width: 48px;
+  min-width: 52px;
   text-align: right;
 }
 
-// Range Slider
 input[type="range"] {
   width: 100%;
-  accent-color: #4da3ff;
+  accent-color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   height: 4px;
 }
 
-// Toggle Button
 .toggle-btn {
   padding: 6px 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -159,45 +168,15 @@ input[type="range"] {
   white-space: nowrap;
 
   &.active {
-    background: rgba(77, 163, 255, 0.2);
-    border-color: rgba(77, 163, 255, 0.4);
-    color: #4da3ff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
   }
 }
 
 // Footer
 .settings-footer {
-  padding-top: 12px;
-}
-
-.reset-btn {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  color: #aaa;
-  font-size: 0.95rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba(255, 80, 80, 0.15);
-    border-color: rgba(255, 80, 80, 0.3);
-    color: #ff6b6b;
-  }
-}
-
-@media (max-width: 768px) {
-  .settings-modal {
-    width: 95%;
-    padding: 12px;
-  }
-}
-
-.settings-footer {
-  padding-top: 12px;
+  padding: 16px 24px 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
