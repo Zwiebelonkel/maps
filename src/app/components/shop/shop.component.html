@@ -1,6 +1,14 @@
 <div class="shop-overlay" *ngIf="isOpen" (click)="onClose()">
-  <div class="shop-modal" (click)="$event.stopPropagation()">
-    <!-- Header -->
+  <div class="shop-modal"
+    (click)="$event.stopPropagation()"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()">
+
+    <!-- Drag Handle -->
+    <div class="drag-handle" (click)="onClose()">
+      <div class="drag-handle-bar"></div>
+    </div>
     <div class="shop-header">
       <div class="shop-title">
         <span class="shop-icon">🏪</span>
