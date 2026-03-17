@@ -13,7 +13,10 @@ import { SettingsService } from '../../../services/settings.service';
 export class SettingsComponent {
   isOpen = false;
   isClosing = false;
+
   @Output() gameReset = new EventEmitter<void>();
+  @Output() darkMapChanged = new EventEmitter<boolean>();
+  @Output() centerRequested = new EventEmitter<void>();
 
   private touchStartY = 0;
   private touchCurrentY = 0;
@@ -24,11 +27,8 @@ export class SettingsComponent {
   constructor(public settings: SettingsService) {}
 
   toggle() {
-    if (this.isOpen) {
-      this.closeWithAnimation();
-    } else {
-      this.isOpen = true;
-    }
+    if (this.isOpen) this.closeWithAnimation();
+    else this.isOpen = true;
   }
 
   closeWithAnimation() {
@@ -60,6 +60,17 @@ export class SettingsComponent {
 
   updateMaxRenderTiles(val: number) {
     this.settings.update({ maxRenderTiles: val });
+  }
+
+  toggleDarkMap() {
+    const newVal = !this.settings.snapshot.darkMap;
+    this.settings.update({ darkMap: newVal });
+    this.darkMapChanged.emit(newVal);
+  }
+
+  centerMap() {
+    this.centerRequested.emit();
+    this.closeWithAnimation();
   }
 
   reset() { this.settings.reset(); }
