@@ -77,6 +77,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   errorMessage = '';
   lastExploredCount = 0;
   showCoinAnimation = false;
+  coinsPerTile = GAME_CONFIG.COINS_PER_TILE;
 
   // Shop State
   isShopOpen = false;
