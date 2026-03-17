@@ -650,19 +650,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ── Reset & Persistence ─────────────────────────────────────
 
-  resetGame() {
-    if (confirm('Möchtest du wirklich deinen gesamten Fortschritt löschen?')) {
-      localStorage.removeItem('map_explorer_progress');
-      this.exploredTiles.clear();
-      this.totalCoins = 0;
-      this.totalTilesExplored = 0;
-      this.lastExploredGridKey = null;
-      this.upgradeService.reset();
-      this.updateGameState();
-      if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
-      this.drawFogOfWar();
-    }
-  }
+resetGame() {
+  localStorage.removeItem('map_explorer_progress');
+  this.exploredTiles.clear();
+  this.totalCoins = 0;
+  this.totalTilesExplored = 0;
+  this.lastExploredGridKey = null;
+  this.upgradeService.reset();
+  this.updateGameState();
+  if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
+  this.drawFogOfWar();
+}
+
 
   private saveProgress() {
     localStorage.setItem(
