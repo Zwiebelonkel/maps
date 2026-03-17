@@ -48,7 +48,7 @@
 
   <!-- Coin Animation -->
   <div class="coin-animation" *ngIf="showCoinAnimation">
-    <div class="coin-popup">+{{ lastExploredCount * 5 }} 🪙</div>
+    <div class="coin-popup">+{{ lastExploredCount * GAME_CONFIG.Coins_per_tile }} 🪙</div>
   </div>
 
   <!-- Control Buttons -->
