@@ -1,20 +1,26 @@
-<div class="shop-overlay" *ngIf="isOpen" (click)="onClose()">
+<div class="shop-overlay" *ngIf="isOpen" (click)="closeWithAnimation()">
   <div class="shop-modal"
     (click)="$event.stopPropagation()"
-    (touchstart)="onTouchStart($event)"
-    (touchmove)="onTouchMove($event)"
-    (touchend)="onTouchEnd()">
+    [class.closing]="isClosing">
 
     <!-- Drag Handle -->
-    <div class="drag-handle" (click)="onClose()">
+    <div class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()">
       <div class="drag-handle-bar"></div>
     </div>
-    <div class="shop-header">
+
+    <!-- Header -->
+    <div class="shop-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()">
       <div class="shop-title">
         <span class="shop-icon">🏪</span>
         <h2>Upgrade Shop</h2>
       </div>
-      <button class="close-btn" (click)="onClose()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>
 
     <!-- Coins -->
