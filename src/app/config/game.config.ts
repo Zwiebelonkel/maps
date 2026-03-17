@@ -72,5 +72,14 @@ export const GAME_CONFIG = {
       type: 'bomb',
       bombRadius: 200,
     },
+    {
+      id: 'bomb_ultra',
+      name: 'Verbotene Bombe',
+      description: 'Legt einen Bereich von 1000m frei',
+      cost: 10000,
+      icon: '☢️☢️☢️',
+      type: 'bomb',
+      bombRadius: 1000,
+    },
   ] as ShopItem[],
 };

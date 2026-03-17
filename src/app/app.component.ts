@@ -1,8 +1,16 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, interval } from 'rxjs';
 import * as L from 'leaflet';
 import { ShopComponent } from './components/shop/shop.component';
+import { LootPopupComponent } from './components/loot-popup/loot-popup.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import {
   GAME_CONFIG,
   RadiusUpgrade,
@@ -10,13 +18,14 @@ import {
   ShopItem,
 } from './config/game.config';
 import { UpgradeService } from '../services/upgrade.service';
+import { LootService, LootResult } from '../services/loot.service';
+import { SettingsService } from '../services/settings.service';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
 const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
 const shadowUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
-
 const iconDefault = L.icon({
   iconRetinaUrl,
   iconUrl,
@@ -37,14 +46,12 @@ interface MapTile {
   gridX: number;
   gridY: number;
 }
-
 interface Location {
   lat: number;
   lng: number;
   accuracy?: number;
   timestamp: number;
 }
-
 interface GridCoordinate {
   gridX: number;
   gridY: number;
@@ -53,17 +60,20 @@ interface GridCoordinate {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ShopComponent],
+  imports: [CommonModule, ShopComponent, LootPopupComponent, SettingsComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild(LootPopupComponent) lootPopup!: LootPopupComponent;
+
   private destroy$ = new Subject<void>();
   private map!: L.Map;
   private playerMarker!: L.Marker;
   private radiusCircle!: L.Circle;
   private fogLayer!: L.Polygon;
   private watchId: number | null = null;
+  private lastTap = 0;
 
   private exploredTiles = new Map<string, MapTile>();
   private lastAcceptedLocation: Location | null = null;
@@ -78,12 +88,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   lastExploredCount = 0;
   showCoinAnimation = false;
   coinsPerTile = GAME_CONFIG.COINS_PER_TILE;
+  flashActive = false;
 
-  // Shop State
+  // Shop / Bomb
   isShopOpen = false;
   activeBombItem: ShopItem | null = null;
 
-  // Getters delegieren an UpgradeService
   get currentRadius() {
     return this.upgradeService.snapshot.currentRadius;
   }
@@ -97,14 +107,36 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.upgradeService.snapshot.coinsPerClick;
   }
 
-  constructor(private upgradeService: UpgradeService) {}
+  constructor(
+    private upgradeService: UpgradeService,
+    private lootService: LootService,
+    public settingsService: SettingsService,
+  ) {}
 
-  // ── Vibration Helper ────────────────────────────────────────
+  // ── Vibration ───────────────────────────────────────────────
 
   private vibrate(pattern: number | number[]) {
-    if (navigator.vibrate) {
-      navigator.vibrate(pattern);
+    if (navigator.vibrate) navigator.vibrate(pattern);
+  }
+
+  // ── Flash ───────────────────────────────────────────────────
+
+  private triggerFlash(rarity: string) {
+    this.flashActive = true;
+    if (rarity === 'epic') this.vibrate([100, 50, 200, 50, 300]);
+    else if (rarity === 'rare') this.vibrate([80, 40, 120]);
+    else this.vibrate(40);
+    setTimeout(() => (this.flashActive = false), 200);
+  }
+
+  // ── Power Save ──────────────────────────────────────────────
+
+  handleTap() {
+    const now = Date.now();
+    if (now - this.lastTap < 300) {
+      this.settingsService.update({ powerSave: false });
     }
+    this.lastTap = now;
   }
 
   // ── Lifecycle ───────────────────────────────────────────────
@@ -117,9 +149,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     interval(3000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        if (this.currentLocation) {
-          this.exploreCurrentArea(this.currentLocation);
-        }
+        if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
       });
   }
 
@@ -143,18 +173,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.map = L.map('map', {
       center: [53.0793, 8.8017],
       zoom: 16,
-      zoomControl: true,
+      zoomControl: false,
       touchZoom: true,
       dragging: true,
       scrollWheelZoom: true,
-      doubleClickZoom: true,
+      doubleClickZoom: false,
       minZoom: 10,
-      maxZoom: 19,
+      maxZoom: 25,
       preferCanvas: true,
     } as L.MapOptions);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
+      maxZoom: 25,
       attribution: '© OpenStreetMap',
     }).addTo(this.map);
 
@@ -188,18 +218,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private detonateBomb(latlng: L.LatLng, item: ShopItem) {
     const radius = item.bombRadius || 50;
-
-    // Vibration: starkes Rumble für Explosion
     this.vibrate([100, 50, 200, 50, 300]);
 
     const newTiles = this.exploreTiles(latlng.lat, latlng.lng, radius);
 
     const color =
-      item.id === 'bomb_mega'
+      item.id === 'bomb_mega' || item.id === 'bomb_ultra'
         ? '#ff4400'
         : item.id === 'bomb_medium'
           ? '#ff8800'
           : '#ffd700';
+
     const explosion = L.circle(latlng, {
       radius,
       color,
@@ -339,15 +368,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       currentGrid.gridX,
       currentGrid.gridY,
     );
-
     if (this.lastExploredGridKey === currentGridKey) return;
 
     const newTiles = this.exploreTiles(location.lat, location.lng);
 
     if (newTiles > 0) {
-      // Kurze Vibration beim Freischalten neuer Tiles
       this.vibrate(40);
-
       this.lastExploredCount = newTiles;
       this.showCoinAnimation = true;
       this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
@@ -400,7 +426,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         const gridX = centerGrid.gridX + dx;
         const gridY = centerGrid.gridY + dy;
         const key = this.getTileKey(gridX, gridY);
-
         if (this.exploredTiles.has(key)) continue;
 
         const tileCenter = this.gridToTileCenter(gridX, gridY);
@@ -421,11 +446,47 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             gridY,
           });
           newTilesCount++;
+
+          // Loot Roll pro neuem Tile
+          const loot = this.lootService.rollLoot();
+          if (loot) {
+            this.applyLoot(loot);
+            setTimeout(() => this.lootPopup?.show(loot), 100);
+            this.triggerFlash(loot.rarity);
+          }
         }
       }
     }
 
     return newTilesCount;
+  }
+
+  // ── Loot ────────────────────────────────────────────────────
+
+  private applyLoot(loot: LootResult) {
+    switch (loot.type) {
+      case 'coins':
+        this.totalCoins += loot.amount || 0;
+        break;
+      case 'bomb':
+        if (loot.item) {
+          this.activeBombItem = loot.item;
+          document.getElementById('map')!.style.cursor =
+            `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${loot.item.icon}</text></svg>") 16 16, crosshair`;
+        }
+        break;
+      case 'upgrade':
+        this.upgradeService.applyClickUpgrade({
+          level: this.currentClickLevel + 1,
+          cost: 0,
+          coinsPerClick: this.coinsPerClick + 1,
+          description: 'Loot Upgrade',
+        });
+        break;
+      case 'trophy':
+        // Für spätere Erweiterung
+        break;
+    }
   }
 
   // ── Fog of War ──────────────────────────────────────────────
@@ -442,9 +503,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     ];
     const holes: L.LatLngExpression[][] = [];
 
-    const tiles = Array.from(this.exploredTiles.values()).slice(
-      -GAME_CONFIG.MAX_TILES_RENDER,
-    );
+    // maxRenderTiles aus Settings
+    const maxTiles = this.settingsService.snapshot.maxRenderTiles;
+    const tiles = Array.from(this.exploredTiles.values()).slice(-maxTiles);
 
     for (const tile of tiles) {
       const metersPerLat = 111320;
@@ -505,8 +566,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
-  private toRad(degrees: number): number {
-    return degrees * (Math.PI / 180);
+  private toRad(d: number) {
+    return d * (Math.PI / 180);
   }
 
   private updateGameState() {
@@ -529,9 +590,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     if (this.totalCoins >= upgrade.cost) {
-      // Vibration: doppelter Puls für Upgrade-Kauf
       this.vibrate([80, 60, 120]);
-
       this.totalCoins -= upgrade.cost;
       this.upgradeService.applyRadiusUpgrade(upgrade);
       this.updateGameState();
@@ -545,9 +604,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onPurchaseClickUpgrade(upgrade: ClickUpgrade) {
     if (this.totalCoins >= upgrade.cost) {
-      // Vibration: kurzer Doppelpuls für Click-Upgrade
       this.vibrate([60, 40, 60]);
-
       this.totalCoins -= upgrade.cost;
       this.upgradeService.applyClickUpgrade(upgrade);
       this.saveProgress();
@@ -556,9 +613,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onPurchaseShopItem(item: ShopItem) {
     if (this.totalCoins >= item.cost) {
-      // Vibration: einzelner mittlerer Puls — Item bereit
       this.vibrate(100);
-
       this.totalCoins -= item.cost;
       this.activeBombItem = item;
       this.isShopOpen = false;

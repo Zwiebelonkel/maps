@@ -18,6 +18,16 @@
     </div>
   </div>
 
+  <!-- Stromsparmodus -->
+  <div
+    class="black-screen"
+    *ngIf="settingsService.snapshot.powerSave"
+    (click)="handleTap()"
+  ></div>
+
+  <!-- Screen Flash -->
+  <div class="screen-flash" [class.active]="flashActive"></div>
+
   <!-- Map Container -->
   <div id="map" class="map-container"></div>
 
@@ -51,6 +61,11 @@
     +{{ lastExploredCount * coinsPerTile }} 🪙
   </div>
 
+  <!-- Bombe aktiv Hinweis -->
+  <div class="bomb-hint" *ngIf="activeBombItem">
+    {{ activeBombItem.icon }} Klicke auf die Karte zum Zünden!
+  </div>
+
   <!-- Control Buttons -->
   <div class="control-buttons">
     <button
@@ -63,10 +78,17 @@
     <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
       🎯
     </button>
-    <button class="control-btn reset-btn" (click)="resetGame()" title="Reset">
-      🔄
+    <button
+      class="control-btn"
+      (click)="settingsRef.toggle()"
+      title="Einstellungen"
+    >
+      ⚙️
     </button>
   </div>
+
+  <!-- Loot Popup -->
+  <app-loot-popup></app-loot-popup>
 
   <!-- Shop Component -->
   <app-shop
@@ -80,6 +102,9 @@
     (purchaseItem)="onPurchaseShopItem($event)"
   >
   </app-shop>
+
+  <!-- Settings -->
+  <app-settings #settingsRef></app-settings>
 
   <!-- Info Box (Desktop only) -->
   <div class="info-box">
