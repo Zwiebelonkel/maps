@@ -1,72 +1,67 @@
-// shop.component.scss
-
 .shop-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(5, 5, 5, 0.92);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(8px);
   z-index: 2000;
-  animation: fadeIn 0.2s ease-out;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .shop-modal {
   background: rgba(20, 20, 20, 0.95);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 85vh;
-  overflow-y: auto;
+  backdrop-filter: blur(10px);
+  border-radius: 20px 20px 0 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-  animation: slideUp 0.3s ease-out;
-
-  @media (max-width: 768px) {
-    width: 95%;
-    max-height: 90vh;
-    border-radius: 20px;
-  }
+  border-bottom: none;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 600px;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: pan-y;
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+// Drag Handle
+.drag-handle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+  cursor: grab;
+
+  &-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
   }
 }
 
 // Header
-
 .shop-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 24px 16px;
   position: sticky;
   top: 0;
   background: rgba(20, 20, 20, 0.95);
   z-index: 10;
-  border-radius: 24px 24px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .shop-title {
@@ -74,163 +69,185 @@
   align-items: center;
   gap: 12px;
 
-  .shop-icon {
-    font-size: 2rem;
-  }
+  .shop-icon { font-size: 2rem; }
 
   h2 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
+    font-weight: bold;
     color: #ffffff;
-    font-weight: 700;
   }
 }
 
 .close-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: none;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
-  font-size: 1.5rem;
+  color: #aaa;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #aaa;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: white;
     transform: scale(1.1);
   }
 }
 
-// Coins Display
-
+// Coins
 .coins-display {
-  margin: 20px 24px;
-  padding: 20px;
-  background: linear-gradient(135deg, #ffd700, #ffb300);
-  border-radius: 16px;
+  margin: 16px 24px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 4px 18px rgba(255, 215, 0, 0.4);
 
-  .coin-icon {
-    font-size: 2.5rem;
-  }
+  .coin-icon { font-size: 2rem; }
 
   .coin-amount {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ffffff;
   }
 
   .coin-label {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 }
 
 // Current Level
-
 .current-level {
-  margin: 20px 24px;
-  padding: 20px;
-  background: linear-gradient(135deg, #4da3ff, #667eea);
-  border-radius: 16px;
-  color: white;
+  margin: 0 24px 16px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
   .level-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 16px;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 6px 12px;
     border-radius: 20px;
     font-weight: 700;
-    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: #fff;
+    white-space: nowrap;
   }
 
   .level-info {
     h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.5rem;
+      margin: 0 0 4px 0;
+      font-size: 1rem;
       font-weight: 700;
+      color: #fff;
     }
-
-    .level-radius {
+    p {
       margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1.1rem;
-      opacity: 0.95;
+      font-size: 0.85rem;
+      color: #aaa;
     }
   }
 }
 
-// Upgrades
+// Tabs
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 24px 16px;
+}
 
-.upgrades-section {
-  padding: 24px;
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  color: #aaa;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 
-  .section-title {
-    margin: 0 0 16px 0;
-    font-size: 1.3rem;
-    color: #ffffff;
-    font-weight: 700;
+  &.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ddd;
   }
 }
 
+// Tab Content
+.tab-content {
+  padding: 0 24px 16px;
+}
+
+.items-hint {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+// Upgrades List
 .upgrades-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 // Upgrade Card
-
 .upgrade-card {
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
-  transition: all 0.3s;
-  background: rgba(25, 25, 25, 0.9);
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.2s;
 
   &.affordable {
-    border-color: #4da3ff;
-    box-shadow: 0 0 18px rgba(77, 163, 255, 0.25);
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 25px rgba(77, 163, 255, 0.4);
-    }
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
   }
 
   &.locked {
-    opacity: 0.5;
-    background: rgba(25, 25, 25, 0.6);
+    opacity: 0.45;
   }
 }
 
 .upgrade-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 12px;
 
   .upgrade-level-badge {
-    background: linear-gradient(135deg, #4da3ff, #667eea);
-    color: white;
-    padding: 6px 14px;
-    border-radius: 12px;
-    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
     font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .upgrade-name {
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #ffffff;
   }
@@ -238,284 +255,199 @@
 
 .upgrade-stats {
   display: flex;
-  gap: 20px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 12px;
 
   .stat-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.95rem;
+    gap: 5px;
+    font-size: 0.9rem;
 
-    .stat-label {
-      color: #aaa;
-    }
-
-    .stat-value {
-      font-weight: 700;
-      color: #fff;
-    }
+    .stat-label { color: #777; }
+    .stat-value { font-weight: 700; color: #ccc; }
   }
 }
 
 // Cost Bar
+.cost-bar-container {
+  position: relative;
+  margin-bottom: 12px;
 
-.upgrade-cost {
-  margin-bottom: 16px;
+  .cost-bar-bg {
+    height: 28px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 
-  .cost-bar-container {
-    position: relative;
-
-    .cost-bar-bg {
-      height: 32px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      overflow: hidden;
-
-      .cost-bar-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #4da3ff, #00e5ff);
-        transition: width 0.5s ease;
-      }
+    .cost-bar-fill {
+      height: 100%;
+      background: rgba(255, 255, 255, 0.12);
+      transition: width 0.5s ease;
     }
+  }
 
-    .cost-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 700;
-      font-size: 1rem;
-      color: white;
+  .cost-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
 
-      .current-coins {
-        color: #4da3ff;
-      }
-
-      .separator {
-        color: #888;
-      }
-
-      .required-coins {
-        color: #aaa;
-      }
-    }
+    .current-coins { color: #ccc; }
+    .separator      { color: #555; }
+    .required-coins { color: #777; }
   }
 }
 
 // Purchase Button
-
 .purchase-btn {
   width: 100%;
-  padding: 16px;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ccc;
 
-  &:not(:disabled) {
-    background: linear-gradient(135deg, #4da3ff, #667eea);
-    color: white;
-    box-shadow: 0 4px 14px rgba(77, 163, 255, 0.4);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(77, 163, 255, 0.5);
-    }
+  &:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-1px);
   }
 
   &:disabled {
-    background: #333;
-    color: #777;
+    background: rgba(255, 255, 255, 0.02);
+    color: #444;
     cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.03);
   }
 }
 
-// Max Level
+// Item Card
+.item-icon-big {
+  font-size: 2rem;
+  margin-right: 4px;
+}
 
+.item-description {
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: 3px;
+}
+
+// Max Level
 .max-level-card {
   text-align: center;
-  padding: 40px;
-  background: linear-gradient(135deg, #ffd700, #ffa500);
-  border-radius: 16px;
-  color: white;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  color: #aaa;
 
   .max-level-icon {
-    font-size: 4rem;
-    margin-bottom: 16px;
+    font-size: 3rem;
+    margin-bottom: 12px;
   }
 
   h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.8rem;
-    font-weight: 700;
-  }
-
-  p {
-    margin: 8px 0;
-    font-size: 1.1rem;
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 1.2rem;
   }
 }
 
 // Tips
-
 .tips-section {
-  padding: 24px;
-  background: rgba(20, 20, 20, 0.9);
-  border-radius: 0 0 24px 24px;
-  margin-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  margin-top: 8px;
 
   h4 {
-    margin: 0 0 12px 0;
-    font-size: 1.1rem;
+    margin: 0 0 10px;
+    font-size: 1rem;
     color: #fff;
     font-weight: 700;
   }
 
   ul {
     margin: 0;
-    padding-left: 24px;
+    padding-left: 20px;
 
     li {
-      margin-bottom: 8px;
-      color: #aaa;
-      line-height: 1.5;
+      margin-bottom: 6px;
+      color: #666;
+      font-size: 0.85rem;
     }
   }
 }
 
-@media (max-width: 768px) {
-  .shop-header {
-    padding: 20px;
-
-    .shop-title h2 {
-      font-size: 1.5rem;
-    }
-  }
-
-  .coins-display {
-    margin: 16px 20px;
-    padding: 16px;
-
-    .coin-amount {
-      font-size: 1.8rem;
-    }
-  }
-
-  .current-level {
-    margin: 16px 20px;
-    padding: 16px;
-  }
-
-  .upgrades-section {
-    padding: 20px;
-  }
-
-  .upgrade-card {
-    padding: 16px;
-  }
-
-  .upgrade-stats {
-    flex-direction: column;
-    gap: 8px;
-  }
-}
-
+// Admin Code
 .admin-code-section {
-  margin-top: 30px;
-  padding: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
+  padding: 16px 24px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 
-.admin-code-section h4 {
-  color: #aaa;
-  font-size: 14px;
-  margin-bottom: 10px;
+  h4 {
+    color: #555;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
 }
 
 .code-input-row {
   display: flex;
-  gap: 10px;
-}
+  gap: 8px;
 
-.code-input-row input {
-  flex: 1;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
-  border-radius: 8px;
-  color: white;
-}
+  input {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9rem;
 
-.code-input-row button {
-  padding: 10px 16px;
-  background: #4da3ff;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
+    &::placeholder { color: #444; }
+  }
+
+  button {
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #ccc;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+  }
 }
 
 .code-message {
   margin-top: 8px;
-  font-size: 13px;
-  color: #4da3ff;
-}
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  padding: 0 24px;
-  margin-bottom: 8px;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
+  font-size: 0.85rem;
   color: #aaa;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &.active {
-    background: linear-gradient(135deg, #4da3ff, #667eea);
-    color: white;
-    border-color: transparent;
-  }
-
-  &:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-  }
 }
 
-.tab-content {
-  padding: 16px 24px;
-}
-
-.items-hint {
-  color: #aaa;
-  font-size: 0.9rem;
-  margin-bottom: 16px;
-}
-
-.item-icon-big {
-  font-size: 2.5rem;
-  margin-right: 4px;
-}
-
-.item-description {
-  font-size: 0.9rem;
-  color: #aaa;
-  margin-top: 4px;
+@media (max-width: 768px) {
+  .shop-header { padding: 8px 16px 12px; }
+  .coins-display,
+  .current-level { margin-left: 16px; margin-right: 16px; }
+  .tabs { padding: 0 16px 12px; }
+  .tab-content { padding: 0 16px 12px; }
+  .tips-section,
+  .admin-code-section { padding-left: 16px; padding-right: 16px; }
 }
