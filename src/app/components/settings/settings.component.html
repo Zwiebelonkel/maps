@@ -38,6 +38,36 @@
         (input)="updateMaxRenderTiles(+$any($event.target).value)" />
     </div>
 
+    <!-- Dark Map -->
+    <div class="setting-item">
+      <div class="setting-info">
+        <span class="setting-icon">🌑</span>
+        <div class="setting-content">
+          <div class="setting-label">Dark Map</div>
+          <div class="setting-desc">Dunkles Kartenlayout</div>
+        </div>
+        <button class="toggle-btn"
+          [class.active]="settings.snapshot.darkMap"
+          (click)="toggleDarkMap()">
+          {{ settings.snapshot.darkMap ? 'AN' : 'AUS' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Standort -->
+    <div class="setting-item">
+      <div class="setting-info">
+        <span class="setting-icon">📍</span>
+        <div class="setting-content">
+          <div class="setting-label">Standort</div>
+          <div class="setting-desc">Karte auf aktuelle Position zentrieren</div>
+        </div>
+        <button class="toggle-btn" (click)="centerMap()">
+          Zentrieren
+        </button>
+      </div>
+    </div>
+
     <!-- Stromsparmodus -->
     <div class="setting-item">
       <div class="setting-info">
