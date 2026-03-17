@@ -104,7 +104,12 @@
   </app-shop>
 
   <!-- Settings -->
-  <app-settings #settingsRef (gameReset)="resetGame()"></app-settings>
+  <app-settings
+  #settingsRef
+  (gameReset)="resetGame()"
+  (darkMapChanged)="onDarkMapChanged($event)"
+  (centerRequested)="centerOnPlayer()">
+</app-settings>
 
   <!-- Info Box (Desktop only) -->
   <div class="info-box">
