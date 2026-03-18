@@ -20,6 +20,11 @@ import {
 import { UpgradeService } from '../services/upgrade.service';
 import { LootService, LootResult } from '../services/loot.service';
 import { SettingsService } from '../services/settings.service';
+import { SessionService, SessionStats } from '../services/session.service';
+import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
+// leaflet-image hat kein @types, daher:
+declare const leafletImage: any;
+import 'leaflet-image';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -95,6 +100,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isShopOpen = false;
   activeBombItem: ShopItem | null = null;
 
+  // Session
+  showSessionSummary = false;
+  sessionSummaryStats: SessionStats | null = null;
+  sessionMapImageUrl: string | null = null;
+  private routePolyline: L.Polyline | null = null;
+
   get currentRadius() {
     return this.upgradeService.snapshot.currentRadius;
   }
@@ -112,6 +123,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private upgradeService: UpgradeService,
     private lootService: LootService,
     public settingsService: SettingsService,
+    private sessionService: SessionService
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -129,6 +141,53 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     else this.vibrate(40);
     setTimeout(() => (this.flashActive = false), 200);
   }
+
+
+  // Session starten/stoppen
+toggleSession() {
+  if (this.sessionService.isActive) {
+    this.stopSession();
+  } else {
+    this.startSession();
+  }
+}
+
+private startSession() {
+  this.sessionService.start();
+  // Leere Polyline für Route anlegen
+  this.routePolyline = L.polyline([], {
+    color: '#4da3ff',
+    weight: 4,
+    opacity: 0.9,
+  }).addTo(this.map);
+}
+
+private stopSession() {
+  const stats = this.sessionService.stop();
+  this.sessionSummaryStats = stats;
+
+  // Karte als Bild exportieren
+  leafletImage(this.map, (err: any, canvas: HTMLCanvasElement) => {
+    if (!err) {
+      this.sessionMapImageUrl = canvas.toDataURL('image/png');
+    } else {
+      this.sessionMapImageUrl = null;
+    }
+    this.showSessionSummary = true;
+  });
+
+  // Polyline entfernen
+  if (this.routePolyline) {
+    this.map.removeLayer(this.routePolyline);
+    this.routePolyline = null;
+  }
+}
+
+closeSessionSummary() {
+  this.showSessionSummary = false;
+  this.sessionSummaryStats = null;
+  this.sessionMapImageUrl = null;
+}
 
   // ── Power Save ──────────────────────────────────────────────
 
@@ -335,6 +394,15 @@ onDarkMapChanged(darkMap: boolean) {
     this.lastAcceptedLocation = newLocation;
     this.currentLocation = newLocation;
 
+    // Session Punkt hinzufügen
+this.sessionService.addPoint(newLocation.lat, newLocation.lng);
+
+// Route auf Karte zeichnen
+if (this.routePolyline) {
+  this.routePolyline.addLatLng(L.latLng(newLocation.lat, newLocation.lng));
+}
+
+
     if (this.map) {
       this.updatePlayerPosition(newLocation);
       this.exploreCurrentArea(newLocation);
@@ -396,6 +464,7 @@ onDarkMapChanged(darkMap: boolean) {
       this.showCoinAnimation = true;
       this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
       this.totalTilesExplored = this.exploredTiles.size;
+      this.sessionService.addTiles(newTiles);
       this.updateGameState();
       this.saveProgress();
       this.drawFogOfWar();
