@@ -65,7 +65,7 @@ interface GridCoordinate {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ShopComponent, LootPopupComponent, SettingsComponent],
+  imports: [CommonModule, ShopComponent, LootPopupComponent, SettingsComponent, SessionSummaryComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
