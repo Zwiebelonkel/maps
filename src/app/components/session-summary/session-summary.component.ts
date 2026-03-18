@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SessionStats, SessionService } from '../../services/session.service';
+import { SessionStats, SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-session-summary',
