@@ -26,7 +26,7 @@ export class LootService {
 
   rollLoot(): LootResult | null {
     // 🎲 5% Trigger Chance
-    if (Math.random() > 100) return null;
+    if (Math.random() > 0.01) return null;
 
     this.pityCounter++;
 
