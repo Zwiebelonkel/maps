@@ -464,3 +464,10 @@
   pointer-events: none;
   animation: pulse 1s infinite;
 }
+
+.session-btn.active {
+  background: rgba(255, 80, 80, 0.3);
+  border-color: rgba(255, 80, 80, 0.4);
+  animation: pulse 1.5s infinite;
+}
+
