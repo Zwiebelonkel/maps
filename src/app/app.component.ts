@@ -22,9 +22,7 @@ import { LootService, LootResult } from '../services/loot.service';
 import { SettingsService } from '../services/settings.service';
 import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
-// leaflet-image hat kein @types, daher:
-declare const leafletImage: any;
-import 'leaflet-image';
+
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -166,15 +164,21 @@ private stopSession() {
   const stats = this.sessionService.stop();
   this.sessionSummaryStats = stats;
 
-  // Karte als Bild exportieren
-  leafletImage(this.map, (err: any, canvas: HTMLCanvasElement) => {
-    if (!err) {
+  // Canvas direkt aus Leaflet abgreifen
+  try {
+    const mapContainer = document.getElementById('map');
+    const canvas = mapContainer?.querySelector('canvas');
+    if (canvas) {
       this.sessionMapImageUrl = canvas.toDataURL('image/png');
     } else {
       this.sessionMapImageUrl = null;
     }
-    this.showSessionSummary = true;
-  });
+  } catch (e) {
+    this.sessionMapImageUrl = null;
+  }
+
+  // Popup sofort zeigen
+  this.showSessionSummary = true;
 
   // Polyline entfernen
   if (this.routePolyline) {
@@ -182,6 +186,7 @@ private stopSession() {
     this.routePolyline = null;
   }
 }
+
 
 closeSessionSummary() {
   this.showSessionSummary = false;
