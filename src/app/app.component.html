@@ -66,26 +66,28 @@
     {{ activeBombItem.icon }} Klicke auf die Karte zum Zünden!
   </div>
 
-  <!-- Control Buttons -->
-  <div class="control-buttons">
-    <button
-      class="control-btn shop-btn"
-      (click)="toggleShop()"
-      title="Shop öffnen"
-    >
-      🏪
-    </button>
-    <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
-      🎯
-    </button>
-    <button
-      class="control-btn"
-      (click)="settingsRef.toggle()"
-      title="Einstellungen"
-    >
-      ⚙️
-    </button>
-  </div>
+ <!-- Control Buttons -->
+<div class="control-buttons">
+  <button class="control-btn" (click)="toggleShop()" title="Shop">🏪</button>
+  <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">🎯</button>
+  <button class="control-btn" (click)="settingsRef.toggle()" title="Einstellungen">⚙️</button>
+  <!-- Session Button -->
+  <button class="control-btn session-btn"
+    [class.active]="sessionService.isActive"
+    (click)="toggleSession()"
+    title="Session">
+    {{ sessionService.isActive ? '⏹️' : '▶️' }}
+  </button>
+</div>
+
+<!-- Session Summary -->
+<app-session-summary
+  *ngIf="showSessionSummary"
+  [stats]="sessionSummaryStats"
+  [mapImageUrl]="sessionMapImageUrl"
+  (close)="closeSessionSummary()">
+</app-session-summary>
+
 
   <!-- Loot Popup -->
   <app-loot-popup></app-loot-popup>
