@@ -152,40 +152,72 @@ toggleSession() {
 
 private startSession() {
   this.sessionService.start();
-  // Leere Polyline für Route anlegen
+
   this.routePolyline = L.polyline([], {
     color: '#4da3ff',
-    weight: 4,
-    opacity: 0.9,
-  }).addTo(this.map);
+    weight: 5,
+    opacity: 1,
+    lineCap: 'round',
+    lineJoin: 'round',
+  } as any).addTo(this.map);
+
+  // Start-Marker
+  if (this.currentLocation) {
+    L.circleMarker([this.currentLocation.lat, this.currentLocation.lng], {
+      radius: 8,
+      color: '#00e676',
+      fillColor: '#00e676',
+      fillOpacity: 1,
+      weight: 2,
+    }).addTo(this.map);
+  }
 }
 
 private stopSession() {
   const stats = this.sessionService.stop();
   this.sessionSummaryStats = stats;
 
-  // Canvas direkt aus Leaflet abgreifen
-  try {
-    const mapContainer = document.getElementById('map');
-    const canvas = mapContainer?.querySelector('canvas');
-    if (canvas) {
-      this.sessionMapImageUrl = canvas.toDataURL('image/png');
-    } else {
+  // Karte auf Route zoomen
+  if (this.routePolyline) {
+    const bounds = this.routePolyline.getBounds();
+    if (bounds.isValid()) {
+      this.map.fitBounds(bounds, { padding: [40, 40] });
+    }
+  }
+
+  // Fog kurz ausblenden für Screenshot
+  if (this.fogLayer) {
+    this.map.removeLayer(this.fogLayer);
+  }
+
+  // Warten damit fitBounds und Render fertig sind
+  setTimeout(() => {
+    try {
+      const mapContainer = document.getElementById('map');
+      const canvas = mapContainer?.querySelector('canvas');
+      if (canvas) {
+        this.sessionMapImageUrl = canvas.toDataURL('image/png');
+      } else {
+        this.sessionMapImageUrl = null;
+      }
+    } catch (e) {
       this.sessionMapImageUrl = null;
     }
-  } catch (e) {
-    this.sessionMapImageUrl = null;
-  }
 
-  // Popup sofort zeigen
-  this.showSessionSummary = true;
+    // Fog wieder hinzufügen
+    this.drawFogOfWar();
 
-  // Polyline entfernen
-  if (this.routePolyline) {
-    this.map.removeLayer(this.routePolyline);
-    this.routePolyline = null;
-  }
+    // Popup zeigen
+    this.showSessionSummary = true;
+
+    // Polyline entfernen
+    if (this.routePolyline) {
+      this.map.removeLayer(this.routePolyline);
+      this.routePolyline = null;
+    }
+  }, 500);
 }
+
 
 
 closeSessionSummary() {
