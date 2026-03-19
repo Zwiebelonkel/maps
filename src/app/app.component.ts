@@ -43,6 +43,7 @@ const iconDefault = L.icon({
 });
 L.Marker.prototype.options.icon = iconDefault;
 
+
 interface MapTile {
   lat: number;
   lng: number;
@@ -75,6 +76,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
   private map!: L.Map;
   private playerMarker!: L.Marker;
+  private leafletUserMarkers: L.Marker[] = [];
   private radiusCircle!: L.Circle;
   private fogLayer!: L.Polygon;
   private watchId: number | null = null;
