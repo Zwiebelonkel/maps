@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MarkerService } from '../../services/marker.service';
+import { MarkerService } from '../../../services/marker.service';
 import { UserMarker } from '../../../../models/user-marker.model';
 
 @Component({
