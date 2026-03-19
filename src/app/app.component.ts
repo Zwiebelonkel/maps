@@ -97,6 +97,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   coinsPerTile = GAME_CONFIG.COINS_PER_TILE;
   flashActive = false;
   private tileLayer!: L.TileLayer;
+  isMenuOpen = false;
+  isMarkerListOpen = false;
 
   // Shop / Bomb
   isShopOpen = false;
