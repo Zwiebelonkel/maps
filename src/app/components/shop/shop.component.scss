@@ -460,3 +460,13 @@
   .tips-section,
   .admin-code-section { padding-left: 16px; padding-right: 16px; }
 }
+
+.shop-overlay {
+  backdrop-filter: blur(8px);
+  transition: backdrop-filter 0.3s ease, background 0.3s ease;
+
+  &.closing {
+    backdrop-filter: blur(0px);
+    background: rgba(5, 5, 5, 0);
+  }
+}
