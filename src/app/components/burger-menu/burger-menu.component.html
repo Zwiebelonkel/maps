@@ -1,17 +1,35 @@
-<div class="burger-overlay" (click)="close.emit()">
-  <div class="burger-modal" (click)="$event.stopPropagation()">
-
-    <div class="drag-handle">
+<div
+  class="burger-overlay"
+  *ngIf="isOpen || isClosing"
+  [class.closing]="isClosing"
+  (click)="closeWithAnimation()"
+>
+  <div
+    class="burger-modal"
+    (click)="$event.stopPropagation()"
+    [class.closing]="isClosing"
+  >
+    <div
+      class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="drag-handle-bar"></div>
     </div>
 
-    <div class="settings-header">
+    <div
+      class="settings-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="settings-title">
         <div class="settings-icon">☰</div>
         <h2>Menü</h2>
       </div>
 
-      <button class="close-btn" (click)="close.emit()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>
 
     <div class="setting-item" (click)="onSession()">
@@ -43,6 +61,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>
