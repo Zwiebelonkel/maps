@@ -10,6 +10,7 @@
     [class.closing]="isClosing"
   >
 
+    <!-- Drag Handle -->
     <div
       class="drag-handle"
       (touchstart)="onHeaderTouchStart($event)"
@@ -19,6 +20,7 @@
       <div class="drag-handle-bar"></div>
     </div>
 
+    <!-- Header -->
     <div
       class="settings-header"
       (touchstart)="onHeaderTouchStart($event)"
@@ -33,27 +35,69 @@
       <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>
 
-    <div
-      class="setting-item"
-      *ngFor="let marker of markerService.getAll()"
-    >
-      <div class="setting-info">
-        <div class="setting-icon">📍</div>
+    <!-- LIST -->
+    <div class="marker-list-container">
 
-        <div class="setting-content">
-          <div class="setting-label">{{ marker.name }}</div>
-          <div class="setting-desc">
-            {{ marker.description || 'Keine Beschreibung' }}
+      <div
+        class="setting-item"
+        *ngFor="let marker of markerService.getAll()"
+      >
+
+        <!-- 👁️ VIEW MODE -->
+        <div
+          *ngIf="editingMarkerId !== marker.id"
+          class="setting-info"
+          (click)="startEdit(marker)"
+        >
+          <div class="setting-icon">📍</div>
+
+          <div class="setting-content">
+            <div class="setting-label">{{ marker.name }}</div>
+            <div class="setting-desc">
+              {{ marker.description || 'Keine Beschreibung' }}
+            </div>
           </div>
+
+          <button
+            class="delete-btn"
+            (click)="delete(marker); $event.stopPropagation()"
+          >
+            🗑️
+          </button>
         </div>
 
-        <button
-          class="toggle-btn"
-          (click)="delete(marker); $event.stopPropagation()"
-        >
-          🗑️
-        </button>
+        <!-- ✏️ EDIT MODE -->
+        <div *ngIf="editingMarkerId === marker.id" class="edit-container">
+
+          <input
+            [(ngModel)]="editName"
+            placeholder="Name"
+            class="edit-input"
+          />
+
+          <input
+            [(ngModel)]="editDescription"
+            placeholder="Beschreibung"
+            class="edit-input"
+          />
+
+          <div class="edit-actions">
+            <button class="save-btn" (click)="saveEdit(marker)">💾</button>
+            <button class="cancel-btn" (click)="cancelEdit()">✕</button>
+          </div>
+
+        </div>
+
       </div>
+
+      <!-- EMPTY STATE -->
+      <div
+        class="empty-state"
+        *ngIf="markerService.getAll().length === 0"
+      >
+        📭 Keine Marker vorhanden
+      </div>
+
     </div>
 
   </div>
