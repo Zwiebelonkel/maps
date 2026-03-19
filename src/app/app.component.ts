@@ -123,7 +123,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private upgradeService: UpgradeService,
     private lootService: LootService,
     public settingsService: SettingsService,
-    public sessionService: SessionService
+    public sessionService: SessionService,
+    private markerService: MarkerService
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
