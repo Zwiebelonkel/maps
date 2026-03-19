@@ -1,0 +1,17 @@
+<div class="menu-overlay" (click)="close.emit()">
+  <div class="menu-panel" (click)="$event.stopPropagation()">
+
+    <button (click)="toggleSession.emit()">
+      ▶ Start / End Session
+    </button>
+
+    <button (click)="openSettings.emit()">
+      ⚙ Settings
+    </button>
+
+    <button (click)="openMarkers.emit()">
+      📍 Marker Liste
+    </button>
+
+  </div>
+</div>
