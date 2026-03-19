@@ -372,12 +372,23 @@ private renderUserMarker(marker: UserMarker) {
   }).addTo(this.map);
 
   leafletMarker.bindPopup(`
-    <div style="min-width: 180px;">
-      <strong>${this.escapeHtml(marker.name)}</strong><br>
-      <small>${this.escapeHtml(marker.description || 'Keine Beschreibung')}</small><br><br>
-      <button onclick="window.deleteUserMarker('${marker.id}')">Löschen</button>
+  <div class="marker-popup">
+    <div class="popup-title">
+      ${this.escapeHtml(marker.name)}
     </div>
-  `);
+
+    <div class="popup-desc">
+      ${this.escapeHtml(marker.description || 'Keine Beschreibung')}
+    </div>
+
+    <div class="popup-actions">
+      <button class="popup-btn delete"
+        onclick="window.deleteUserMarker('${marker.id}')">
+        Löschen
+      </button>
+    </div>
+  </div>
+`);
 
   this.leafletUserMarkers.push(leafletMarker);
 }
