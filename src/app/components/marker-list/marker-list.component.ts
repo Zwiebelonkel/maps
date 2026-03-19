@@ -11,9 +11,14 @@ import { UserMarker } from '../../../../models/user-marker.model';
   styleUrls: ['./marker-list.component.scss'],
 })
 export class MarkerListComponent {
+  @Output() close = new EventEmitter<void>();
+
   constructor(public markerService: MarkerService) {}
 
   delete(marker: UserMarker) {
     this.markerService.removeMarker(marker.id);
   }
-}
+
+  closeList() {
+    this.close.emit();
+  }
