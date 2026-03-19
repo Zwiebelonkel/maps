@@ -1,7 +1,7 @@
 // src/app/services/marker.service.ts
 
 import { Injectable } from '@angular/core';
-import { UserMarker } from '../models/user-marker.model';
+import { UserMarker } from '../../models/user-marker.model';
 
 @Injectable({
   providedIn: 'root',
