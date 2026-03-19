@@ -106,16 +106,17 @@
   >
   </app-shop>
   
-  <app-burger-menu
+<app-burger-menu
   *ngIf="isMenuOpen"
   (close)="isMenuOpen = false"
-  (toggleSession)="toggleSession()"
-  (openSettings)="isSettingsOpen = true"
-  (openMarkers)="isMarkerListOpen = true">
+  (toggleSession)="toggleSession(); isMenuOpen = false"
+  (openSettings)="settingsRef.toggle(); isMenuOpen = false"
+  (openMarkers)="isMarkerListOpen = true; isMenuOpen = false">
 </app-burger-menu>
 
 <app-marker-list
-  *ngIf="isMarkerListOpen">
+  *ngIf="isMarkerListOpen"
+  (close)="isMarkerListOpen = false">
 </app-marker-list>
 
   <!-- Settings -->
