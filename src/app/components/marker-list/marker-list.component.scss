@@ -191,3 +191,74 @@
   from { transform: translateY(0); }
   to   { transform: translateY(100%); }
 }
+
+/* Edit Mode */
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  font-size: 0.9rem;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(255,255,255,0.2);
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Buttons */
+.save-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(80, 255, 120, 0.2);
+  color: #6bff9a;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(80, 255, 120, 0.35);
+  }
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: #aaa;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255,255,255,0.15);
+  }
+}
+
+/* Delete Button schöner */
+.delete-btn {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 80, 80, 0.12);
+  color: #ff6b6b;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: rgba(255, 80, 80, 0.25);
+  }
+}
