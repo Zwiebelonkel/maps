@@ -1,38 +1,24 @@
 .marker-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 9999;
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
 }
 
-.marker-panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  width: 300px;
-  max-height: 70vh;
-  overflow: auto;
-
-  padding: 20px;
-
+.marker-modal {
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
-
-  border-radius: 12px;
+  border-radius: 20px 20px 0 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
-
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-}
-
-.marker-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.desc {
-  font-size: 12px;
-  color: #aaa;
+  border-bottom: none;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 600px;
+  padding-bottom: 24px;
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 }
