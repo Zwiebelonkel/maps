@@ -1,7 +1,14 @@
-<div class="shop-overlay" *ngIf="isOpen" (click)="closeWithAnimation()">
-  <div class="shop-modal"
+<div
+  class="shop-overlay"
+  *ngIf="isOpen || isClosing"
+  [class.closing]="isClosing"
+  (click)="closeWithAnimation()"
+>
+  <div
+    class="shop-modal"
     (click)="$event.stopPropagation()"
-    [class.closing]="isClosing">
+    [class.closing]="isClosing"
+  >
 
     <!-- Drag Handle -->
     <div class="drag-handle"
