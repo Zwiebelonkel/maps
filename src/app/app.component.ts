@@ -243,21 +243,27 @@ closeSessionSummary() {
 
   // ── Lifecycle ───────────────────────────────────────────────
 
-  ngOnInit() {
-    this.loadProgress();
-    this.updateGameState();
-    this.startGPSTracking();
+ngOnInit() {
+  this.markerService.load();
+  this.loadProgress();
+  this.updateGameState();
+  this.startGPSTracking();
 
-    interval(3000)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
-      });
-  }
+  interval(3000)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
+    });
+}
 
   ngAfterViewInit() {
-    setTimeout(() => this.initMap(), 100);
-  }
+  (window as any).deleteUserMarker = (id: string) => {
+    this.markerService.removeMarker(id);
+    this.renderAllUserMarkers();
+  };
+
+  setTimeout(() => this.initMap(), 100);
+}
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -295,6 +301,12 @@ private initMap() {
       document.getElementById('map')!.style.cursor = '';
       return;
     }
+
+  if (this.isTileExplored(e.latlng.lat, e.latlng.lng)) {
+    this.createUserMarker(e.latlng);
+    return;
+  }
+
     this.addClickCoins();
     this.showCoin(e.originalEvent as MouseEvent);
   });
@@ -312,6 +324,71 @@ private initMap() {
   }
 
   this.drawFogOfWar();
+  this.renderAllUserMarkers();
+}
+
+private renderAllUserMarkers() {
+  this.leafletUserMarkers.forEach(marker => this.map.removeLayer(marker));
+  this.leafletUserMarkers = [];
+
+  this.markerService.getAll().forEach(marker => {
+    this.renderUserMarker(marker);
+  });
+}
+
+private isTileExplored(lat: number, lng: number): boolean {
+  const grid = this.latLngToGrid(lat, lng);
+  const key = this.getTileKey(grid.gridX, grid.gridY);
+  return this.exploredTiles.has(key);
+}
+
+private createUserMarker(latlng: L.LatLng) {
+  const name = prompt('Name für den Marker:');
+  if (!name || !name.trim()) return;
+
+  const description = prompt('Beschreibung für den Marker:') || '';
+
+  const marker: UserMarker = {
+    id: crypto.randomUUID(),
+    lat: latlng.lat,
+    lng: latlng.lng,
+    name: name.trim(),
+    description: description.trim(),
+    createdAt: Date.now(),
+  };
+
+  this.markerService.addMarker(marker);
+  this.renderAllUserMarkers();
+}
+
+private renderUserMarker(marker: UserMarker) {
+  const leafletMarker = L.marker([marker.lat, marker.lng], {
+    icon: L.divIcon({
+      className: 'user-marker',
+      html: '<div class="user-marker-pin">📍</div>',
+      iconSize: [28, 28],
+      iconAnchor: [14, 28],
+    }),
+  }).addTo(this.map);
+
+  leafletMarker.bindPopup(`
+    <div style="min-width: 180px;">
+      <strong>${this.escapeHtml(marker.name)}</strong><br>
+      <small>${this.escapeHtml(marker.description || 'Keine Beschreibung')}</small><br><br>
+      <button onclick="window.deleteUserMarker('${marker.id}')">Löschen</button>
+    </div>
+  `);
+
+  this.leafletUserMarkers.push(leafletMarker);
+}
+
+private escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 private createTileLayer(): L.TileLayer {
@@ -773,9 +850,11 @@ resetGame() {
   this.totalTilesExplored = 0;
   this.lastExploredGridKey = null;
   this.upgradeService.reset();
+  this.markerService.clear();
   this.updateGameState();
   if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
   this.drawFogOfWar();
+  this.renderAllUserMarkers();
 }
 
 
