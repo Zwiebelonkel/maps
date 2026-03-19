@@ -70,9 +70,8 @@
 <div class="control-buttons">
   <button class="control-btn" (click)="toggleShop()" title="Shop">🏪</button>
   <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">🎯</button>
-  <button class="control-btn" (click)="settingsRef.toggle()" title="Einstellungen">⚙️</button>
   <!-- Session Button -->
-  <button class="control-btn session-btn"
+  <button *ngIf ="sessionService.isActive" class="control-btn session-btn"
     [class.active]="sessionService.isActive"
     (click)="toggleSession()"
     title="Session">
