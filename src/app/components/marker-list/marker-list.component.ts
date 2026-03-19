@@ -61,4 +61,29 @@ export class MarkerListComponent {
 
     this.isDraggingHeader = false;
   }
+
+editingMarkerId: string | null = null;
+editName = '';
+editDescription = '';
+
+startEdit(marker: UserMarker) {
+  this.editingMarkerId = marker.id;
+  this.editName = marker.name;
+  this.editDescription = marker.description || '';
+}
+
+cancelEdit() {
+  this.editingMarkerId = null;
+}
+
+saveEdit(marker: UserMarker) {
+  this.markerService.updateMarker({
+    ...marker,
+    name: this.editName,
+    description: this.editDescription,
+  });
+
+  this.editingMarkerId = null;
+}
+
 }
