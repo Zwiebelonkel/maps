@@ -1,45 +1,24 @@
-.menu-overlay {
+.burger-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 9999;
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
 }
 
-.menu-panel {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  padding: 16px;
-  min-width: 200px;
-
+.burger-modal {
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
-
-  border-radius: 12px;
+  border-radius: 20px 20px 0 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
-
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-}
-
-button {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-
-  cursor: pointer;
-  font-weight: bold;
-
-  transition: 0.2s;
-}
-
-button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 600px;
+  padding-bottom: 24px;
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 }
