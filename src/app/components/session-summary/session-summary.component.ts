@@ -13,15 +13,21 @@ export class SessionSummaryComponent {
   @Input() stats: SessionStats | null = null;
   @Input() mapImageUrl: string | null = null;
   @Output() close = new EventEmitter<void>();
+  isOpen = true;
   isClosing = false;
 
   constructor(public sessionService: SessionService) {}
 
-  closeWithAnimation() {
-    this.isClosing = true;
-    setTimeout(() => {
-      this.isClosing = false;
-      this.close.emit();
-    }, 320);
-  }
+closeWithAnimation() {
+  if (this.isClosing) return;
+
+  this.isClosing = true;
+
+  setTimeout(() => {
+    this.isOpen = false;
+    this.isClosing = false;
+    this.close.emit();
+  }, 320);
+}
+
 }
