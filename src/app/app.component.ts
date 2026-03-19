@@ -22,6 +22,8 @@ import { LootService, LootResult } from '../services/loot.service';
 import { SettingsService } from '../services/settings.service';
 import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
+import { BurgerMenuComponent } from './components/burger-menu/burger-menu.component';
+import { MarkerListComponent } from './components/marker-list/marker-list.component';
 import { MarkerService } from '../services/marker.service';
 import { UserMarker } from '../../models/user-marker.model';
 
@@ -66,7 +68,15 @@ interface GridCoordinate {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, ShopComponent, LootPopupComponent, SettingsComponent, SessionSummaryComponent],
+  imports: [
+  CommonModule,
+  ShopComponent,
+  LootPopupComponent,
+  SettingsComponent,
+  SessionSummaryComponent,
+  BurgerMenuComponent,      // ✅ hinzufügen
+  MarkerListComponent       // ✅ hinzufügen
+],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
@@ -102,6 +112,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Shop / Bomb
   isShopOpen = false;
+  isSettingsOpen = false;
   activeBombItem: ShopItem | null = null;
 
   // Session
