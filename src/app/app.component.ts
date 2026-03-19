@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, interval } from 'rxjs';
 import * as L from 'leaflet';
+import leafletImage from 'leaflet-image';
 import { ShopComponent } from './components/shop/shop.component';
 import { LootPopupComponent } from './components/loot-popup/loot-popup.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -177,44 +178,55 @@ private stopSession() {
   const stats = this.sessionService.stop();
   this.sessionSummaryStats = stats;
 
-  // Karte auf Route zoomen
+  // ── Route bounds merken ─────────────────────────
+  let bounds: L.LatLngBounds | null = null;
   if (this.routePolyline) {
-    const bounds = this.routePolyline.getBounds();
-    if (bounds.isValid()) {
+    const b = this.routePolyline.getBounds();
+    if (b.isValid()) {
+      bounds = b;
       this.map.fitBounds(bounds, { padding: [40, 40] });
     }
   }
 
-  // Fog kurz ausblenden für Screenshot
+  // ── Fog ausblenden ──────────────────────────────
   if (this.fogLayer) {
     this.map.removeLayer(this.fogLayer);
   }
 
-  // Warten damit fitBounds und Render fertig sind
+  // ── kurz warten damit map komplett rendert ──────
   setTimeout(() => {
-    try {
-      const mapContainer = document.getElementById('map');
-      const canvas = mapContainer?.querySelector('canvas');
-      if (canvas) {
-        this.sessionMapImageUrl = canvas.toDataURL('image/png');
-      } else {
+
+    // 🔥 Leaflet richtig rendern (inkl. Tiles)
+    leafletImage(this.map, (err: any, canvas: HTMLCanvasElement) => {
+      if (err) {
+        console.error('Screenshot error:', err);
         this.sessionMapImageUrl = null;
+      } else {
+        this.sessionMapImageUrl = canvas.toDataURL('image/png');
       }
-    } catch (e) {
-      this.sessionMapImageUrl = null;
-    }
 
-    // Fog wieder hinzufügen
-    this.drawFogOfWar();
+      // ── Fog wieder herstellen ───────────────────
+      this.drawFogOfWar();
 
-    // Popup zeigen
-    this.showSessionSummary = true;
+      // ── Popup anzeigen ──────────────────────────
+      this.showSessionSummary = true;
 
-    // Polyline entfernen
-    if (this.routePolyline) {
-      this.map.removeLayer(this.routePolyline);
-      this.routePolyline = null;
-    }
+      // ── Route entfernen ─────────────────────────
+      if (this.routePolyline) {
+        this.map.removeLayer(this.routePolyline);
+        this.routePolyline = null;
+      }
+
+      // ── 🔥 ZURÜCK ZUM PLAYER ────────────────────
+      if (this.currentLocation) {
+        this.map.setView(
+          [this.currentLocation.lat, this.currentLocation.lng],
+          17,
+          { animate: true }
+        );
+      }
+    });
+
   }, 500);
 }
 
@@ -310,18 +322,30 @@ private initMap() {
 }
 
 private createTileLayer(): L.TileLayer {
-  if (this.settingsService.snapshot.darkMap) {
-    return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & CartoDB',
-      subdomains: 'abcd',
-      maxZoom: 25,
-    });
-  } else {
-    return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 25,
-    });
-  }
+  const isDark = this.settingsService.snapshot.darkMap;
+
+  const url = isDark
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+  return L.tileLayer(url, {
+    attribution: isDark
+      ? '&copy; OpenStreetMap & CartoDB'
+      : '&copy; OpenStreetMap',
+
+    subdomains: isDark ? 'abcd' : undefined,
+    maxZoom: 25,
+
+    // 🔥 EXTREM WICHTIG für leaflet-image Screenshot
+    crossOrigin: true,
+
+    // 🔥 bessere Darstellung auf Mobile (Retina)
+    detectRetina: true,
+
+    // 🔥 smoother Loading (optional)
+    updateWhenIdle: true,
+    keepBuffer: 2,
+  });
 }
 
 onDarkMapChanged(darkMap: boolean) {
