@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MarkerService } from '../../services/marker.service';
-import { UserMarker } from '../../models/user-marker.model';
+import { UserMarker } from '../../../../models/user-marker.model';
 
 @Component({
   selector: 'app-marker-list',
