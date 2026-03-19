@@ -324,28 +324,29 @@ private initMap() {
 private createTileLayer(): L.TileLayer {
   const isDark = this.settingsService.snapshot.darkMap;
 
-  const url = isDark
-    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-
-  return L.tileLayer(url, {
-    attribution: isDark
-      ? '&copy; OpenStreetMap & CartoDB'
-      : '&copy; OpenStreetMap',
-
-    subdomains: isDark ? 'abcd' : undefined,
-    maxZoom: 25,
-
-    // 🔥 EXTREM WICHTIG für leaflet-image Screenshot
-    crossOrigin: true,
-
-    // 🔥 bessere Darstellung auf Mobile (Retina)
-    detectRetina: true,
-
-    // 🔥 smoother Loading (optional)
-    updateWhenIdle: true,
-    keepBuffer: 2,
-  });
+  if (isDark) {
+    return L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {
+        attribution: '&copy; OpenStreetMap & CartoDB',
+        subdomains: 'abcd', // ✅ nur hier nötig
+        maxZoom: 25,
+        crossOrigin: true,
+        detectRetina: true,
+      }
+    );
+  } else {
+    return L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 25,
+        crossOrigin: true,
+        detectRetina: true,
+        // ❌ KEIN subdomains hier!
+      }
+    );
+  }
 }
 
 onDarkMapChanged(darkMap: boolean) {
