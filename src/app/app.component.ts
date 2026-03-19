@@ -457,8 +457,8 @@ if (this.routePolyline) {
       const playerIcon = L.divIcon({
         className: 'player-marker',
         html: '<div class="player-dot"></div>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
       });
       this.playerMarker = L.marker(latLng, {
         icon: playerIcon,
