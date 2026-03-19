@@ -1,3 +1,4 @@
+/* Overlay */
 .marker-overlay {
   position: fixed;
   inset: 0;
@@ -10,6 +11,7 @@
   animation: fadeIn 0.2s ease;
 }
 
+/* Modal */
 .marker-modal {
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
@@ -21,4 +23,137 @@
   max-width: 600px;
   padding-bottom: 24px;
   animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Drag Handle */
+.drag-handle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+
+  &-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+}
+
+/* Header */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  margin-bottom: 8px;
+}
+
+.settings-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .settings-icon {
+    font-size: 2rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ffffff;
+  }
+}
+
+/* Close */
+.close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+}
+
+/* List */
+.marker-list-container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Items */
+.setting-item {
+  padding: 14px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.setting-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-icon {
+  font-size: 1.8rem;
+}
+
+.setting-content {
+  flex: 1;
+}
+
+.setting-label {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.setting-desc {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+/* Delete */
+.delete-btn {
+  background: rgba(255, 80, 80, 0.1);
+  border: none;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #ff6b6b;
+
+  &:hover {
+    background: rgba(255, 80, 80, 0.25);
+  }
+}
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #888;
 }
