@@ -105,6 +105,18 @@
     (purchaseItem)="onPurchaseShopItem($event)"
   >
   </app-shop>
+  
+  <app-burger-menu
+  *ngIf="isMenuOpen"
+  (close)="isMenuOpen = false"
+  (toggleSession)="toggleSession()"
+  (openSettings)="settingsService.open = true"
+  (openMarkers)="isMarkerListOpen = true">
+</app-burger-menu>
+
+<app-marker-list
+  *ngIf="isMarkerListOpen">
+</app-marker-list>
 
   <!-- Settings -->
   <app-settings
