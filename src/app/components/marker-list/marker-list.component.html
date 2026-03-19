@@ -1,0 +1,16 @@
+<div class="marker-overlay">
+  <div class="marker-panel">
+
+    <h3>📍 Marker</h3>
+
+    <div *ngFor="let marker of markerService.getAll()" class="marker-item">
+      <div>
+        <strong>{{ marker.name }}</strong>
+        <div class="desc">{{ marker.description }}</div>
+      </div>
+
+      <button (click)="delete(marker)">❌</button>
+    </div>
+
+  </div>
+</div>
