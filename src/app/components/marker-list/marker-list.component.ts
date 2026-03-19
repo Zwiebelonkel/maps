@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // 👈 DAS ist wichtig!
 import { MarkerService } from '../../../services/marker.service';
 import { UserMarker } from '../../../../models/user-marker.model';
 
 @Component({
   selector: 'app-marker-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './marker-list.component.html',
   styleUrls: ['./marker-list.component.scss'],
 })
