@@ -1,17 +1,48 @@
-<div class="menu-overlay" (click)="close.emit()">
-  <div class="menu-panel" (click)="$event.stopPropagation()">
+<div class="burger-overlay" (click)="close.emit()">
+  <div class="burger-modal" (click)="$event.stopPropagation()">
 
-    <button (click)="toggleSession.emit()">
-      ▶ Start / End Session
-    </button>
+    <div class="drag-handle">
+      <div class="drag-handle-bar"></div>
+    </div>
 
-    <button (click)="openSettings.emit()">
-      ⚙ Settings
-    </button>
+    <div class="settings-header">
+      <div class="settings-title">
+        <div class="settings-icon">☰</div>
+        <h2>Menü</h2>
+      </div>
 
-    <button (click)="openMarkers.emit()">
-      📍 Marker Liste
-    </button>
+      <button class="close-btn" (click)="close.emit()">✖</button>
+    </div>
+
+    <div class="setting-item" (click)="onSession()">
+      <div class="setting-info">
+        <div class="setting-icon">▶️</div>
+        <div class="setting-content">
+          <div class="setting-label">Session</div>
+          <div class="setting-desc">Start / Stop</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-item" (click)="onSettings()">
+      <div class="setting-info">
+        <div class="setting-icon">⚙️</div>
+        <div class="setting-content">
+          <div class="setting-label">Settings</div>
+          <div class="setting-desc">App Einstellungen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-item" (click)="onMarkers()">
+      <div class="setting-info">
+        <div class="setting-icon">📍</div>
+        <div class="setting-content">
+          <div class="setting-label">Marker</div>
+          <div class="setting-desc">Liste anzeigen</div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
