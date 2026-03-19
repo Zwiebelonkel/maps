@@ -23,7 +23,7 @@ import { SettingsService } from '../services/settings.service';
 import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
 import { MarkerService } from '../services/marker.service';
-import { UserMarker } from './models/user-marker.model';
+import { UserMarker } from '../../../models/user-marker.model';
 
 
 const iconRetinaUrl =
