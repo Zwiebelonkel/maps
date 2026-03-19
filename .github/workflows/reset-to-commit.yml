@@ -1,0 +1,37 @@
+name: 🔥 Hard Reset Repo (Auto Backup)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set Git config
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      # 🧠 Backup vom aktuellen Stand
+      - name: Create backup branch
+        run: |
+          BACKUP_BRANCH="backup-$(date +%Y%m%d-%H%M%S)"
+          git branch $BACKUP_BRANCH
+          git push origin $BACKUP_BRANCH
+          echo "Backup erstellt: $BACKUP_BRANCH"
+
+      # 🔥 Reset auf deinen Commit
+      - name: Reset to last good commit
+        run: |
+          git reset --hard 9fce3e14f30404e882cb3f40116edba0fa1e9f3b
+
+      # 🚀 Force Push auf master
+      - name: Force push to master
+        run: |
+          git push origin HEAD:master --force
