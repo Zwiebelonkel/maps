@@ -1,15 +1,38 @@
-<div class="marker-overlay">
-  <div class="marker-panel">
+<div class="marker-overlay" (click)="close.emit()">
+  <div class="marker-modal" (click)="$event.stopPropagation()">
 
-    <h3>📍 Marker</h3>
+    <div class="drag-handle">
+      <div class="drag-handle-bar"></div>
+    </div>
 
-    <div *ngFor="let marker of markerService.getAll()" class="marker-item">
-      <div>
-        <strong>{{ marker.name }}</strong>
-        <div class="desc">{{ marker.description }}</div>
+    <div class="settings-header">
+      <div class="settings-title">
+        <div class="settings-icon">📍</div>
+        <h2>Marker</h2>
       </div>
 
-      <button (click)="delete(marker)">❌</button>
+      <button class="close-btn" (click)="close.emit()">✖</button>
+    </div>
+
+    <div class="setting-item"
+         *ngFor="let marker of markerService.getAll()">
+
+      <div class="setting-info">
+        <div class="setting-icon">📍</div>
+
+        <div class="setting-content">
+          <div class="setting-label">{{ marker.name }}</div>
+          <div class="setting-desc">
+            {{ marker.description || 'Keine Beschreibung' }}
+          </div>
+        </div>
+
+        <button class="toggle-btn"
+                (click)="delete(marker); $event.stopPropagation()">
+          🗑️
+        </button>
+      </div>
+
     </div>
 
   </div>
