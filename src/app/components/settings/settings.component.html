@@ -1,7 +1,9 @@
-<div class="settings-overlay" *ngIf="isOpen" (click)="closeWithAnimation()">
-  <div class="settings-modal"
-    (click)="$event.stopPropagation()"
-    [class.closing]="isClosing">
+<div
+  class="settings-overlay"
+  *ngIf="isOpen || isClosing"
+  [class.closing]="isClosing"
+  (click)="closeWithAnimation()"
+>
 
     <!-- Drag Handle -->
     <div class="drag-handle"
