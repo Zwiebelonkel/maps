@@ -4,6 +4,11 @@
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
+  <div
+    class="settings-modal"
+    (click)="$event.stopPropagation()"
+    [class.closing]="isClosing"
+  >
 
     <!-- Drag Handle -->
     <div class="drag-handle"
@@ -35,7 +40,10 @@
         </div>
         <div class="setting-value">{{ maxRenderTiles }}</div>
       </div>
-      <input type="range" min="100" max="50000" step="100"
+      <input type="range"
+        min="100"
+        max="50000"
+        step="100"
         [value]="maxRenderTiles"
         (input)="updateMaxRenderTiles(+$any($event.target).value)" />
     </div>
@@ -62,7 +70,7 @@
         <span class="setting-icon">📍</span>
         <div class="setting-content">
           <div class="setting-label">Standort</div>
-          <div class="setting-desc">Karte auf aktuelle Position zentrieren</div>
+          <div class="setting-desc">Karte zentrieren</div>
         </div>
         <button class="toggle-btn" (click)="centerMap()">
           Zentrieren
@@ -88,8 +96,13 @@
 
     <!-- Footer -->
     <div class="settings-footer">
-      <button class="reset-settings-btn" (click)="reset()">♻️ Einstellungen zurücksetzen</button>
-      <button class="reset-game-btn" (click)="resetGame()">🗑️ Spielfortschritt löschen</button>
+      <button class="reset-settings-btn" (click)="reset()">
+        ♻️ Einstellungen zurücksetzen
+      </button>
+
+      <button class="reset-game-btn" (click)="resetGame()">
+        🗑️ Spielfortschritt löschen
+      </button>
     </div>
 
   </div>
