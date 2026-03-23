@@ -1,0 +1,86 @@
+<div
+  class="modal-overlay"
+  *ngIf="isOpen || isClosing"
+  [class.closing]="isClosing"
+  (click)="closeWithAnimation()"
+>
+  <div
+    class="modal"
+    (click)="$event.stopPropagation()"
+    [class.closing]="isClosing"
+  >
+    <div class="drag-handle">
+      <div class="drag-handle-bar"></div>
+    </div>
+
+    <div class="modal-header">
+      <h2>👤 Player</h2>
+      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+    </div>
+
+    <!-- Preview -->
+    <div class="outfit-preview" *ngIf="selectedOutfit">
+      <div class="outfit-preview-emoji">{{ selectedOutfit.icon }}</div>
+      <div class="outfit-preview-info">
+        <div class="outfit-preview-top">
+          <div class="outfit-preview-name">{{ selectedOutfit.name }}</div>
+          <div class="rarity-badge" [attr.data-rarity]="selectedOutfit.rarity">
+            {{ selectedOutfit.rarity }}
+          </div>
+        </div>
+        <div class="outfit-preview-desc">{{ selectedOutfit.description }}</div>
+        <div class="outfit-effect-tag">
+          <span class="effect-icon">{{ selectedOutfit.effect.icon }}</span>
+          <span class="effect-label">{{ selectedOutfit.effect.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste -->
+    <div class="outfit-list">
+      <div
+        class="outfit-row"
+        *ngFor="let outfit of outfits"
+        [class.locked]="!isUnlocked(outfit.id)"
+        [class.active]="player.equipped === outfit.id"
+        [class.selected]="selectedOutfit?.id === outfit.id"
+        (click)="preview(outfit)"
+      >
+        <div class="outfit-row-icon">{{ outfit.icon }}</div>
+        <div class="outfit-row-content">
+          <div class="outfit-row-name">{{ outfit.name }}</div>
+          <div class="outfit-row-effect">
+            {{ outfit.effect.icon }} {{ outfit.effect.label }}
+          </div>
+        </div>
+        <div class="outfit-row-right">
+          <div class="rarity-dot" [attr.data-rarity]="outfit.rarity"></div>
+          <span
+            class="status-badge equipped"
+            *ngIf="player.equipped === outfit.id"
+            >Aktiv</span
+          >
+          <span class="status-badge locked-badge" *ngIf="!isUnlocked(outfit.id)"
+            >🔒</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Ausrüsten -->
+    <div
+      class="outfit-actions"
+      *ngIf="selectedOutfit && isUnlocked(selectedOutfit.id)"
+    >
+      <button
+        class="equip-btn"
+        [class.already-equipped]="player.equipped === selectedOutfit.id"
+        (click)="equip()"
+      >
+        {{
+          player.equipped === selectedOutfit.id ? "✓ Ausgerüstet" : "Ausrüsten"
+        }}
+      </button>
+    </div>
+  </div>
+</div>

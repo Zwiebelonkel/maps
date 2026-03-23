@@ -13,6 +13,7 @@ export class BurgerMenuComponent {
   @Output() toggleSession = new EventEmitter<void>();
   @Output() openSettings = new EventEmitter<void>();
   @Output() openMarkers = new EventEmitter<void>();
+  @Output() openPlayer = new EventEmitter<void>();
 
   isOpen = true;
   isClosing = false;
@@ -31,6 +32,11 @@ export class BurgerMenuComponent {
       this.isClosing = false;
       this.close.emit();
     }, 320);
+  }
+
+  onPlayer() {
+    this.openPlayer.emit();
+    this.closeWithAnimation();
   }
 
   onSession() {

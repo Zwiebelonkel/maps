@@ -1,0 +1,254 @@
+// ── Preview ───────────────────────────────────────
+.outfit-preview {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 8px 24px 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+
+  &-emoji {
+    font-size: 4rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  &-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  &-desc {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.4;
+  }
+}
+
+// ── Effekt Tag ────────────────────────────────────
+.outfit-effect-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: fit-content;
+
+  .effect-icon {
+    font-size: 0.85rem;
+  }
+  .effect-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+}
+
+// ── Rarity Badge ──────────────────────────────────
+.rarity-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+
+  &[data-rarity="common"] {
+    background: rgba(170, 170, 170, 0.15);
+    color: #aaa;
+    border: 1px solid rgba(170, 170, 170, 0.2);
+  }
+  &[data-rarity="rare"] {
+    background: rgba(77, 163, 255, 0.15);
+    color: #4da3ff;
+    border: 1px solid rgba(77, 163, 255, 0.25);
+  }
+  &[data-rarity="epic"] {
+    background: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(192, 132, 252, 0.25);
+  }
+  &[data-rarity="legendary"] {
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+  }
+}
+
+.rarity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &[data-rarity="common"] {
+    background: #aaa;
+  }
+  &[data-rarity="rare"] {
+    background: #4da3ff;
+  }
+  &[data-rarity="epic"] {
+    background: #c084fc;
+  }
+  &[data-rarity="legendary"] {
+    background: #f97316;
+    box-shadow: 0 0 6px #f97316;
+  }
+}
+
+// ── Liste ─────────────────────────────────────────
+.outfit-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.outfit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+
+  &:hover:not(.locked) {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.selected {
+    background: rgba(77, 163, 255, 0.07);
+    border-color: rgba(77, 163, 255, 0.2);
+  }
+
+  &.active .outfit-row-name {
+    color: #4da3ff;
+  }
+
+  &.locked {
+    opacity: 0.3;
+    filter: grayscale(1);
+    cursor: default;
+  }
+
+  &-icon {
+    font-size: 1.6rem;
+    width: 32px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  &-effect {
+    font-size: 0.72rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  &-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Status Badges ─────────────────────────────────
+.status-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+
+  &.equipped {
+    background: rgba(77, 163, 255, 0.15);
+    color: #4da3ff;
+    border: 1px solid rgba(77, 163, 255, 0.25);
+  }
+}
+
+// ── Ausrüsten Button ──────────────────────────────
+.outfit-actions {
+  padding: 14px 24px 0;
+}
+
+.equip-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: #4da3ff;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #6db8ff;
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.already-equipped {
+    background: rgba(77, 163, 255, 0.12);
+    color: #4da3ff;
+    border: 1px solid rgba(77, 163, 255, 0.25);
+    cursor: default;
+    transform: none;
+    &:hover {
+      transform: none;
+    }
+  }
+}

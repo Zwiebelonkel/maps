@@ -24,9 +24,11 @@ import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
 import { BurgerMenuComponent } from './components/burger-menu/burger-menu.component';
 import { MarkerListComponent } from './components/marker-list/marker-list.component';
+import { PlayerComponent } from './components/player-menu/player.component';
 import { MarkerService } from '../services/marker.service';
+import { PlayerService } from '../services/player.service';
 import { UserMarker } from '../../models/user-marker.model';
-
+import { OUTFITS } from './config/player.config';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -44,7 +46,6 @@ const iconDefault = L.icon({
   shadowSize: [41, 41],
 });
 L.Marker.prototype.options.icon = iconDefault;
-
 
 interface MapTile {
   lat: number;
@@ -69,14 +70,15 @@ interface GridCoordinate {
   selector: 'app-root',
   standalone: true,
   imports: [
-  CommonModule,
-  ShopComponent,
-  LootPopupComponent,
-  SettingsComponent,
-  SessionSummaryComponent,
-  BurgerMenuComponent,      // ✅ hinzufügen
-  MarkerListComponent       // ✅ hinzufügen
-],
+    CommonModule,
+    ShopComponent,
+    LootPopupComponent,
+    SettingsComponent,
+    SessionSummaryComponent,
+    BurgerMenuComponent, // ✅ hinzufügen
+    MarkerListComponent, // ✅ hinzufügen
+    PlayerComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
@@ -113,6 +115,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // Shop / Bomb
   isShopOpen = false;
   isSettingsOpen = false;
+  isPlayerOpen = false;
   activeBombItem: ShopItem | null = null;
 
   // Session
@@ -139,7 +142,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private lootService: LootService,
     public settingsService: SettingsService,
     public sessionService: SessionService,
-    private markerService: MarkerService
+    private markerService: MarkerService,
+    public playerService: PlayerService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -158,91 +162,113 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => (this.flashActive = false), 200);
   }
 
-
   // Session starten/stoppen
-toggleSession() {
-  if (this.sessionService.isActive) {
-    this.stopSession();
-  } else {
-    this.startSession();
-  }
-}
-
-private startSession() {
-  this.sessionService.start();
-
-  this.routePolyline = L.polyline([], {
-    color: '#4da3ff',
-    weight: 5,
-    opacity: 1,
-    lineCap: 'round',
-    lineJoin: 'round',
-  } as any).addTo(this.map);
-
-  // Start-Marker
-  if (this.currentLocation) {
-    L.circleMarker([this.currentLocation.lat, this.currentLocation.lng], {
-      radius: 8,
-      color: '#00e676',
-      fillColor: '#00e676',
-      fillOpacity: 1,
-      weight: 2,
-    }).addTo(this.map);
-  }
-}
-
-private stopSession() {
-  const stats = this.sessionService.stop();
-  this.sessionSummaryStats = stats;
-
-  // Karte auf Route zoomen
-  if (this.routePolyline) {
-    const bounds = this.routePolyline.getBounds();
-    if (bounds.isValid()) {
-      this.map.fitBounds(bounds, { padding: [40, 40] });
+  toggleSession() {
+    if (this.sessionService.isActive) {
+      this.stopSession();
+    } else {
+      this.startSession();
     }
   }
 
-  // Fog kurz ausblenden für Screenshot
-  if (this.fogLayer) {
-    this.map.removeLayer(this.fogLayer);
+  private startSession() {
+    this.sessionService.start();
+
+    this.routePolyline = L.polyline([], {
+      color: '#4da3ff',
+      weight: 5,
+      opacity: 1,
+      lineCap: 'round',
+      lineJoin: 'round',
+    } as any).addTo(this.map);
+
+    // Start-Marker
+    if (this.currentLocation) {
+      L.circleMarker([this.currentLocation.lat, this.currentLocation.lng], {
+        radius: 8,
+        color: '#00e676',
+        fillColor: '#00e676',
+        fillOpacity: 1,
+        weight: 2,
+      }).addTo(this.map);
+    }
   }
 
-  // Warten damit fitBounds und Render fertig sind
-  setTimeout(() => {
-    try {
-      const mapContainer = document.getElementById('map');
-      const canvas = mapContainer?.querySelector('canvas');
-      if (canvas) {
-        this.sessionMapImageUrl = canvas.toDataURL('image/png');
-      } else {
+  focusMarker(marker: UserMarker) {
+    this.isMarkerListOpen = false;
+
+    if (!this.map) return;
+
+    const target = L.latLng(marker.lat, marker.lng);
+
+    this.map.flyTo(target, 19, {
+      duration: 1.2,
+    });
+
+    const matchingMarker = this.leafletUserMarkers.find(
+      (leafletMarker: any) => {
+        const pos = leafletMarker.getLatLng();
+        return pos.lat === marker.lat && pos.lng === marker.lng;
+      },
+    );
+
+    if (matchingMarker) {
+      setTimeout(() => {
+        matchingMarker.openPopup();
+      }, 1300);
+    }
+  }
+
+  private stopSession() {
+    const stats = this.sessionService.stop();
+    this.sessionSummaryStats = stats;
+
+    // Karte auf Route zoomen
+    if (this.routePolyline) {
+      const bounds = this.routePolyline.getBounds();
+      if (bounds.isValid()) {
+        this.map.fitBounds(bounds, { padding: [40, 40] });
+      }
+    }
+
+    // Fog kurz ausblenden für Screenshot
+    if (this.fogLayer) {
+      this.map.removeLayer(this.fogLayer);
+    }
+
+    // Warten damit fitBounds und Render fertig sind
+    setTimeout(() => {
+      try {
+        const mapContainer = document.getElementById('map');
+        const canvas = mapContainer?.querySelector('canvas');
+        if (canvas) {
+          this.sessionMapImageUrl = canvas.toDataURL('image/png');
+        } else {
+          this.sessionMapImageUrl = null;
+        }
+      } catch (e) {
         this.sessionMapImageUrl = null;
       }
-    } catch (e) {
-      this.sessionMapImageUrl = null;
-    }
 
-    // Fog wieder hinzufügen
-    this.drawFogOfWar();
+      // Fog wieder hinzufügen
+      this.drawFogOfWar();
 
-    // Popup zeigen
-    this.showSessionSummary = true;
+      // Popup zeigen
+      this.showSessionSummary = true;
 
-    // Polyline entfernen
-    if (this.routePolyline) {
-      this.map.removeLayer(this.routePolyline);
-      this.routePolyline = null;
-    }
-  }, 500);
-}
+      // Polyline entfernen
+      if (this.routePolyline) {
+        this.map.removeLayer(this.routePolyline);
+        this.routePolyline = null;
+      }
+    }, 500);
+  }
 
-
-
-closeSessionSummary() {
-  this.showSessionSummary = false;
-  this.sessionSummaryStats = null;
-  this.sessionMapImageUrl = null;
-}
+  closeSessionSummary() {
+    this.showSessionSummary = false;
+    this.sessionSummaryStats = null;
+    this.sessionMapImageUrl = null;
+  }
 
   // ── Power Save ──────────────────────────────────────────────
 
@@ -256,27 +282,27 @@ closeSessionSummary() {
 
   // ── Lifecycle ───────────────────────────────────────────────
 
-ngOnInit() {
-  this.markerService.load();
-  this.loadProgress();
-  this.updateGameState();
-  this.startGPSTracking();
+  ngOnInit() {
+    this.markerService.load();
+    this.loadProgress();
+    this.updateGameState();
+    this.startGPSTracking();
 
-  interval(3000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
-    });
-}
+    interval(3000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
+      });
+  }
 
   ngAfterViewInit() {
-  (window as any).deleteUserMarker = (id: string) => {
-    this.markerService.removeMarker(id);
-    this.renderAllUserMarkers();
-  };
+    (window as any).deleteUserMarker = (id: string) => {
+      this.markerService.removeMarker(id);
+      this.renderAllUserMarkers();
+    };
 
-  setTimeout(() => this.initMap(), 100);
-}
+    setTimeout(() => this.initMap(), 100);
+  }
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -287,104 +313,104 @@ ngOnInit() {
 
   // ── Map ─────────────────────────────────────────────────────
 
-private initMap() {
-  const mapElement = document.getElementById('map');
-  if (!mapElement) return;
+  private initMap() {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) return;
 
-  this.map = L.map('map', {
-    center: [53.0793, 8.8017],
-    zoom: 16,
-    zoomControl: false,
-    touchZoom: true,
-    dragging: true,
-    scrollWheelZoom: true,
-    doubleClickZoom: false,
-    minZoom: 10,
-    maxZoom: 25,
-    preferCanvas: true,
-  } as L.MapOptions);
+    this.map = L.map('map', {
+      center: [53.0793, 8.8017],
+      zoom: 16,
+      zoomControl: false,
+      touchZoom: true,
+      dragging: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: false,
+      minZoom: 10,
+      maxZoom: 25,
+      preferCanvas: true,
+    } as L.MapOptions);
 
-  this.tileLayer = this.createTileLayer();
-  this.tileLayer.addTo(this.map);
+    this.tileLayer = this.createTileLayer();
+    this.tileLayer.addTo(this.map);
 
-  this.map.on('click', (e: L.LeafletMouseEvent) => {
-    if (this.activeBombItem) {
-      this.detonateBomb(e.latlng, this.activeBombItem);
-      this.activeBombItem = null;
-      document.getElementById('map')!.style.cursor = '';
-      return;
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      if (this.activeBombItem) {
+        this.detonateBomb(e.latlng, this.activeBombItem);
+        this.activeBombItem = null;
+        document.getElementById('map')!.style.cursor = '';
+        return;
+      }
+
+      if (this.isTileExplored(e.latlng.lat, e.latlng.lng)) {
+        this.createUserMarker(e.latlng);
+        return;
+      }
+
+      this.addClickCoins();
+      this.showCoin(e.originalEvent as MouseEvent);
+    });
+
+    setTimeout(() => {
+      if (this.map) this.map.invalidateSize();
+    }, 200);
+
+    if (this.currentLocation) {
+      this.map.setView(
+        [this.currentLocation.lat, this.currentLocation.lng],
+        16,
+      );
+      this.updatePlayerPosition(this.currentLocation);
     }
 
-  if (this.isTileExplored(e.latlng.lat, e.latlng.lng)) {
-    this.createUserMarker(e.latlng);
-    return;
+    this.drawFogOfWar();
+    this.renderAllUserMarkers();
   }
 
-    this.addClickCoins();
-    this.showCoin(e.originalEvent as MouseEvent);
-  });
+  private renderAllUserMarkers() {
+    this.leafletUserMarkers.forEach((marker) => this.map.removeLayer(marker));
+    this.leafletUserMarkers = [];
 
-  setTimeout(() => {
-    if (this.map) this.map.invalidateSize();
-  }, 200);
-
-  if (this.currentLocation) {
-    this.map.setView(
-      [this.currentLocation.lat, this.currentLocation.lng],
-      16,
-    );
-    this.updatePlayerPosition(this.currentLocation);
+    this.markerService.getAll().forEach((marker) => {
+      this.renderUserMarker(marker);
+    });
   }
 
-  this.drawFogOfWar();
-  this.renderAllUserMarkers();
-}
+  private isTileExplored(lat: number, lng: number): boolean {
+    const grid = this.latLngToGrid(lat, lng);
+    const key = this.getTileKey(grid.gridX, grid.gridY);
+    return this.exploredTiles.has(key);
+  }
 
-private renderAllUserMarkers() {
-  this.leafletUserMarkers.forEach(marker => this.map.removeLayer(marker));
-  this.leafletUserMarkers = [];
+  private createUserMarker(latlng: L.LatLng) {
+    const name = prompt('Name für den Marker:');
+    if (!name || !name.trim()) return;
 
-  this.markerService.getAll().forEach(marker => {
-    this.renderUserMarker(marker);
-  });
-}
+    const description = prompt('Beschreibung für den Marker:') || '';
 
-private isTileExplored(lat: number, lng: number): boolean {
-  const grid = this.latLngToGrid(lat, lng);
-  const key = this.getTileKey(grid.gridX, grid.gridY);
-  return this.exploredTiles.has(key);
-}
+    const marker: UserMarker = {
+      id: crypto.randomUUID(),
+      lat: latlng.lat,
+      lng: latlng.lng,
+      name: name.trim(),
+      description: description.trim(),
+      createdAt: Date.now(),
+    };
 
-private createUserMarker(latlng: L.LatLng) {
-  const name = prompt('Name für den Marker:');
-  if (!name || !name.trim()) return;
+    this.markerService.addMarker(marker);
+    this.renderAllUserMarkers();
+  }
 
-  const description = prompt('Beschreibung für den Marker:') || '';
+  private renderUserMarker(marker: UserMarker) {
+    const leafletMarker = L.marker([marker.lat, marker.lng], {
+      icon: L.divIcon({
+        className: 'user-marker',
+        html: '<div class="user-marker-pin">📍</div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 28],
+      }),
+    }).addTo(this.map);
 
-  const marker: UserMarker = {
-    id: crypto.randomUUID(),
-    lat: latlng.lat,
-    lng: latlng.lng,
-    name: name.trim(),
-    description: description.trim(),
-    createdAt: Date.now(),
-  };
-
-  this.markerService.addMarker(marker);
-  this.renderAllUserMarkers();
-}
-
-private renderUserMarker(marker: UserMarker) {
-  const leafletMarker = L.marker([marker.lat, marker.lng], {
-    icon: L.divIcon({
-      className: 'user-marker',
-      html: '<div class="user-marker-pin">📍</div>',
-      iconSize: [28, 28],
-      iconAnchor: [14, 28],
-    }),
-  }).addTo(this.map);
-
-  leafletMarker.bindPopup(`
+    leafletMarker.bindPopup(`
   <div class="marker-popup">
     <div class="popup-title">
       ${this.escapeHtml(marker.name)}
@@ -403,72 +429,85 @@ private renderUserMarker(marker: UserMarker) {
   </div>
 `);
 
-  this.leafletUserMarkers.push(leafletMarker);
-}
-
-private escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-private createTileLayer(): L.TileLayer {
-  if (this.settingsService.snapshot.darkMap) {
-    return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & CartoDB',
-      subdomains: 'abcd',
-      maxZoom: 25,
-    });
-  } else {
-    return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 25,
-    });
+    this.leafletUserMarkers.push(leafletMarker);
   }
-}
 
-onDarkMapChanged(darkMap: boolean) {
-  if (!this.map) return;
-  this.map.removeLayer(this.tileLayer);
-  this.tileLayer = this.createTileLayer();
-  this.tileLayer.addTo(this.map);
-  this.tileLayer.bringToBack();
-}
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private createTileLayer(): L.TileLayer {
+    if (this.settingsService.snapshot.darkMap) {
+      return L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        {
+          attribution: '&copy; OpenStreetMap & CartoDB',
+          subdomains: 'abcd',
+          maxZoom: 25,
+        },
+      );
+    } else {
+      return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 25,
+      });
+    }
+  }
+
+  onDarkMapChanged(darkMap: boolean) {
+    if (!this.map) return;
+    this.map.removeLayer(this.tileLayer);
+    this.tileLayer = this.createTileLayer();
+    this.tileLayer.addTo(this.map);
+    this.tileLayer.bringToBack();
+  }
 
   // ── Bomb ────────────────────────────────────────────────────
 
   private detonateBomb(latlng: L.LatLng, item: ShopItem) {
-  const radius = item.bombRadius || 50;
-  this.vibrate([100, 50, 200, 50, 300]);
+    const radius = item.bombRadius || 50;
+    this.vibrate([100, 50, 200, 50, 300]);
 
-  // allowLoot = false → kein Loot bei Bomben
-  const newTiles = this.exploreTiles(latlng.lat, latlng.lng, radius, false);
+    // allowLoot = false → kein Loot bei Bomben
+    const newTiles = this.exploreTiles(latlng.lat, latlng.lng, radius, false);
 
-  const color = item.id === 'bomb_mega'  ? '#ff4400'
-            : item.id === 'bomb_medium' ? '#ff8800'
-            : item.id === 'bomb_ultra'  ? '#00e676'
+    const color =
+      item.id === 'bomb_mega'
+        ? '#ff4400'
+        : item.id === 'bomb_medium'
+          ? '#ff8800'
+          : item.id === 'bomb_ultra'
+            ? '#00e676'
             : '#ffd700';
 
+    const explosion = L.circle(latlng, {
+      radius,
+      color,
+      fillColor: color,
+      fillOpacity: 0.4,
+      weight: 3,
+    }).addTo(this.map);
+    setTimeout(() => this.map.removeLayer(explosion), 1000);
 
-  const explosion = L.circle(latlng, {
-    radius, color, fillColor: color, fillOpacity: 0.4, weight: 3,
-  }).addTo(this.map);
-  setTimeout(() => this.map.removeLayer(explosion), 1000);
-
-  if (newTiles > 0) {
-    this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
-    this.totalTilesExplored = this.exploredTiles.size;
-    this.lastExploredCount = newTiles;
-    this.showCoinAnimation = true;
-    setTimeout(() => (this.showCoinAnimation = false), 2000);
-    this.updateGameState();
-    this.saveProgress();
-    this.drawFogOfWar();
+    if (newTiles > 0) {
+      this.totalCoins +=
+        newTiles *
+        GAME_CONFIG.COINS_PER_TILE *
+        this.playerService.getCoinMultiplier();
+      this.totalTilesExplored = this.exploredTiles.size;
+      this.lastExploredCount = newTiles;
+      this.showCoinAnimation = true;
+      setTimeout(() => (this.showCoinAnimation = false), 2000);
+      this.updateGameState();
+      this.saveProgress();
+      this.drawFogOfWar();
+    }
   }
-}
 
   // ── GPS ─────────────────────────────────────────────────────
 
@@ -538,13 +577,12 @@ onDarkMapChanged(darkMap: boolean) {
     this.currentLocation = newLocation;
 
     // Session Punkt hinzufügen
-this.sessionService.addPoint(newLocation.lat, newLocation.lng);
+    this.sessionService.addPoint(newLocation.lat, newLocation.lng);
 
-// Route auf Karte zeichnen
-if (this.routePolyline) {
-  this.routePolyline.addLatLng(L.latLng(newLocation.lat, newLocation.lng));
-}
-
+    // Route auf Karte zeichnen
+    if (this.routePolyline) {
+      this.routePolyline.addLatLng(L.latLng(newLocation.lat, newLocation.lng));
+    }
 
     if (this.map) {
       this.updatePlayerPosition(newLocation);
@@ -555,16 +593,28 @@ if (this.routePolyline) {
   // ── Player ──────────────────────────────────────────────────
 
   private updatePlayerPosition(location: Location) {
+    const icon = this.playerService.getEquippedIcon();
     const latLng = L.latLng(location.lat, location.lng);
+    const effectiveRadius =
+      this.currentRadius * this.playerService.getRadiusMultiplier();
 
     if (this.playerMarker) {
       this.playerMarker.setLatLng(latLng);
+      // Icon aktualisieren falls Outfit gewechselt
+      this.playerMarker.setIcon(
+        L.divIcon({
+          className: 'player-marker',
+          html: `<div class="player-emoji">${icon}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        }),
+      );
     } else {
       const playerIcon = L.divIcon({
         className: 'player-marker',
-        html: '<div class="player-dot"></div>',
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
+        html: `<div class="player-emoji">${icon}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
       });
       this.playerMarker = L.marker(latLng, {
         icon: playerIcon,
@@ -574,10 +624,10 @@ if (this.routePolyline) {
 
     if (this.radiusCircle) {
       this.radiusCircle.setLatLng(latLng);
-      this.radiusCircle.setRadius(this.currentRadius);
+      this.radiusCircle.setRadius(effectiveRadius); // ← effektiver Radius
     } else {
       this.radiusCircle = L.circle(latLng, {
-        radius: this.currentRadius,
+        radius: effectiveRadius,
         color: '#4285F4',
         fillColor: '#4285F4',
         fillOpacity: 0.1,
@@ -599,13 +649,23 @@ if (this.routePolyline) {
     );
     if (this.lastExploredGridKey === currentGridKey) return;
 
-    const newTiles = this.exploreTiles(location.lat, location.lng);
+    // Radius-Multiplier vom Outfit anwenden
+    const effectiveRadius =
+      this.currentRadius * this.playerService.getRadiusMultiplier();
+    const newTiles = this.exploreTiles(
+      location.lat,
+      location.lng,
+      effectiveRadius,
+    );
 
     if (newTiles > 0) {
       this.vibrate(40);
       this.lastExploredCount = newTiles;
       this.showCoinAnimation = true;
-      this.totalCoins += newTiles * GAME_CONFIG.COINS_PER_TILE;
+      this.totalCoins +=
+        newTiles *
+        GAME_CONFIG.COINS_PER_TILE *
+        this.playerService.getCoinMultiplier();
       this.totalTilesExplored = this.exploredTiles.size;
       this.sessionService.addTiles(newTiles);
       this.updateGameState();
@@ -641,70 +701,90 @@ if (this.routePolyline) {
     return `${gridX},${gridY}`;
   }
 
-private exploreTiles(centerLat: number, centerLng: number, radiusOverride?: number, allowLoot = true): number {
-  const radius = radiusOverride ?? this.currentRadius;
-  let newTilesCount = 0;
-  const tilesInRadius = Math.ceil(radius / GAME_CONFIG.TILE_SIZE);
-  const centerGrid = this.latLngToGrid(centerLat, centerLng);
+  private exploreTiles(
+    centerLat: number,
+    centerLng: number,
+    radiusOverride?: number,
+    allowLoot = true,
+  ): number {
+    const radius = radiusOverride ?? this.currentRadius;
+    let newTilesCount = 0;
+    const tilesInRadius = Math.ceil(radius / GAME_CONFIG.TILE_SIZE);
+    const centerGrid = this.latLngToGrid(centerLat, centerLng);
 
-  for (let dx = -tilesInRadius; dx <= tilesInRadius; dx++) {
-    for (let dy = -tilesInRadius; dy <= tilesInRadius; dy++) {
-      const gridX = centerGrid.gridX + dx;
-      const gridY = centerGrid.gridY + dy;
-      const key = this.getTileKey(gridX, gridY);
-      if (this.exploredTiles.has(key)) continue;
+    for (let dx = -tilesInRadius; dx <= tilesInRadius; dx++) {
+      for (let dy = -tilesInRadius; dy <= tilesInRadius; dy++) {
+        const gridX = centerGrid.gridX + dx;
+        const gridY = centerGrid.gridY + dy;
+        const key = this.getTileKey(gridX, gridY);
+        if (this.exploredTiles.has(key)) continue;
 
-      const tileCenter = this.gridToTileCenter(gridX, gridY);
-      const distance = this.calculateDistance(centerLat, centerLng, tileCenter.lat, tileCenter.lng);
+        const tileCenter = this.gridToTileCenter(gridX, gridY);
+        const distance = this.calculateDistance(
+          centerLat,
+          centerLng,
+          tileCenter.lat,
+          tileCenter.lng,
+        );
 
-      if (distance <= radius) {
-        this.exploredTiles.set(key, {
-          lat: tileCenter.lat, lng: tileCenter.lng,
-          explored: true, exploredAt: new Date(), gridX, gridY,
-        });
-        newTilesCount++;
+        if (distance <= radius) {
+          this.exploredTiles.set(key, {
+            lat: tileCenter.lat,
+            lng: tileCenter.lng,
+            explored: true,
+            exploredAt: new Date(),
+            gridX,
+            gridY,
+          });
+          newTilesCount++;
 
-        if (allowLoot) {
-          const loot = this.lootService.rollLoot();
-          if (loot) {
-            this.applyLoot(loot);
-            setTimeout(() => this.lootPopup?.show(loot), 100);
-            this.triggerFlash(loot.rarity);
+          if (allowLoot) {
+            const loot = this.lootService.rollLoot();
+            if (loot) {
+              this.applyLoot(loot);
+              setTimeout(() => this.lootPopup?.show(loot), 100);
+              this.triggerFlash(loot.rarity);
+            }
           }
         }
       }
     }
-  }
 
-  return newTilesCount;
-}
+    return newTilesCount;
+  }
 
   // ── Loot ────────────────────────────────────────────────────
 
-private applyLoot(loot: LootResult) {
-  switch (loot.type) {
-    case 'coins':
-      this.totalCoins += loot.amount || 0;
-      break;
-    case 'bomb':
-      if (loot.item) {
-        this.activeBombItem = loot.item;
-        document.getElementById('map')!.style.cursor =
-          `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${loot.item.icon}</text></svg>") 16 16, crosshair`;
-      }
-      break;
-    case 'upgrade':
-      const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
-        u => u.level === this.currentClickLevel + 1
-      );
-      if (nextClickUpgrade) {
-        this.upgradeService.applyClickUpgrade(nextClickUpgrade);
-      }
-      break;
-    case 'trophy':
-      break;
+  private applyLoot(loot: LootResult) {
+    switch (loot.type) {
+      case 'coins':
+        this.totalCoins +=
+          (loot.amount || 0) * this.playerService.getCoinMultiplier();
+        break;
+      case 'bomb':
+        if (loot.item) {
+          this.activeBombItem = loot.item;
+          document.getElementById('map')!.style.cursor =
+            `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${loot.item.icon}</text></svg>") 16 16, crosshair`;
+        }
+        break;
+      case 'outfit':
+        if (loot.item) {
+          this.playerService.unlock(loot.item.id);
+        }
+        break;
+      case 'upgrade':
+        const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
+          (u) => u.level === this.currentClickLevel + 1,
+        );
+        if (nextClickUpgrade) {
+          this.upgradeService.applyClickUpgrade(nextClickUpgrade);
+        }
+        break;
+      case 'trophy':
+        break;
+    }
   }
-}
 
   // ── Fog of War ──────────────────────────────────────────────
 
@@ -788,9 +868,10 @@ private applyLoot(loot: LootResult) {
   }
 
   private updateGameState() {
-    if (this.radiusCircle) this.radiusCircle.setRadius(this.currentRadius);
+    const effectiveRadius =
+      this.currentRadius * this.playerService.getRadiusMultiplier();
+    if (this.radiusCircle) this.radiusCircle.setRadius(effectiveRadius);
   }
-
   // ── Shop ────────────────────────────────────────────────────
 
   toggleShop() {
@@ -841,23 +922,31 @@ private applyLoot(loot: LootResult) {
   }
 
   centerOnPlayer() {
-    if (this.currentLocation && this.map)
-      this.map.setView(
-        [this.currentLocation.lat, this.currentLocation.lng],
-        17,
-      );
+    if (!this.currentLocation || !this.map) return;
+
+    const lat = this.currentLocation.lat;
+    const lng = this.currentLocation.lng;
+    const radius = this.currentRadius;
+
+    const bounds = L.latLng(lat, lng).toBounds(radius * 2);
+
+    this.map.fitBounds(bounds, {
+      padding: [50, 50],
+      maxZoom: 19,
+    });
   }
 
   private addClickCoins() {
-    this.totalCoins =
-      Math.round((this.totalCoins + this.coinsPerClick) * 100) / 100;
+    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
+    this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
     this.saveProgress();
   }
 
   private showCoin(event: MouseEvent) {
+    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
     const coin = document.createElement('div');
     coin.className = 'coin-effect';
-    coin.textContent = `+${this.coinsPerClick}🪙`;
+    coin.textContent = `+${Math.round(earned * 100) / 100}🪙`;
     coin.style.left = event.clientX + 'px';
     coin.style.top = event.clientY + 'px';
     coin.style.position = 'fixed';
@@ -867,20 +956,22 @@ private applyLoot(loot: LootResult) {
 
   // ── Reset & Persistence ─────────────────────────────────────
 
-resetGame() {
-  localStorage.removeItem('map_explorer_progress');
-  this.exploredTiles.clear();
-  this.totalCoins = 0;
-  this.totalTilesExplored = 0;
-  this.lastExploredGridKey = null;
-  this.upgradeService.reset();
-  this.markerService.clear();
-  this.updateGameState();
-  if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
-  this.drawFogOfWar();
-  this.renderAllUserMarkers();
-}
-
+  resetGame() {
+    localStorage.removeItem('map_explorer_progress');
+    localStorage.removeItem('player_data');
+    this.exploredTiles.clear();
+    this.totalCoins = 0;
+    this.totalTilesExplored = 0;
+    this.lastExploredGridKey = null;
+    this.upgradeService.reset();
+    this.markerService.clear();
+    this.playerService.unlocked = ['default'];
+    this.playerService.equip('default');
+    this.updateGameState();
+    if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
+    this.drawFogOfWar();
+    this.renderAllUserMarkers();
+  }
 
   private saveProgress() {
     localStorage.setItem(
@@ -892,6 +983,10 @@ resetGame() {
         ...this.upgradeService.serialize(),
       }),
     );
+  }
+
+  onUnlockAllOutfits() {
+    OUTFITS.forEach((outfit) => this.playerService.unlock(outfit.id));
   }
 
   private loadProgress() {

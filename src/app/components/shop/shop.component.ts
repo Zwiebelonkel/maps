@@ -24,6 +24,7 @@ export class ShopComponent {
   @Output() purchaseUpgrade = new EventEmitter<RadiusUpgrade>();
   @Output() purchaseClickUpgrade = new EventEmitter<ClickUpgrade>();
   @Output() purchaseItem = new EventEmitter<ShopItem>();
+  @Output() unlockAllOutfits = new EventEmitter<void>();
 
   adminCode = '';
   codeMessage = '';
@@ -39,7 +40,8 @@ export class ShopComponent {
   get currentUpgrade(): RadiusUpgrade {
     return {
       level: this.currentLevel,
-      radius: GAME_CONFIG.BASE_RADIUS + this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
+      radius:
+        GAME_CONFIG.BASE_RADIUS + this.currentLevel * GAME_CONFIG.RADIUS_GROWTH,
       cost: 0,
       description: 'Explorer ' + this.currentLevel,
     };
@@ -47,8 +49,9 @@ export class ShopComponent {
 
   get currentClickUpgrade(): ClickUpgrade {
     return (
-      GAME_CONFIG.CLICK_UPGRADES.find(u => u.level === this.currentClickLevel)
-      || GAME_CONFIG.CLICK_UPGRADES[0]
+      GAME_CONFIG.CLICK_UPGRADES.find(
+        (u) => u.level === this.currentClickLevel,
+      ) || GAME_CONFIG.CLICK_UPGRADES[0]
     );
   }
 
@@ -60,7 +63,8 @@ export class ShopComponent {
         level,
         radius: GAME_CONFIG.BASE_RADIUS + level * GAME_CONFIG.RADIUS_GROWTH,
         cost: Math.floor(
-          GAME_CONFIG.BASE_UPGRADE_COST * Math.pow(level, GAME_CONFIG.COST_MULTIPLIER),
+          GAME_CONFIG.BASE_UPGRADE_COST *
+            Math.pow(level, GAME_CONFIG.COST_MULTIPLIER),
         ),
         description: 'Explorer ' + level,
       });
@@ -69,7 +73,9 @@ export class ShopComponent {
   }
 
   get nextClickUpgrades(): ClickUpgrade[] {
-    return GAME_CONFIG.CLICK_UPGRADES.filter(u => u.level > this.currentClickLevel);
+    return GAME_CONFIG.CLICK_UPGRADES.filter(
+      (u) => u.level > this.currentClickLevel,
+    );
   }
 
   get shopItems(): ShopItem[] {
@@ -140,10 +146,17 @@ export class ShopComponent {
 
   redeemCode() {
     if (this.adminCode === '1906') {
+      // Coins
       this.purchaseUpgrade.emit({
-        level: -1, radius: 0, cost: -10000000, description: 'ADMIN_COINS',
+        level: -1,
+        radius: 0,
+        cost: -10000000,
+        description: 'ADMIN_COINS',
       });
-      this.codeMessage = '💰 10.000.000 Coins erhalten!';
+      // Alle Outfits freischalten
+      this.unlockAllOutfits.emit();
+
+      this.codeMessage = '💰 10.000.000 Coins + alle Outfits freigeschaltet!';
       this.adminCode = '';
     } else {
       this.codeMessage = '❌ Falscher Code';

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // 👈 DAS ist wichtig!
+import { FormsModule } from '@angular/forms';
 import { MarkerService } from '../../../services/marker.service';
 import { UserMarker } from '../../../../models/user-marker.model';
 
@@ -13,6 +13,7 @@ import { UserMarker } from '../../../../models/user-marker.model';
 })
 export class MarkerListComponent {
   @Output() close = new EventEmitter<void>();
+  @Output() markerSelected = new EventEmitter<UserMarker>();
 
   isOpen = true;
   isClosing = false;
@@ -50,6 +51,11 @@ export class MarkerListComponent {
     if (!this.isDraggingHeader) return;
     this.touchCurrentY = e.touches[0].clientY;
   }
+
+  selectMarker(marker: UserMarker) {
+  this.markerSelected.emit(marker);
+  this.closeWithAnimation();
+}
 
   onHeaderTouchEnd() {
     if (!this.isDraggingHeader) return;

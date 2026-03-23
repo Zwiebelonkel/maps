@@ -1,0 +1,131 @@
+/* ───────── Overlay ───────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(8px);
+
+  animation: fadeIn 0.2s ease;
+
+  transition:
+    backdrop-filter 0.3s ease,
+    background 0.3s ease;
+
+  &.closing {
+    backdrop-filter: blur(0px);
+    background: rgba(5, 5, 5, 0);
+  }
+}
+
+/* ───────── Modal ───────── */
+.modal {
+  width: 100%;
+  max-width: 600px;
+
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(10px);
+
+  border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: none;
+
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+
+  padding-bottom: 24px;
+
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+
+  &.closing {
+    animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+}
+
+/* ───────── Header ───────── */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 8px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #fff;
+  }
+}
+
+/* ───────── Drag Handle ───────── */
+.drag-handle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+
+  &-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+}
+
+/* ───────── Close Button ───────── */
+.close-btn {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.05);
+  color: #aaa;
+
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(1.1);
+  }
+}
+
+/* ───────── Animations ───────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}

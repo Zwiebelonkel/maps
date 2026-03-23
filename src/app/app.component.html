@@ -50,7 +50,12 @@
     <div class="stat-item">
       <div class="stat-icon">📍</div>
       <div class="stat-content">
-        <div class="stat-value">{{ currentRadius }}m</div>
+        <div class="stat-value">
+          {{
+            currentRadius * playerService.getRadiusMultiplier()
+              | number: "1.0-0"
+          }}m
+        </div>
         <div class="stat-label">Radius</div>
       </div>
     </div>
@@ -66,28 +71,33 @@
     {{ activeBombItem.icon }} Klicke auf die Karte zum Zünden!
   </div>
 
- <!-- Control Buttons -->
-<div class="control-buttons">
-  <button class="control-btn" (click)="toggleShop()" title="Shop">🏪</button>
-  <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">🎯</button>
-  <!-- Session Button -->
-  <button *ngIf ="sessionService.isActive" class="control-btn session-btn"
-    [class.active]="sessionService.isActive"
-    (click)="toggleSession()"
-    title="Session">
-    {{ sessionService.isActive ? '⏹️' : '▶️' }}
-  </button>
-  <button class="control-btn" (click)="isMenuOpen = true">☰</button>
-</div>
+  <!-- Control Buttons -->
+  <div class="control-buttons">
+    <button class="control-btn" (click)="toggleShop()" title="Shop">🏪</button>
+    <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
+      🎯
+    </button>
+    <!-- Session Button -->
+    <button
+      *ngIf="sessionService.isActive"
+      class="control-btn session-btn"
+      [class.active]="sessionService.isActive"
+      (click)="toggleSession()"
+      title="Session"
+    >
+      {{ sessionService.isActive ? "⏹️" : "▶️" }}
+    </button>
+    <button class="control-btn" (click)="isMenuOpen = true">☰</button>
+  </div>
 
-<!-- Session Summary -->
-<app-session-summary
-  *ngIf="showSessionSummary"
-  [stats]="sessionSummaryStats"
-  [mapImageUrl]="sessionMapImageUrl"
-  (close)="closeSessionSummary()">
-</app-session-summary>
-
+  <!-- Session Summary -->
+  <app-session-summary
+    *ngIf="showSessionSummary"
+    [stats]="sessionSummaryStats"
+    [mapImageUrl]="sessionMapImageUrl"
+    (close)="closeSessionSummary()"
+  >
+  </app-session-summary>
 
   <!-- Loot Popup -->
   <app-loot-popup></app-loot-popup>
@@ -102,29 +112,37 @@
     (purchaseUpgrade)="onPurchaseUpgrade($event)"
     (purchaseClickUpgrade)="onPurchaseClickUpgrade($event)"
     (purchaseItem)="onPurchaseShopItem($event)"
+    (unlockAllOutfits)="onUnlockAllOutfits()"
   >
   </app-shop>
-  
-<app-burger-menu
-  *ngIf="isMenuOpen"
-  (close)="isMenuOpen = false"
-  (toggleSession)="toggleSession(); isMenuOpen = false"
-  (openSettings)="settingsRef.toggle(); isMenuOpen = false"
-  (openMarkers)="isMarkerListOpen = true; isMenuOpen = false">
-</app-burger-menu>
 
-<app-marker-list
-  *ngIf="isMarkerListOpen"
-  (close)="isMarkerListOpen = false">
-</app-marker-list>
+  <app-burger-menu
+    *ngIf="isMenuOpen"
+    (close)="isMenuOpen = false"
+    (toggleSession)="toggleSession(); isMenuOpen = false"
+    (openSettings)="settingsRef.toggle(); isMenuOpen = false"
+    (openMarkers)="isMarkerListOpen = true; isMenuOpen = false"
+    (openPlayer)="isPlayerOpen = true; isMenuOpen = false"
+  >
+  </app-burger-menu>
+
+  <app-player *ngIf="isPlayerOpen" (close)="isPlayerOpen = false"> </app-player>
+
+  <app-marker-list
+    *ngIf="isMarkerListOpen"
+    (close)="isMarkerListOpen = false"
+    (markerSelected)="focusMarker($event)"
+  >
+  </app-marker-list>
 
   <!-- Settings -->
   <app-settings
-  #settingsRef
-  (gameReset)="resetGame()"
-  (darkMapChanged)="onDarkMapChanged($event)"
-  (centerRequested)="centerOnPlayer()">
-</app-settings>
+    #settingsRef
+    (gameReset)="resetGame()"
+    (darkMapChanged)="onDarkMapChanged($event)"
+    (centerRequested)="centerOnPlayer()"
+  >
+  </app-settings>
 
   <!-- Info Box (Desktop only) -->
   <div class="info-box">
