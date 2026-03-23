@@ -593,28 +593,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Player ──────────────────────────────────────────────────
 
   private updatePlayerPosition(location: Location) {
-    const icon = this.playerService.getEquippedIcon();
     const latLng = L.latLng(location.lat, location.lng);
     const effectiveRadius =
       this.currentRadius * this.playerService.getRadiusMultiplier();
 
     if (this.playerMarker) {
       this.playerMarker.setLatLng(latLng);
-      // Icon aktualisieren falls Outfit gewechselt
-      this.playerMarker.setIcon(
-        L.divIcon({
-          className: 'player-marker',
-          html: `<div class="player-emoji">${icon}</div>`,
-          iconSize: [30, 30],
-          iconAnchor: [15, 15],
-        }),
-      );
     } else {
       const playerIcon = L.divIcon({
         className: 'player-marker',
-        html: `<div class="player-emoji">${icon}</div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
+        html: '<div class="player-dot"></div>',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
       });
       this.playerMarker = L.marker(latLng, {
         icon: playerIcon,
@@ -624,7 +614,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.radiusCircle) {
       this.radiusCircle.setLatLng(latLng);
-      this.radiusCircle.setRadius(effectiveRadius); // ← effektiver Radius
+      this.radiusCircle.setRadius(effectiveRadius);
     } else {
       this.radiusCircle = L.circle(latLng, {
         radius: effectiveRadius,
@@ -638,7 +628,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     const bounds = this.map.getBounds();
     if (!bounds.contains(latLng)) this.map.setView(latLng, 16);
   }
-
   // ── Exploration ─────────────────────────────────────────────
 
   private exploreCurrentArea(location: Location) {
@@ -1001,6 +990,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       } catch (e) {
         console.error('Error loading progress:', e);
       }
+    }
+  }
+  refreshPlayerMarker() {
+    if (this.currentLocation) {
+      this.updatePlayerPosition(this.currentLocation);
     }
   }
 }

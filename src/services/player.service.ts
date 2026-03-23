@@ -5,7 +5,7 @@ import { OUTFITS, Outfit } from '../app/config/player.config';
 export class PlayerService {
   private STORAGE_KEY = 'player_data';
   unlocked: string[] = ['default'];
-  equipped: string = 'default';
+  equipped: string[] = ['default']; // ← Array statt string
 
   constructor() {
     this.load();
@@ -19,41 +19,66 @@ export class PlayerService {
   }
 
   equip(id: string) {
-    this.equipped = id;
+    if (this.equipped.includes(id)) {
+      // Bereits ausgerüstet → ausziehen (außer es ist das letzte)
+      if (this.equipped.length > 1) {
+        this.equipped = this.equipped.filter((e) => e !== id);
+      }
+    } else if (this.equipped.length < 2) {
+      // Slot frei → hinzufügen
+      this.equipped.push(id);
+    } else {
+      // Beide Slots voll → ältesten ersetzen
+      this.equipped = [this.equipped[1], id];
+    }
     this.save();
   }
 
-  getEquippedIcon(): string {
-    return OUTFITS.find((o) => o.id === this.equipped)?.icon || '🙂';
+  isEquipped(id: string): boolean {
+    return this.equipped.includes(id);
   }
 
-  getEquippedOutfit(): Outfit | undefined {
-    return OUTFITS.find((o) => o.id === this.equipped);
+  getEquippedOutfits(): Outfit[] {
+    return this.equipped
+      .map((id) => OUTFITS.find((o) => o.id === id))
+      .filter((o): o is Outfit => !!o);
   }
 
-  // Multiplikatoren — 1.0 = kein Bonus
+  // Multiplier summieren beide Slots
   getCoinMultiplier(): number {
-    const outfit = this.getEquippedOutfit();
-    if (outfit?.effect.type === 'coins') return 1 + outfit.effect.value;
-    return 1;
+    return (
+      1 +
+      this.getEquippedOutfits()
+        .filter((o) => o.effect.type === 'coins')
+        .reduce((sum, o) => sum + o.effect.value, 0)
+    );
   }
 
   getRadiusMultiplier(): number {
-    const outfit = this.getEquippedOutfit();
-    if (outfit?.effect.type === 'radius') return 1 + outfit.effect.value;
-    return 1;
+    return (
+      1 +
+      this.getEquippedOutfits()
+        .filter((o) => o.effect.type === 'radius')
+        .reduce((sum, o) => sum + o.effect.value, 0)
+    );
   }
 
   getLootMultiplier(): number {
-    const outfit = this.getEquippedOutfit();
-    if (outfit?.effect.type === 'loot') return 1 + outfit.effect.value;
-    return 1;
+    return (
+      1 +
+      this.getEquippedOutfits()
+        .filter((o) => o.effect.type === 'loot')
+        .reduce((sum, o) => sum + o.effect.value, 0)
+    );
   }
 
   getClickMultiplier(): number {
-    const outfit = this.getEquippedOutfit();
-    if (outfit?.effect.type === 'click') return 1 + outfit.effect.value;
-    return 1;
+    return (
+      1 +
+      this.getEquippedOutfits()
+        .filter((o) => o.effect.type === 'click')
+        .reduce((sum, o) => sum + o.effect.value, 0)
+    );
   }
 
   private save() {
@@ -71,6 +96,8 @@ export class PlayerService {
     if (!data) return;
     const parsed = JSON.parse(data);
     this.unlocked = parsed.unlocked || ['default'];
-    this.equipped = parsed.equipped || 'default';
+    // Migration: alter String-Wert → Array
+    const eq = parsed.equipped;
+    this.equipped = Array.isArray(eq) ? eq : [eq || 'default'];
   }
 }

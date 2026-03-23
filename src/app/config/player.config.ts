@@ -2,14 +2,14 @@ export type OutfitEffectType = 'coins' | 'radius' | 'loot' | 'click';
 
 export interface OutfitEffect {
   type: OutfitEffectType;
-  value: number; // z.B. 0.05 = +5%
-  label: string; // z.B. "+5% Coins"
+  value: number;
+  label: string;
   icon: string;
 }
 
 export interface Outfit {
   id: string;
-  icon: string;
+  icon: string; // bleibt für UI im Player-Menu
   name: string;
   description: string;
   effect: OutfitEffect;
@@ -19,57 +19,57 @@ export interface Outfit {
 export const OUTFITS: Outfit[] = [
   {
     id: 'default',
-    icon: '🙂',
-    name: 'Standard',
-    description: 'Ein gewöhnlicher Entdecker.',
+    icon: '🎒',
+    name: 'Rucksack',
+    description: 'Standard-Ausrüstung für jeden Entdecker.',
     rarity: 'common',
     effect: { type: 'coins', value: 0, label: 'Kein Bonus', icon: '➖' },
   },
   {
     id: 'ninja',
-    icon: '🥷',
-    name: 'Ninja',
-    description: 'Lautlos, schnell, effizient.',
+    icon: '👟',
+    name: 'Laufschuhe',
+    description: 'Schneller unterwegs, größerer Radius.',
     rarity: 'rare',
     effect: { type: 'radius', value: 0.1, label: '+10% Radius', icon: '📡' },
   },
   {
     id: 'robot',
-    icon: '🤖',
-    name: 'Roboter',
-    description: 'Optimiert für maximale Coin-Ausbeute.',
+    icon: '🔭',
+    name: 'Fernglas',
+    description: 'Sieh weiter, entdecke mehr.',
     rarity: 'rare',
     effect: { type: 'coins', value: 0.15, label: '+15% Coins', icon: '🪙' },
   },
   {
     id: 'ghost',
-    icon: '👻',
-    name: 'Geist',
-    description: 'Gleitet durch Bereiche und findet verborgene Schätze.',
+    icon: '🧲',
+    name: 'Loot-Magnet',
+    description: 'Zieht Schätze magisch an.',
     rarity: 'rare',
     effect: { type: 'loot', value: 0.1, label: '+10% Loot-Chance', icon: '🎲' },
   },
   {
     id: 'alien',
-    icon: '👽',
-    name: 'Alien',
-    description: 'Fortschrittliche Technologie aus einer anderen Welt.',
+    icon: '🛸',
+    name: 'Drohne',
+    description: 'Scannt aus der Luft einen riesigen Bereich.',
     rarity: 'epic',
     effect: { type: 'radius', value: 0.2, label: '+20% Radius', icon: '📡' },
   },
   {
     id: 'king',
-    icon: '🤴',
-    name: 'König',
-    description: 'Alles gehört dem König — auch die Coins.',
+    icon: '💰',
+    name: 'Geldbeutel',
+    description: 'Maximale Coin-Ausbeute.',
     rarity: 'epic',
     effect: { type: 'coins', value: 0.25, label: '+25% Coins', icon: '🪙' },
   },
   {
     id: 'wizard',
-    icon: '🧙',
-    name: 'Magier',
-    description: 'Beschwört Loot aus dem Nichts.',
+    icon: '🔮',
+    name: 'Kristallkugel',
+    description: 'Sieht verborgene Schätze voraus.',
     rarity: 'epic',
     effect: {
       type: 'loot',
@@ -80,9 +80,9 @@ export const OUTFITS: Outfit[] = [
   },
   {
     id: 'clown',
-    icon: '🤡',
-    name: 'Clown',
-    description: 'Unberechenbar. Aber irgendwie effektiv beim Tippen.',
+    icon: '🪙',
+    name: 'Münzhandschuh',
+    description: 'Jeder Tipp bringt mehr.',
     rarity: 'common',
     effect: {
       type: 'click',
@@ -93,9 +93,9 @@ export const OUTFITS: Outfit[] = [
   },
   {
     id: 'skull',
-    icon: '💀',
-    name: 'Totenkopf',
-    description: 'Furchteinflößend. Doppelte Klick-Power.',
+    icon: '⚡',
+    name: 'Energiehandschuh',
+    description: 'Doppelte Kraft beim Tippen.',
     rarity: 'rare',
     effect: {
       type: 'click',
@@ -106,9 +106,9 @@ export const OUTFITS: Outfit[] = [
   },
   {
     id: 'fire',
-    icon: '🔥',
-    name: 'Flamme',
-    description: 'Alles brennt — auch die Coins regnen.',
+    icon: '👑',
+    name: 'Goldene Krone',
+    description: 'Legendäre Coin-Ausbeute.',
     rarity: 'legendary',
     effect: { type: 'coins', value: 0.5, label: '+50% Coins', icon: '🪙' },
   },

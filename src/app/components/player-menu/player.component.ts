@@ -26,7 +26,7 @@ export class PlayerComponent {
 
   constructor(public player: PlayerService) {
     this.selectedOutfit =
-      OUTFITS.find((o) => o.id === player.equipped) ?? OUTFITS[0];
+      OUTFITS.find((o) => o.id === player.equipped[0]) ?? OUTFITS[0];
   }
 
   closeWithAnimation() {
@@ -42,6 +42,10 @@ export class PlayerComponent {
     return this.player.unlocked.includes(id);
   }
 
+  getOutfit(id: string): Outfit | undefined {
+    return OUTFITS.find((o) => o.id === id);
+  }
+
   preview(outfit: Outfit) {
     this.selectedOutfit = outfit;
   }
@@ -50,5 +54,11 @@ export class PlayerComponent {
     if (!this.selectedOutfit || !this.isUnlocked(this.selectedOutfit.id))
       return;
     this.player.equip(this.selectedOutfit.id);
+  }
+
+  unequip(id: string) {
+    if (this.player.equipped.length > 1) {
+      this.player.equip(id); // toggle — entfernt wenn bereits drin
+    }
   }
 }

@@ -14,8 +14,32 @@
     </div>
 
     <div class="modal-header">
-      <h2>👤 Player</h2>
+      <h2>🎒 Gear</h2>
       <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+    </div>
+
+    <!-- Ausgerüstete Slots -->
+    <div class="gear-slots">
+      <div
+        class="gear-slot"
+        *ngFor="let slot of [0, 1]"
+        [class.filled]="player.equipped[slot]"
+      >
+        <ng-container *ngIf="player.equipped[slot] as id">
+          <div class="gear-slot-icon">{{ getOutfit(id)?.icon }}</div>
+          <div class="gear-slot-info">
+            <div class="gear-slot-name">{{ getOutfit(id)?.name }}</div>
+            <div class="gear-slot-effect">
+              {{ getOutfit(id)?.effect?.icon }}
+              {{ getOutfit(id)?.effect?.label }}
+            </div>
+          </div>
+          <button class="gear-slot-remove" (click)="unequip(id)">✕</button>
+        </ng-container>
+        <ng-container *ngIf="!player.equipped[slot]">
+          <div class="gear-slot-empty">Leer</div>
+        </ng-container>
+      </div>
     </div>
 
     <!-- Preview -->
@@ -42,7 +66,7 @@
         class="outfit-row"
         *ngFor="let outfit of outfits"
         [class.locked]="!isUnlocked(outfit.id)"
-        [class.active]="player.equipped === outfit.id"
+        [class.active]="player.isEquipped(outfit.id)"
         [class.selected]="selectedOutfit?.id === outfit.id"
         (click)="preview(outfit)"
       >
@@ -57,7 +81,7 @@
           <div class="rarity-dot" [attr.data-rarity]="outfit.rarity"></div>
           <span
             class="status-badge equipped"
-            *ngIf="player.equipped === outfit.id"
+            *ngIf="player.isEquipped(outfit.id)"
             >Aktiv</span
           >
           <span class="status-badge locked-badge" *ngIf="!isUnlocked(outfit.id)"
@@ -74,11 +98,11 @@
     >
       <button
         class="equip-btn"
-        [class.already-equipped]="player.equipped === selectedOutfit.id"
+        [class.already-equipped]="player.isEquipped(selectedOutfit.id)"
         (click)="equip()"
       >
         {{
-          player.equipped === selectedOutfit.id ? "✓ Ausgerüstet" : "Ausrüsten"
+          player.isEquipped(selectedOutfit.id) ? "✓ Ausgerüstet" : "Ausrüsten"
         }}
       </button>
     </div>

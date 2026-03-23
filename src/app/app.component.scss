@@ -551,7 +551,8 @@
   background: rgba(255, 80, 80, 0.4);
 }
 
-.player-emoji {
-  font-size: 24px;
-  text-align: center;
+.player-marker {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
 }
