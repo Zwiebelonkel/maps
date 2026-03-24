@@ -164,19 +164,22 @@ export class ShopComponent {
   // ── Admin Code ───────────────────────────────────────────────
 
   redeemCode() {
-    if (this.adminCode === '1906') {
-      this.sound.play('levelup', 0.8);
+    const code = this.adminCode.trim().toLowerCase();
+
+    if (code === '1906-money') {
       this.purchaseUpgrade.emit({
         level: -1,
         radius: 0,
         cost: -10000000,
         description: 'ADMIN_COINS',
       });
+      this.codeMessage = '💰 10.000.000 Coins erhalten!';
+      this.adminCode = '';
+    } else if (code === '1906-outfits') {
       this.unlockAllOutfits.emit();
-      this.codeMessage = '💰 10.000.000 Coins + alle Outfits freigeschaltet!';
+      this.codeMessage = '🎒 Alle Ausrüstungen freigeschaltet!';
       this.adminCode = '';
     } else {
-      this.sound.play('button', 0.5);
       this.codeMessage = '❌ Falscher Code';
     }
   }
