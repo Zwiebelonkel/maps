@@ -2,18 +2,18 @@ import { Injectable } from '@angular/core';
 
 export interface GameSettings {
   maxRenderTiles: number;
-  volume: number;
+  soundVolume: number;
+  muted: boolean;
   powerSave: boolean;
   darkMap: boolean;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SettingsService {
   private settings: GameSettings = {
     maxRenderTiles: 2000,
-    volume: 0.5,
+    soundVolume: 0.8,
+    muted: false,
     powerSave: false,
     darkMap: true,
   };
@@ -35,9 +35,7 @@ export class SettingsService {
     const saved = localStorage.getItem('game_settings');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        // darkMap mit Default absichern falls alter Save ohne darkMap
-        this.settings = { ...this.settings, ...parsed };
+        this.settings = { ...this.settings, ...JSON.parse(saved) };
       } catch (e) {
         console.error('Error loading settings:', e);
       }
@@ -47,7 +45,8 @@ export class SettingsService {
   reset() {
     this.settings = {
       maxRenderTiles: 2000,
-      volume: 0.5,
+      soundVolume: 0.8,
+      muted: false,
       powerSave: false,
       darkMap: true,
     };

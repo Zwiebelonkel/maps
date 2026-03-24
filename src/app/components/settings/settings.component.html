@@ -9,20 +9,20 @@
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
-
-    <!-- Drag Handle -->
-    <div class="drag-handle"
+    <div
+      class="drag-handle"
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
-      (touchend)="onHeaderTouchEnd()">
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="drag-handle-bar"></div>
     </div>
-
-    <!-- Header -->
-    <div class="settings-header"
+    <div
+      class="settings-header"
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
-      (touchend)="onHeaderTouchEnd()">
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="settings-title">
         <span class="settings-icon">⚙️</span>
         <h2>Einstellungen</h2>
@@ -40,12 +40,14 @@
         </div>
         <div class="setting-value">{{ maxRenderTiles }}</div>
       </div>
-      <input type="range"
+      <input
+        type="range"
         min="100"
         max="50000"
         step="100"
         [value]="maxRenderTiles"
-        (input)="updateMaxRenderTiles(+$any($event.target).value)" />
+        (input)="updateMaxRenderTiles(+$any($event.target).value)"
+      />
     </div>
 
     <!-- Dark Map -->
@@ -56,10 +58,12 @@
           <div class="setting-label">Dark Map</div>
           <div class="setting-desc">Dunkles Kartenlayout</div>
         </div>
-        <button class="toggle-btn"
+        <button
+          class="toggle-btn"
           [class.active]="settings.snapshot.darkMap"
-          (click)="toggleDarkMap()">
-          {{ settings.snapshot.darkMap ? 'AN' : 'AUS' }}
+          (click)="toggleDarkMap()"
+        >
+          {{ settings.snapshot.darkMap ? "AN" : "AUS" }}
         </button>
       </div>
     </div>
@@ -72,9 +76,7 @@
           <div class="setting-label">Standort</div>
           <div class="setting-desc">Karte zentrieren</div>
         </div>
-        <button class="toggle-btn" (click)="centerMap()">
-          Zentrieren
-        </button>
+        <button class="toggle-btn" (click)="centerMap()">Zentrieren</button>
       </div>
     </div>
 
@@ -86,12 +88,57 @@
           <div class="setting-label">Stromsparmodus</div>
           <div class="setting-desc">Doppeltippen zum Deaktivieren</div>
         </div>
-        <button class="toggle-btn"
+        <button
+          class="toggle-btn"
           [class.active]="settings.snapshot.powerSave"
-          (click)="settings.update({ powerSave: !settings.snapshot.powerSave })">
-          {{ settings.snapshot.powerSave ? 'AN' : 'AUS' }}
+          (click)="settings.update({ powerSave: !settings.snapshot.powerSave })"
+        >
+          {{ settings.snapshot.powerSave ? "AN" : "AUS" }}
         </button>
       </div>
+    </div>
+
+    <!-- Sound Mute -->
+    <div class="setting-item">
+      <div class="setting-info">
+        <span class="setting-icon">{{
+          settings.snapshot.muted ? "🔇" : "🔊"
+        }}</span>
+        <div class="setting-content">
+          <div class="setting-label">Sound</div>
+          <div class="setting-desc">Alle Sounds ein/aus</div>
+        </div>
+        <button
+          class="toggle-btn"
+          [class.active]="!settings.snapshot.muted"
+          (click)="settings.update({ muted: !settings.snapshot.muted })"
+        >
+          {{ settings.snapshot.muted ? "AUS" : "AN" }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Lautstärke -->
+    <div class="setting-item">
+      <div class="setting-info">
+        <span class="setting-icon">🎚️</span>
+        <div class="setting-content">
+          <div class="setting-label">Lautstärke</div>
+          <div class="setting-desc">Sound-Pegel</div>
+        </div>
+        <div class="setting-value">
+          {{ settings.snapshot.soundVolume * 100 | number: "1.0-0" }}%
+        </div>
+      </div>
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.05"
+        [value]="settings.snapshot.soundVolume"
+        [disabled]="settings.snapshot.muted"
+        (input)="settings.update({ soundVolume: +$any($event.target).value })"
+      />
     </div>
 
     <!-- Footer -->
@@ -99,11 +146,9 @@
       <button class="reset-settings-btn" (click)="reset()">
         ♻️ Einstellungen zurücksetzen
       </button>
-
       <button class="reset-game-btn" (click)="resetGame()">
         🗑️ Spielfortschritt löschen
       </button>
     </div>
-
   </div>
 </div>

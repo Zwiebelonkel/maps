@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ProgressionService } from '../../../services/progression.service';
+import { SoundService } from '../../../services/sound.service';
 
 @Component({
   selector: 'app-burger-menu',
@@ -14,6 +16,16 @@ export class BurgerMenuComponent {
   @Output() openSettings = new EventEmitter<void>();
   @Output() openMarkers = new EventEmitter<void>();
   @Output() openPlayer = new EventEmitter<void>();
+  @Output() openLootbox = new EventEmitter<void>();
+
+  constructor(
+    public progression: ProgressionService,
+    private sound: SoundService,
+  ) {}
+
+  get lootboxes() {
+    return this.progression.lootboxes;
+  }
 
   isOpen = true;
   isClosing = false;
@@ -24,9 +36,8 @@ export class BurgerMenuComponent {
 
   closeWithAnimation() {
     if (this.isClosing) return;
-
+    this.sound.play('button', 0.5);
     this.isClosing = true;
-
     setTimeout(() => {
       this.isOpen = false;
       this.isClosing = false;
@@ -37,6 +48,11 @@ export class BurgerMenuComponent {
   onPlayer() {
     this.openPlayer.emit();
     this.closeWithAnimation();
+  }
+
+  onLootbox() {
+    this.openLootbox.emit();
+    this.close.emit();
   }
 
   onSession() {

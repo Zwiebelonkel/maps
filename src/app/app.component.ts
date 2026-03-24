@@ -20,13 +20,17 @@ import {
 import { UpgradeService } from '../services/upgrade.service';
 import { LootService, LootResult } from '../services/loot.service';
 import { SettingsService } from '../services/settings.service';
+import { ProgressionService } from '../services/progression.service';
+
 import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
 import { BurgerMenuComponent } from './components/burger-menu/burger-menu.component';
 import { MarkerListComponent } from './components/marker-list/marker-list.component';
 import { PlayerComponent } from './components/player-menu/player.component';
+import { LootboxComponent } from './components/lootbox/lootbox.component';
 import { MarkerService } from '../services/marker.service';
 import { PlayerService } from '../services/player.service';
+import { SoundService } from '../services/sound.service';
 import { UserMarker } from '../../models/user-marker.model';
 import { OUTFITS } from './config/player.config';
 
@@ -78,6 +82,7 @@ interface GridCoordinate {
     BurgerMenuComponent, // ✅ hinzufügen
     MarkerListComponent, // ✅ hinzufügen
     PlayerComponent,
+    LootboxComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -111,6 +116,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private tileLayer!: L.TileLayer;
   isMenuOpen = false;
   isMarkerListOpen = false;
+  isLootboxOpen = false;
 
   // Shop / Bomb
   isShopOpen = false;
@@ -144,6 +150,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public sessionService: SessionService,
     private markerService: MarkerService,
     public playerService: PlayerService,
+    public progressionService: ProgressionService,
+    private soundService: SoundService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -335,6 +343,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       if (this.activeBombItem) {
+        this.soundService.play('bomb');
         this.detonateBomb(e.latlng, this.activeBombItem);
         this.activeBombItem = null;
         document.getElementById('map')!.style.cursor = '';
@@ -657,6 +666,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.playerService.getCoinMultiplier();
       this.totalTilesExplored = this.exploredTiles.size;
       this.sessionService.addTiles(newTiles);
+      const leveledUp = this.progressionService.addXP(
+        newTiles *
+          GAME_CONFIG.XP_PER_TILE *
+          this.playerService.getXPMultiplier(),
+      );
+      if (leveledUp) this.onLevelUp();
       this.updateGameState();
       this.saveProgress();
       this.drawFogOfWar();
@@ -877,6 +892,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     if (this.totalCoins >= upgrade.cost) {
+      this.soundService.play('purchase');
       this.vibrate([80, 60, 120]);
       this.totalCoins -= upgrade.cost;
       this.upgradeService.applyRadiusUpgrade(upgrade);
@@ -891,6 +907,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onPurchaseClickUpgrade(upgrade: ClickUpgrade) {
     if (this.totalCoins >= upgrade.cost) {
+      this.soundService.play('purchase');
       this.vibrate([60, 40, 60]);
       this.totalCoins -= upgrade.cost;
       this.upgradeService.applyClickUpgrade(upgrade);
@@ -900,6 +917,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onPurchaseShopItem(item: ShopItem) {
     if (this.totalCoins >= item.cost) {
+      this.soundService.play('purchase');
       this.vibrate(100);
       this.totalCoins -= item.cost;
       this.activeBombItem = item;
@@ -925,9 +943,23 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  onLevelUp() {
+    this.vibrate([100, 50, 200, 50, 300]);
+    this.soundService.play('levelup');
+    this.lootPopup?.show({
+      type: 'trophy',
+      label: `🎉 Level ${this.progressionService.level} erreicht! +1 Lootbox`,
+      rarity: 'epic',
+    });
+  }
+
   private addClickCoins() {
     const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
     this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
+    const leveledUp = this.progressionService.addXP(
+      GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
+    );
+    if (leveledUp) this.onLevelUp();
     this.saveProgress();
   }
 
@@ -948,6 +980,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   resetGame() {
     localStorage.removeItem('map_explorer_progress');
     localStorage.removeItem('player_data');
+    localStorage.removeItem('progression');
     this.exploredTiles.clear();
     this.totalCoins = 0;
     this.totalTilesExplored = 0;
@@ -956,13 +989,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.markerService.clear();
     this.playerService.unlocked = ['default'];
     this.playerService.equip('default');
+    this.progressionService.xp = 0;
+    this.progressionService.level = 1;
+    this.progressionService.lootboxes = 0;
     this.updateGameState();
     if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
     this.drawFogOfWar();
     this.renderAllUserMarkers();
   }
 
-  private saveProgress() {
+  public saveProgress() {
     localStorage.setItem(
       'map_explorer_progress',
       JSON.stringify({
@@ -995,6 +1031,37 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   refreshPlayerMarker() {
     if (this.currentLocation) {
       this.updatePlayerPosition(this.currentLocation);
+    }
+  }
+
+  openLootbox() {
+    if (!this.progressionService.useLootbox()) return;
+
+    const locked = OUTFITS.filter(
+      (o) => !this.playerService.unlocked.includes(o.id),
+    );
+
+    if (locked.length === 0) return;
+
+    const random = locked[Math.floor(Math.random() * locked.length)];
+
+    this.playerService.unlock(random.id);
+
+    // optional direkt equippen
+    this.playerService.equip(random.id);
+
+    // 🔥 Feedback
+    this.lootPopup?.show({
+      type: 'outfit',
+      label: `${random.icon} ${random.name} erhalten!`,
+      rarity: random.rarity,
+    });
+  }
+
+  onGlobalClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (target.closest('button')) {
+      this.soundService.play('button', 0.5);
     }
   }
 }

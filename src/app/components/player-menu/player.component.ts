@@ -7,6 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../../services/player.service';
 import { OUTFITS, Outfit } from '../../config/player.config';
+import { SoundService } from '../../../services/sound.service';
 
 @Component({
   selector: 'app-player',
@@ -24,12 +25,16 @@ export class PlayerComponent {
   isClosing = false;
   selectedOutfit: Outfit | null = null;
 
-  constructor(public player: PlayerService) {
+  constructor(
+    public player: PlayerService,
+    private sound: SoundService,
+  ) {
     this.selectedOutfit =
       OUTFITS.find((o) => o.id === player.equipped[0]) ?? OUTFITS[0];
   }
 
   closeWithAnimation() {
+    this.sound.play('button', 0.5);
     this.isClosing = true;
     setTimeout(() => {
       this.isClosing = false;
@@ -47,18 +52,21 @@ export class PlayerComponent {
   }
 
   preview(outfit: Outfit) {
+    this.sound.play('button', 0.3);
     this.selectedOutfit = outfit;
   }
 
   equip() {
     if (!this.selectedOutfit || !this.isUnlocked(this.selectedOutfit.id))
       return;
+    this.sound.play('button', 0.5);
     this.player.equip(this.selectedOutfit.id);
   }
 
   unequip(id: string) {
     if (this.player.equipped.length > 1) {
-      this.player.equip(id); // toggle — entfernt wenn bereits drin
+      this.sound.play('button', 0.5);
+      this.player.equip(id);
     }
   }
 }

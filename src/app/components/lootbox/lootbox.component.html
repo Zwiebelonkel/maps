@@ -1,0 +1,98 @@
+<div
+  class="settings-overlay"
+  *ngIf="isOpen || isClosing"
+  [class.closing]="isClosing"
+  (click)="closeWithAnimation()"
+>
+  <div
+    class="settings-modal"
+    (click)="$event.stopPropagation()"
+    [class.closing]="isClosing"
+  >
+    <div
+      class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
+      <div class="drag-handle-bar"></div>
+    </div>
+    <div
+      class="settings-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
+      <div class="settings-title">
+        <span class="settings-icon">🎁</span>
+        <h2>Lootbox</h2>
+      </div>
+      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
+        <span class="setting-icon">📦</span>
+        <div class="setting-content">
+          <div class="setting-label">Verfügbar</div>
+          <div class="setting-desc">Durch Level-Ups verdient</div>
+        </div>
+        <div class="setting-value">{{ progression.lootboxes }}</div>
+      </div>
+    </div>
+
+    <!-- Idle -->
+    <div class="setting-item lootbox-center" *ngIf="state === 'idle'">
+      <div
+        class="lootbox-box"
+        [class.disabled]="progression.lootboxes <= 0"
+        (click)="openBox()"
+      >
+        📦
+      </div>
+      <p class="lootbox-hint">
+        {{
+          progression.lootboxes > 0
+            ? "Tippen zum Öffnen"
+            : "Keine Lootboxen verfügbar"
+        }}
+      </p>
+    </div>
+
+    <!-- Opening -->
+    <div class="setting-item lootbox-center" *ngIf="state === 'opening'">
+      <div class="lootbox-box opening">📦</div>
+      <p class="lootbox-hint">Öffne...</p>
+    </div>
+
+    <!-- Revealed -->
+    <!-- Revealed -->
+    <div class="setting-item lootbox-center" *ngIf="state === 'revealed'">
+      <div
+        class="reward-card"
+        [ngClass]="reward?.rarity"
+        (click)="resetState()"
+      >
+        <div class="reward-icon">{{ reward?.icon }}</div>
+        <div class="reward-name">{{ reward?.name }}</div>
+        <div class="reward-desc" *ngIf="!isDuplicate">
+          {{ reward?.description }}
+        </div>
+
+        <!-- Duplikat -->
+        <div class="duplicate-badge" *ngIf="isDuplicate">
+          <div class="duplicate-label">Bereits besessen</div>
+          <div class="duplicate-coins">+{{ duplicateCoins }} 🪙</div>
+        </div>
+
+        <div class="reward-hint">Tippen für nächste</div>
+      </div>
+    </div>
+
+    <div class="settings-footer">
+      <button class="reset-settings-btn" (click)="closeWithAnimation()">
+        Schließen
+      </button>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkerService } from '../../../services/marker.service';
 import { UserMarker } from '../../../../models/user-marker.model';
+import { SoundService } from '../../../services/sound.service';
 
 @Component({
   selector: 'app-marker-list',
@@ -22,13 +23,15 @@ export class MarkerListComponent {
   private touchCurrentY = 0;
   private isDraggingHeader = false;
 
-  constructor(public markerService: MarkerService) {}
+  constructor(
+    public markerService: MarkerService,
+    private sound: SoundService,
+  ) {}
 
   closeWithAnimation() {
     if (this.isClosing) return;
-
+    this.sound.play('button', 0.5);
     this.isClosing = true;
-
     setTimeout(() => {
       this.isOpen = false;
       this.isClosing = false;
@@ -37,6 +40,7 @@ export class MarkerListComponent {
   }
 
   delete(marker: UserMarker) {
+    this.sound.play('button', 0.5);
     this.markerService.removeMarker(marker.id);
   }
 
@@ -53,9 +57,10 @@ export class MarkerListComponent {
   }
 
   selectMarker(marker: UserMarker) {
-  this.markerSelected.emit(marker);
-  this.closeWithAnimation();
-}
+    this.sound.play('button', 0.5);
+    this.markerSelected.emit(marker);
+    this.closeWithAnimation();
+  }
 
   onHeaderTouchEnd() {
     if (!this.isDraggingHeader) return;
@@ -69,28 +74,29 @@ export class MarkerListComponent {
     this.isDraggingHeader = false;
   }
 
-editingMarkerId: string | null = null;
-editName = '';
-editDescription = '';
+  editingMarkerId: string | null = null;
+  editName = '';
+  editDescription = '';
 
-startEdit(marker: UserMarker) {
-  this.editingMarkerId = marker.id;
-  this.editName = marker.name;
-  this.editDescription = marker.description || '';
-}
+  startEdit(marker: UserMarker) {
+    this.sound.play('button', 0.3);
+    this.editingMarkerId = marker.id;
+    this.editName = marker.name;
+    this.editDescription = marker.description || '';
+  }
 
-cancelEdit() {
-  this.editingMarkerId = null;
-}
+  cancelEdit() {
+    this.sound.play('button', 0.3);
+    this.editingMarkerId = null;
+  }
 
-saveEdit(marker: UserMarker) {
-  this.markerService.updateMarker({
-    ...marker,
-    name: this.editName,
-    description: this.editDescription,
-  });
-
-  this.editingMarkerId = null;
-}
-
+  saveEdit(marker: UserMarker) {
+    this.sound.play('button', 0.5);
+    this.markerService.updateMarker({
+      ...marker,
+      name: this.editName,
+      description: this.editDescription,
+    });
+    this.editingMarkerId = null;
+  }
 }

@@ -1,4 +1,4 @@
-<div class="app-container">
+<div class="app-container" (click)="onGlobalClick($event)">
   <!-- Loading Overlay -->
   <div class="loading-overlay" *ngIf="isLoading">
     <div class="loading-content">
@@ -60,7 +60,23 @@
       </div>
     </div>
   </div>
-
+  <div class="xp-bar-container">
+    <div class="xp-bar-track">
+      <div
+        class="xp-bar-fill"
+        [style.width.%]="
+          (progressionService.xp / progressionService.getRequiredXP()) * 100
+        "
+      ></div>
+    </div>
+    <div class="xp-bar-labels">
+      <span class="xp-level">Lv. {{ progressionService.level }}</span>
+      <span class="xp-text"
+        >{{ progressionService.xp }} /
+        {{ progressionService.getRequiredXP() }} XP</span
+      >
+    </div>
+  </div>
   <!-- Coin Animation -->
   <div class="coin-popup" *ngIf="showCoinAnimation">
     +{{ lastExploredCount * coinsPerTile }} 🪙
@@ -123,6 +139,7 @@
     (openSettings)="settingsRef.toggle(); isMenuOpen = false"
     (openMarkers)="isMarkerListOpen = true; isMenuOpen = false"
     (openPlayer)="isPlayerOpen = true; isMenuOpen = false"
+    (openLootbox)="isLootboxOpen = true; isMenuOpen = false"
   >
   </app-burger-menu>
 
@@ -134,6 +151,12 @@
     (markerSelected)="focusMarker($event)"
   >
   </app-marker-list>
+
+  <app-lootbox
+    *ngIf="isLootboxOpen"
+    (close)="isLootboxOpen = false"
+    (coinsEarned)="totalCoins = totalCoins + $event; saveProgress()"
+  ></app-lootbox>
 
   <!-- Settings -->
   <app-settings

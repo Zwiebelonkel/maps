@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../services/settings.service';
+import { SoundService } from '../../../services/sound.service';
 
 @Component({
   selector: 'app-settings',
@@ -13,25 +14,31 @@ import { SettingsService } from '../../../services/settings.service';
 export class SettingsComponent {
   isOpen = false;
   isClosing = false;
-
   @Output() gameReset = new EventEmitter<void>();
   @Output() darkMapChanged = new EventEmitter<boolean>();
   @Output() centerRequested = new EventEmitter<void>();
-
   private touchStartY = 0;
   private touchCurrentY = 0;
   private isDraggingHeader = false;
 
-  get maxRenderTiles() { return this.settings.snapshot.maxRenderTiles; }
+  get maxRenderTiles() {
+    return this.settings.snapshot.maxRenderTiles;
+  }
 
-  constructor(public settings: SettingsService) {}
+  constructor(
+    public settings: SettingsService,
+    private sound: SoundService,
+  ) {}
 
   toggle() {
     if (this.isOpen) this.closeWithAnimation();
-    else this.isOpen = true;
+    else {
+      this.isOpen = true;
+    }
   }
 
   closeWithAnimation() {
+    this.sound.play('button', 0.5);
     this.isClosing = true;
     setTimeout(() => {
       this.isClosing = false;
@@ -63,20 +70,26 @@ export class SettingsComponent {
   }
 
   toggleDarkMap() {
+    this.sound.play('button', 0.5);
     const newVal = !this.settings.snapshot.darkMap;
     this.settings.update({ darkMap: newVal });
     this.darkMapChanged.emit(newVal);
   }
 
   centerMap() {
+    this.sound.play('button', 0.5);
     this.centerRequested.emit();
     this.closeWithAnimation();
   }
 
-  reset() { this.settings.reset(); }
+  reset() {
+    this.sound.play('button', 0.5);
+    this.settings.reset();
+  }
 
   resetGame() {
     if (confirm('Möchtest du wirklich deinen gesamten Fortschritt löschen?')) {
+      this.sound.play('button', 0.5);
       this.gameReset.emit();
       this.closeWithAnimation();
     }

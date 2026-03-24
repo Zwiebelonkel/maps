@@ -7,6 +7,7 @@ import {
   ClickUpgrade,
   ShopItem,
 } from '../../config/game.config';
+import { SoundService } from '../../../services/sound.service';
 
 @Component({
   selector: 'app-shop',
@@ -34,6 +35,8 @@ export class ShopComponent {
   private touchStartY = 0;
   private touchCurrentY = 0;
   private isDraggingHeader = false;
+
+  constructor(private sound: SoundService) {}
 
   // ── Getters ─────────────────────────────────────────────────
 
@@ -96,10 +99,12 @@ export class ShopComponent {
   // ── Close & Swipe ────────────────────────────────────────────
 
   onClose() {
+    this.sound.play('button', 0.5);
     this.close.emit();
   }
 
   closeWithAnimation() {
+    this.sound.play('button', 0.5);
     this.isClosing = true;
     setTimeout(() => {
       this.isClosing = false;
@@ -120,45 +125,58 @@ export class ShopComponent {
   onHeaderTouchEnd() {
     if (!this.isDraggingHeader) return;
     const diff = this.touchCurrentY - this.touchStartY;
-    if (diff > 80) {
-      this.closeWithAnimation();
-    }
+    if (diff > 80) this.closeWithAnimation();
     this.touchStartY = 0;
     this.touchCurrentY = 0;
     this.isDraggingHeader = false;
   }
 
+  // ── Tab ─────────────────────────────────────────────────────
+
+  setTab(tab: 'radius' | 'click' | 'items') {
+    this.sound.play('button', 0.3);
+    this.activeTab = tab;
+  }
+
   // ── Purchases ────────────────────────────────────────────────
 
   onPurchase(upgrade: RadiusUpgrade) {
-    if (this.canAfford(upgrade.cost)) this.purchaseUpgrade.emit(upgrade);
+    if (this.canAfford(upgrade.cost)) {
+      this.sound.play('purchase', 0.7);
+      this.purchaseUpgrade.emit(upgrade);
+    }
   }
 
   onPurchaseClick(upgrade: ClickUpgrade) {
-    if (this.canAfford(upgrade.cost)) this.purchaseClickUpgrade.emit(upgrade);
+    if (this.canAfford(upgrade.cost)) {
+      this.sound.play('purchase', 0.7);
+      this.purchaseClickUpgrade.emit(upgrade);
+    }
   }
 
   onPurchaseItem(item: ShopItem) {
-    if (this.canAfford(item.cost)) this.purchaseItem.emit(item);
+    if (this.canAfford(item.cost)) {
+      this.sound.play('purchase', 0.7);
+      this.purchaseItem.emit(item);
+    }
   }
 
   // ── Admin Code ───────────────────────────────────────────────
 
   redeemCode() {
     if (this.adminCode === '1906') {
-      // Coins
+      this.sound.play('levelup', 0.8);
       this.purchaseUpgrade.emit({
         level: -1,
         radius: 0,
         cost: -10000000,
         description: 'ADMIN_COINS',
       });
-      // Alle Outfits freischalten
       this.unlockAllOutfits.emit();
-
       this.codeMessage = '💰 10.000.000 Coins + alle Outfits freigeschaltet!';
       this.adminCode = '';
     } else {
+      this.sound.play('button', 0.5);
       this.codeMessage = '❌ Falscher Code';
     }
   }

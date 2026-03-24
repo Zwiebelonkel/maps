@@ -33,6 +33,8 @@ export const GAME_CONFIG = {
   RADIUS_GROWTH: 5,
   BASE_UPGRADE_COST: 120,
   COST_MULTIPLIER: 1.4,
+  XP_PER_CLICK: 0.5,
+  XP_PER_TILE: 1,
 
   CLICK_UPGRADES: [
     { level: 1, coinsPerClick: 0.05, cost: 0, description: 'Finger Tipper' },

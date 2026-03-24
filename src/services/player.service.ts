@@ -81,6 +81,15 @@ export class PlayerService {
     );
   }
 
+  getXPMultiplier(): number {
+    return (
+      1 +
+      this.getEquippedOutfits()
+        .filter((o) => o.effect.type === 'xp')
+        .reduce((sum, o) => sum + o.effect.value, 0)
+    );
+  }
+
   private save() {
     localStorage.setItem(
       this.STORAGE_KEY,
