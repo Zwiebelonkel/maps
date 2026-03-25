@@ -311,7 +311,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.handleAutoClick();
       }
     });
-}}
+}
 
   ngAfterViewInit() {
     (window as any).deleteUserMarker = (id: string) => {
