@@ -291,17 +291,27 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Lifecycle ───────────────────────────────────────────────
 
   ngOnInit() {
-    this.markerService.load();
-    this.loadProgress();
-    this.updateGameState();
-    this.startGPSTracking();
+  this.markerService.load();
+  this.loadProgress();
+  this.updateGameState();
+  this.startGPSTracking();
 
-    interval(3000)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
-      });
-  }
+  interval(3000)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      if (this.currentLocation)
+        this.exploreCurrentArea(this.currentLocation);
+    });
+
+  // 🟣 AUTCLICKER
+  interval(1000)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      if (this.playerService.hasAutoClicker()) {
+        this.handleAutoClick();
+      }
+    });
+}}
 
   ngAfterViewInit() {
     (window as any).deleteUserMarker = (id: string) => {
@@ -1065,15 +1075,6 @@ onPurchaseLootbox() {
     this.saveProgress();
   }
 }
-
-interval(1000).subscribe(() => {
-  if (this.player.hasAutoClicker()) {
-    const clickValue =
-      this.baseClickValue * this.player.getClickMultiplier();
-
-    this.addCoins(clickValue);
-  }
-});
 
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
