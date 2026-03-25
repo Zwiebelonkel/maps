@@ -13,7 +13,7 @@ export interface Outfit {
   name: string;
   description: string;
   effect: OutfitEffect;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary' | 'exotic';
 }
 
 export const OUTFITS: Outfit[] = [
@@ -400,6 +400,19 @@ export const OUTFITS: Outfit[] = [
     rarity: 'legendary',
     effect: { type: 'coins', value: 0.75, label: '+75% Coins', icon: '🪙' },
   },
+{
+  id: 'auto_clicker',
+  icon: '🤖',
+  name: 'Auto-Clicker Bot',
+  description: 'Klickt automatisch jede Sekunde für dich.',
+  rarity: 'exotic', // 👉 oder 'exotic' wenn du erweitern willst
+  effect: {
+    type: 'click',
+    value: 0, // wird nicht genutzt
+    label: 'Auto Click jede Sekunde',
+    icon: '⚡',
+  },
+}
 ];
 
 export const RARITY_COLORS: Record<string, string> = {
@@ -407,4 +420,5 @@ export const RARITY_COLORS: Record<string, string> = {
   rare: '#4da3ff',
   epic: '#c084fc',
   legendary: '#f97316',
+  exotic: '#ff00ff',
 };
