@@ -1061,11 +1061,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 onPurchaseLootbox() {
   if (this.totalCoins >= 5000) {
     this.totalCoins -= 5000;
-    this.progressionService.lootboxes++;
+    this.progressionService.addLootbox();
     this.saveProgress();
-    this.progressionService['save'](); // oder public machen
   }
 }
+
 
 
   onGlobalClick(event: MouseEvent) {
