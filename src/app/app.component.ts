@@ -1066,7 +1066,14 @@ onPurchaseLootbox() {
   }
 }
 
+interval(1000).subscribe(() => {
+  if (this.player.hasAutoClicker()) {
+    const clickValue =
+      this.baseClickValue * this.player.getClickMultiplier();
 
+    this.addCoins(clickValue);
+  }
+});
 
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
