@@ -90,6 +90,10 @@ export class PlayerService {
     );
   }
 
+hasAutoClicker(): boolean {
+  return this.getEquippedOutfits().some(o => o.id === 'auto_clicker');
+}
+
   private save() {
     localStorage.setItem(
       this.STORAGE_KEY,
