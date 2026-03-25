@@ -1058,6 +1058,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+onPurchaseLootbox() {
+  if (this.totalCoins >= 5000) {
+    this.totalCoins -= 5000;
+    this.progressionService.lootboxes++;
+    this.saveProgress();
+    this.progressionService['save'](); // oder public machen
+  }
+}
+
+
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
     if (target.closest('button')) {
