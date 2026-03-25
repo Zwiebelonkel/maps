@@ -37,30 +37,45 @@
       <span class="coin-label">Coins</span>
     </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'radius'"
-        (click)="activeTab = 'radius'"
-      >
-        📍 Radius
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'click'"
-        (click)="activeTab = 'click'"
-      >
-        👆 Click
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'items'"
-        (click)="activeTab = 'items'"
-      >
-        🎒 Items
-      </button>
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn" [class.active]="activeTab === 'radius'" (click)="setTab('radius')">
+    📍 Radius
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'click'" (click)="setTab('click')">
+    👆 Click
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'items'" (click)="setTab('items')">
+    🎒 Items
+  </button>
+</div>
+
+<!-- Lootbox kaufen -->
+<div class="upgrade-card item-card" [class.affordable]="canAfford(5000)" [class.locked]="!canAfford(5000)">
+  <div class="upgrade-header">
+    <div class="item-icon-big">🎁</div>
+    <div>
+      <div class="upgrade-name">Lootbox</div>
+      <div class="item-description">Enthält ein zufälliges Outfit</div>
     </div>
+  </div>
+  <div class="cost-bar-container">
+    <div class="cost-bar-bg">
+      <div class="cost-bar-fill" [style.width.%]="getProgress(totalCoins, 5000)"></div>
+    </div>
+    <div class="cost-text">
+      <span class="current-coins">{{ totalCoins | number:'1.0-0' }}</span>
+      <span class="separator">/</span>
+      <span class="required-coins">5000</span>
+      <span>🪙</span>
+    </div>
+  </div>
+  <button class="purchase-btn" [disabled]="!canAfford(5000)" (click)="onPurchaseLootbox()">
+    <span *ngIf="canAfford(5000)">🎁 Kaufen</span>
+    <span *ngIf="!canAfford(5000)">🔒 Nicht genug Coins</span>
+  </button>
+</div>
+
 
     <!-- Tab: Radius -->
     <div class="tab-content" *ngIf="activeTab === 'radius'">
