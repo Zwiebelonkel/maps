@@ -9,7 +9,8 @@ const RARITY_WEIGHTS = {
   common: 60,
   rare: 25,
   epic: 12,
-  legendary: 3,
+  legendary: 2.8,
+  exotic: 0.2, // 🔥 ULTRA RARE
 };
 
 const DUPLICATE_COINS: Record<string, number> = {
@@ -17,6 +18,7 @@ const DUPLICATE_COINS: Record<string, number> = {
   rare: 200,
   epic: 750,
   legendary: 3000,
+  exotic: 10000, // 🔥 richtig fett belohnen
 };
 
 @Component({
