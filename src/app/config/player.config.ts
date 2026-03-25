@@ -420,5 +420,5 @@ export const RARITY_COLORS: Record<string, string> = {
   rare: '#4da3ff',
   epic: '#c084fc',
   legendary: '#f97316',
-  exotic: '#ff00ff',
+  exotic: '#ff3b3b', // 🔴 rot statt pink
 };
