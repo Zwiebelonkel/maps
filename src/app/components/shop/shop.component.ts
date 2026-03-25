@@ -24,6 +24,7 @@ export class ShopComponent {
   @Output() close = new EventEmitter<void>();
   @Output() purchaseUpgrade = new EventEmitter<RadiusUpgrade>();
   @Output() purchaseClickUpgrade = new EventEmitter<ClickUpgrade>();
+@Output() purchaseLootbox = new EventEmitter<void>();
   @Output() purchaseItem = new EventEmitter<ShopItem>();
   @Output() unlockAllOutfits = new EventEmitter<void>();
 
@@ -99,18 +100,18 @@ export class ShopComponent {
   // ── Close & Swipe ────────────────────────────────────────────
 
   onClose() {
-    this.sound.play('button', 0.5);
     this.close.emit();
   }
 
   closeWithAnimation() {
-    this.sound.play('button', 0.5);
-    this.isClosing = true;
-    setTimeout(() => {
-      this.isClosing = false;
-      this.onClose();
-    }, 320);
-  }
+  if (this.isClosing) return; // ← verhindert Doppel-Calls
+  this.sound.play('button', 0.5);
+  this.isClosing = true;
+  setTimeout(() => {
+    this.isClosing = false;
+    this.close.emit(); // direkt emit, nicht onClose()
+  }, 320);
+}}
 
   onHeaderTouchStart(e: TouchEvent) {
     this.touchStartY = e.touches[0].clientY;
@@ -146,6 +147,13 @@ export class ShopComponent {
       this.purchaseUpgrade.emit(upgrade);
     }
   }
+
+onPurchaseLootbox() {
+  if (this.canAfford(5000)) {
+    this.sound.play('purchase', 0.7);
+    this.purchaseLootbox.emit();
+  }
+}
 
   onPurchaseClick(upgrade: ClickUpgrade) {
     if (this.canAfford(upgrade.cost)) {
