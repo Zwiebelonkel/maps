@@ -48,6 +48,12 @@ export class ProgressionService {
     );
   }
 
+addLootbox() {
+  this.lootboxes++;
+  this.save();
+}
+
+
   private load() {
     const data = localStorage.getItem(this.STORAGE_KEY);
     if (!data) return;
