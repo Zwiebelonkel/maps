@@ -1076,6 +1076,21 @@ onPurchaseLootbox() {
   }
 }
 
+private handleAutoClick() {
+  const earned =
+    this.coinsPerClick * this.playerService.getClickMultiplier();
+
+  this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
+
+  const leveledUp = this.progressionService.addXP(
+    GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
+  );
+
+  if (leveledUp) this.onLevelUp();
+
+  this.saveProgress();
+}
+
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
     if (target.closest('button')) {
