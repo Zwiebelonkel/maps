@@ -120,17 +120,19 @@
 
   <!-- Shop Component -->
   <app-shop
-    [isOpen]="isShopOpen"
-    [totalCoins]="totalCoins"
-    [currentLevel]="currentRadiusLevel"
-    [currentClickLevel]="currentClickLevel"
-    (close)="closeShop()"
-    (purchaseUpgrade)="onPurchaseUpgrade($event)"
-    (purchaseClickUpgrade)="onPurchaseClickUpgrade($event)"
-    (purchaseItem)="onPurchaseShopItem($event)"
-    (unlockAllOutfits)="onUnlockAllOutfits()"
-  >
-  </app-shop>
+  [isOpen]="isShopOpen"
+  [totalCoins]="totalCoins"
+  [currentLevel]="currentRadiusLevel"
+  [currentClickLevel]="currentClickLevel"
+  (close)="closeShop()"
+  (purchaseUpgrade)="onPurchaseUpgrade($event)"
+  (purchaseClickUpgrade)="onPurchaseClickUpgrade($event)"
+  (purchaseItem)="onPurchaseShopItem($event)"
+  (purchaseLootbox)="onPurchaseLootbox()"
+  (unlockAllOutfits)="onUnlockAllOutfits()"
+>
+</app-shop>
+
 
   <app-burger-menu
     *ngIf="isMenuOpen"
