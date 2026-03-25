@@ -9,20 +9,23 @@
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
-
     <!-- Drag Handle -->
-    <div class="drag-handle"
+    <div
+      class="drag-handle"
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
-      (touchend)="onHeaderTouchEnd()">
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="drag-handle-bar"></div>
     </div>
 
     <!-- Header -->
-    <div class="shop-header"
+    <div
+      class="shop-header"
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
-      (touchend)="onHeaderTouchEnd()">
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="shop-title">
         <span class="shop-icon">🏪</span>
         <h2>Upgrade Shop</h2>
@@ -33,49 +36,36 @@
     <!-- Coins -->
     <div class="coins-display">
       <span class="coin-icon">🪙</span>
-      <span class="coin-amount">{{ totalCoins | number: "1.0-2" }}</span>
+      <span class="coin-amount">{{ totalCoins | number:'1.0-2' }}</span>
       <span class="coin-label">Coins</span>
     </div>
 
-<!-- Tabs -->
-<div class="tabs">
-  <button class="tab-btn" [class.active]="activeTab === 'radius'" (click)="setTab('radius')">
-    📍 Radius
-  </button>
-  <button class="tab-btn" [class.active]="activeTab === 'click'" (click)="setTab('click')">
-    👆 Click
-  </button>
-  <button class="tab-btn" [class.active]="activeTab === 'items'" (click)="setTab('items')">
-    🎒 Items
-  </button>
-</div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'radius'"
+        (click)="setTab('radius')"
+      >
+        📍 Radius
+      </button>
 
-<!-- Lootbox kaufen -->
-<div class="upgrade-card item-card" [class.affordable]="canAfford(5000)" [class.locked]="!canAfford(5000)">
-  <div class="upgrade-header">
-    <div class="item-icon-big">🎁</div>
-    <div>
-      <div class="upgrade-name">Lootbox</div>
-      <div class="item-description">Enthält ein zufälliges Outfit</div>
-    </div>
-  </div>
-  <div class="cost-bar-container">
-    <div class="cost-bar-bg">
-      <div class="cost-bar-fill" [style.width.%]="getProgress(totalCoins, 5000)"></div>
-    </div>
-    <div class="cost-text">
-      <span class="current-coins">{{ totalCoins | number:'1.0-0' }}</span>
-      <span class="separator">/</span>
-      <span class="required-coins">5000</span>
-      <span>🪙</span>
-    </div>
-  </div>
-  <button class="purchase-btn" [disabled]="!canAfford(5000)" (click)="onPurchaseLootbox()">
-    <span *ngIf="canAfford(5000)">🎁 Kaufen</span>
-    <span *ngIf="!canAfford(5000)">🔒 Nicht genug Coins</span>
-  </button>
-</div>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'click'"
+        (click)="setTab('click')"
+      >
+        👆 Click
+      </button>
 
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'items'"
+        (click)="setTab('items')"
+      >
+        🎒 Items
+      </button>
+    </div>
 
     <!-- Tab: Radius -->
     <div class="tab-content" *ngIf="activeTab === 'radius'">
@@ -98,18 +88,23 @@
             <div class="upgrade-level-badge">Level {{ upgrade.level }}</div>
             <div class="upgrade-name">{{ upgrade.description }}</div>
           </div>
+
           <div class="upgrade-stats">
             <div class="stat-item">
-              <span>📍</span><span class="stat-label">Radius:</span>
+              <span>📍</span>
+              <span class="stat-label">Radius:</span>
               <span class="stat-value">{{ upgrade.radius }}m</span>
             </div>
+
             <div class="stat-item">
-              <span>⬆️</span><span class="stat-label">+</span>
-              <span class="stat-value"
-                >{{ upgrade.radius - currentUpgrade.radius }}m</span
-              >
+              <span>⬆️</span>
+              <span class="stat-label">+</span>
+              <span class="stat-value">
+                {{ upgrade.radius - currentUpgrade.radius }}m
+              </span>
             </div>
           </div>
+
           <div class="cost-bar-container">
             <div class="cost-bar-bg">
               <div
@@ -117,15 +112,15 @@
                 [style.width.%]="getProgress(totalCoins, upgrade.cost)"
               ></div>
             </div>
+
             <div class="cost-text">
-              <span class="current-coins">{{
-                totalCoins | number: "1.0-0"
-              }}</span>
+              <span class="current-coins">{{ totalCoins | number:'1.0-0' }}</span>
               <span class="separator">/</span>
               <span class="required-coins">{{ upgrade.cost }}</span>
               <span>🪙</span>
             </div>
           </div>
+
           <button
             class="purchase-btn"
             [disabled]="!canAfford(upgrade.cost)"
@@ -135,6 +130,7 @@
             <span *ngIf="!canAfford(upgrade.cost)">🔒 Nicht genug Coins</span>
           </button>
         </div>
+
         <div class="max-level-card" *ngIf="nextUpgrades.length === 0">
           <div class="max-level-icon">👑</div>
           <h3>Max Level erreicht!</h3>
@@ -163,19 +159,26 @@
             <div class="upgrade-level-badge">Level {{ upgrade.level }}</div>
             <div class="upgrade-name">{{ upgrade.description }}</div>
           </div>
+
           <div class="upgrade-stats">
             <div class="stat-item">
-              <span>🪙</span><span class="stat-label">Pro Klick:</span>
+              <span>🪙</span>
+              <span class="stat-label">Pro Klick:</span>
               <span class="stat-value">{{ upgrade.coinsPerClick }}</span>
             </div>
+
             <div class="stat-item">
-              <span>⬆️</span><span class="stat-label">+</span>
-              <span class="stat-value">{{
-                upgrade.coinsPerClick - currentClickUpgrade.coinsPerClick
-                  | number: "1.0-2"
-              }}</span>
+              <span>⬆️</span>
+              <span class="stat-label">+</span>
+              <span class="stat-value">
+                {{
+                  upgrade.coinsPerClick - currentClickUpgrade.coinsPerClick
+                    | number:'1.0-2'
+                }}
+              </span>
             </div>
           </div>
+
           <div class="cost-bar-container">
             <div class="cost-bar-bg">
               <div
@@ -183,15 +186,15 @@
                 [style.width.%]="getProgress(totalCoins, upgrade.cost)"
               ></div>
             </div>
+
             <div class="cost-text">
-              <span class="current-coins">{{
-                totalCoins | number: "1.0-0"
-              }}</span>
+              <span class="current-coins">{{ totalCoins | number:'1.0-0' }}</span>
               <span class="separator">/</span>
               <span class="required-coins">{{ upgrade.cost }}</span>
               <span>🪙</span>
             </div>
           </div>
+
           <button
             class="purchase-btn"
             [disabled]="!canAfford(upgrade.cost)"
@@ -201,6 +204,7 @@
             <span *ngIf="!canAfford(upgrade.cost)">🔒 Nicht genug Coins</span>
           </button>
         </div>
+
         <div class="max-level-card" *ngIf="nextClickUpgrades.length === 0">
           <div class="max-level-icon">👑</div>
           <h3>Max Level erreicht!</h3>
@@ -211,9 +215,51 @@
     <!-- Tab: Items -->
     <div class="tab-content" *ngIf="activeTab === 'items'">
       <p class="items-hint">
-        🎯 Nach dem Kauf auf die Karte klicken um das Item einzusetzen
+        🎯 Nach dem Kauf auf die Karte klicken, um das Item einzusetzen
       </p>
+
       <div class="upgrades-list">
+        <!-- Lootbox -->
+        <div
+          class="upgrade-card item-card"
+          [class.affordable]="canAfford(5000)"
+          [class.locked]="!canAfford(5000)"
+        >
+          <div class="upgrade-header">
+            <div class="item-icon-big">🎁</div>
+            <div>
+              <div class="upgrade-name">Lootbox</div>
+              <div class="item-description">Enthält ein zufälliges Outfit</div>
+            </div>
+          </div>
+
+          <div class="cost-bar-container">
+            <div class="cost-bar-bg">
+              <div
+                class="cost-bar-fill"
+                [style.width.%]="getProgress(totalCoins, 5000)"
+              ></div>
+            </div>
+
+            <div class="cost-text">
+              <span class="current-coins">{{ totalCoins | number:'1.0-0' }}</span>
+              <span class="separator">/</span>
+              <span class="required-coins">5000</span>
+              <span>🪙</span>
+            </div>
+          </div>
+
+          <button
+            class="purchase-btn"
+            [disabled]="!canAfford(5000)"
+            (click)="onPurchaseLootbox()"
+          >
+            <span *ngIf="canAfford(5000)">🎁 Kaufen</span>
+            <span *ngIf="!canAfford(5000)">🔒 Nicht genug Coins</span>
+          </button>
+        </div>
+
+        <!-- Normale Items -->
         <div
           *ngFor="let item of shopItems"
           class="upgrade-card item-card"
@@ -227,6 +273,7 @@
               <div class="item-description">{{ item.description }}</div>
             </div>
           </div>
+
           <div class="cost-bar-container">
             <div class="cost-bar-bg">
               <div
@@ -234,23 +281,23 @@
                 [style.width.%]="getProgress(totalCoins, item.cost)"
               ></div>
             </div>
+
             <div class="cost-text">
-              <span class="current-coins">{{
-                totalCoins | number: "1.0-0"
-              }}</span>
+              <span class="current-coins">{{ totalCoins | number:'1.0-0' }}</span>
               <span class="separator">/</span>
               <span class="required-coins">{{ item.cost }}</span>
               <span>🪙</span>
             </div>
           </div>
+
           <button
             class="purchase-btn"
             [disabled]="!canAfford(item.cost)"
             (click)="onPurchaseItem(item)"
           >
-            <span *ngIf="canAfford(item.cost)"
-              >{{ item.icon }} Kaufen & aktivieren</span
-            >
+            <span *ngIf="canAfford(item.cost)">
+              {{ item.icon }} Kaufen & aktivieren
+            </span>
             <span *ngIf="!canAfford(item.cost)">🔒 Nicht genug Coins</span>
           </button>
         </div>
@@ -261,8 +308,8 @@
     <div class="tips-section">
       <h4>💡 Tipps</h4>
       <ul>
-        <li>Erkunde neue Bereiche um Coins zu sammeln</li>
-        <li>Größerer Radius = Mehr Kacheln pro Schritt</li>
+        <li>Erkunde neue Bereiche, um Coins zu sammeln</li>
+        <li>Größerer Radius = mehr Kacheln pro Schritt</li>
         <li>Bomben legen große Bereiche auf der Karte frei</li>
       </ul>
     </div>
@@ -270,6 +317,7 @@
     <!-- Admin Code -->
     <div class="admin-code-section">
       <h4>🔐 Code eingeben</h4>
+
       <div class="code-input-row">
         <input
           type="password"
@@ -278,7 +326,10 @@
         />
         <button (click)="redeemCode()">Einlösen</button>
       </div>
-      <div class="code-message" *ngIf="codeMessage">{{ codeMessage }}</div>
+
+      <div class="code-message" *ngIf="codeMessage">
+        {{ codeMessage }}
+      </div>
     </div>
   </div>
 </div>
