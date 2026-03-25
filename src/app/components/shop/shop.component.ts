@@ -111,7 +111,7 @@ export class ShopComponent {
     this.isClosing = false;
     this.close.emit(); // direkt emit, nicht onClose()
   }, 320);
-}}
+}
 
   onHeaderTouchStart(e: TouchEvent) {
     this.touchStartY = e.touches[0].clientY;
