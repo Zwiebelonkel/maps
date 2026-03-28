@@ -17,6 +17,8 @@ export class BurgerMenuComponent {
   @Output() openMarkers = new EventEmitter<void>();
   @Output() openPlayer = new EventEmitter<void>();
   @Output() openLootbox = new EventEmitter<void>();
+  @Output() openInventory = new EventEmitter<void>();
+
 
   constructor(
     public progression: ProgressionService,
