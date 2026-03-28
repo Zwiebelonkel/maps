@@ -34,6 +34,10 @@ import { SoundService } from '../services/sound.service';
 import { UserMarker } from '../../models/user-marker.model';
 import { OUTFITS } from './config/player.config';
 
+import { InventoryComponent } from './components/inventory/inventory.component';
+import { InventoryService } from '../services/inventory.service';
+
+
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
 const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
@@ -83,6 +87,7 @@ interface GridCoordinate {
     MarkerListComponent, // ✅ hinzufügen
     PlayerComponent,
     LootboxComponent,
+    InventoryComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -122,6 +127,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isShopOpen = false;
   isSettingsOpen = false;
   isPlayerOpen = false;
+  isInventoryOpen = false;
+
   activeBombItem: ShopItem | null = null;
 
   // Session
@@ -152,6 +159,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public playerService: PlayerService,
     public progressionService: ProgressionService,
     private soundService: SoundService,
+    private inventoryService: InventoryService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -770,35 +778,33 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Loot ────────────────────────────────────────────────────
 
   private applyLoot(loot: LootResult) {
-    switch (loot.type) {
-      case 'coins':
-        this.totalCoins +=
-          (loot.amount || 0) * this.playerService.getCoinMultiplier();
-        break;
-      case 'bomb':
-        if (loot.item) {
-          this.activeBombItem = loot.item;
-          document.getElementById('map')!.style.cursor =
-            `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${loot.item.icon}</text></svg>") 16 16, crosshair`;
-        }
-        break;
-      case 'outfit':
-        if (loot.item) {
-          this.playerService.unlock(loot.item.id);
-        }
-        break;
-      case 'upgrade':
-        const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
-          (u) => u.level === this.currentClickLevel + 1,
-        );
-        if (nextClickUpgrade) {
-          this.upgradeService.applyClickUpgrade(nextClickUpgrade);
-        }
-        break;
-      case 'trophy':
-        break;
-    }
+  switch (loot.type) {
+    case 'coins':
+      this.totalCoins +=
+        (loot.amount || 0) * this.playerService.getCoinMultiplier();
+      break;
+    case 'bomb':
+      if (loot.item) {
+        this.inventoryService.add(loot.item); // ← ins Inventar
+      }
+      break;
+    case 'outfit':
+      if (loot.item) {
+        this.playerService.unlock(loot.item.id);
+      }
+      break;
+    case 'upgrade':
+      const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
+        (u) => u.level === this.currentClickLevel + 1,
+      );
+      if (nextClickUpgrade) {
+        this.upgradeService.applyClickUpgrade(nextClickUpgrade);
+      }
+      break;
+    case 'trophy':
+      break;
   }
+}
 
   // ── Fog of War ──────────────────────────────────────────────
 
@@ -926,17 +932,22 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onPurchaseShopItem(item: ShopItem) {
-    if (this.totalCoins >= item.cost) {
-      this.soundService.play('purchase');
-      this.vibrate(100);
-      this.totalCoins -= item.cost;
-      this.activeBombItem = item;
-      this.isShopOpen = false;
-      this.saveProgress();
-      document.getElementById('map')!.style.cursor =
-        `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
-    }
+  if (this.totalCoins >= item.cost) {
+    this.soundService.play('purchase');
+    this.vibrate(100);
+    this.totalCoins -= item.cost;
+    this.inventoryService.add(item); // ← ins Inventar
+    this.isShopOpen = false;
+    this.saveProgress();
   }
+}
+
+onActivateBombFromInventory(item: ShopItem) {
+  this.activeBombItem = item;
+  document.getElementById('map')!.style.cursor =
+    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
+}
+
 
   centerOnPlayer() {
     if (!this.currentLocation || !this.map) return;
@@ -996,6 +1007,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.totalTilesExplored = 0;
     this.lastExploredGridKey = null;
     this.upgradeService.reset();
+    this.inventoryService.clear();
     this.markerService.clear();
     this.playerService.unlocked = ['default'];
     this.playerService.equip('default');
