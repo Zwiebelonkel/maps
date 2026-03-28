@@ -133,7 +133,6 @@ export const OUTFITS: Outfit[] = [
       label: '+50% Klick-Coins',
       icon: '👆',
     },
-  },
   {
     id: 'scholar',
     icon: '🎓',
@@ -154,7 +153,6 @@ export const OUTFITS: Outfit[] = [
       label: '+15% Loot-Chance',
       icon: '🎲',
     },
-  },
   {
     id: 'hiking_boots',
     icon: '🥾',
@@ -191,7 +189,6 @@ export const OUTFITS: Outfit[] = [
       label: '+35% Klick-Coins',
       icon: '👆',
     },
-  },
   {
     id: 'radio',
     icon: '📻',
@@ -246,7 +243,6 @@ export const OUTFITS: Outfit[] = [
       label: '+25% Loot-Chance',
       icon: '🎲',
     },
-  },
   {
     id: 'professor',
     icon: '🧪',
@@ -275,7 +271,6 @@ export const OUTFITS: Outfit[] = [
       label: '+75% Klick-Coins',
       icon: '👆',
     },
-  },
   {
     id: 'ancient_map',
     icon: '📜',
@@ -312,7 +307,6 @@ export const OUTFITS: Outfit[] = [
       label: '+35% Loot-Chance',
       icon: '🎲',
     },
-  },
   {
     id: 'jetpack',
     icon: '🚀',
@@ -367,7 +361,6 @@ export const OUTFITS: Outfit[] = [
       label: '+100% Klick-Coins',
       icon: '👆',
     },
-  },
   {
     id: 'holy_grail',
     icon: '🏆',
