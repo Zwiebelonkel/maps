@@ -102,7 +102,7 @@
 
 .stats-panel {
   position: absolute;
-  top: 20px;
+  top: 44px;
   left: 20px;
   background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(10px);
@@ -296,7 +296,7 @@
 
 .control-buttons {
   position: absolute;
-  top: 20px;
+  top: 44px;
   right: 20px;
   display: flex;
   flex-direction: column;
@@ -587,11 +587,11 @@
 
 .xp-bar-container {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 4px 0 0;
+  padding: 0 0 4px;
   background: rgba(10, 10, 10, 0.75);
   backdrop-filter: blur(6px);
 }
@@ -628,4 +628,5 @@
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.3px;
 }
+
 
