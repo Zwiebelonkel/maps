@@ -10,7 +10,8 @@ const RARITY_WEIGHTS = {
   rare: 25,
   epic: 12,
   legendary: 2.8,
-  exotic: 0.2, // 🔥 ULTRA RARE
+  exotic: 0.19,
+  mythic: 0.01, // 💀 EXTREM SELTEN (~1 in 10.000 Rolls)
 };
 
 const DUPLICATE_COINS: Record<string, number> = {
@@ -18,7 +19,8 @@ const DUPLICATE_COINS: Record<string, number> = {
   rare: 200,
   epic: 750,
   legendary: 3000,
-  exotic: 10000, // 🔥 richtig fett belohnen
+  exotic: 10000,
+  mythic: 100000, // 💎 fühlt sich richtig fett an
 };
 
 @Component({
