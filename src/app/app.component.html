@@ -133,6 +133,13 @@
 >
 </app-shop>
 
+<app-inventory
+  *ngIf="isInventoryOpen"
+  (close)="isInventoryOpen = false"
+  (activateBomb)="onActivateBombFromInventory($event)"
+></app-inventory>
+
+
 
   <app-burger-menu
     *ngIf="isMenuOpen"
