@@ -72,6 +72,11 @@ export class BurgerMenuComponent {
     this.closeWithAnimation();
   }
 
+  onInventory() {
+  this.openInventory.emit();
+  this.closeWithAnimation();
+  }
+
   onHeaderTouchStart(e: TouchEvent) {
     this.touchStartY = e.touches[0].clientY;
     this.touchCurrentY = this.touchStartY;
