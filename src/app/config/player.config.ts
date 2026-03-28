@@ -13,7 +13,7 @@ export interface Outfit {
   name: string;
   description: string;
   effect: OutfitEffect;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary' | 'exotic';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary' | 'exotic' | 'mythic';
 }
 
 export const OUTFITS: Outfit[] = [
@@ -412,6 +412,135 @@ export const OUTFITS: Outfit[] = [
     label: 'Auto Click jede Sekunde',
     icon: '⚡',
   },
+  {
+    id: 'quantum_scanner',
+    icon: '🧬',
+    name: 'Quantum Scanner',
+    description: 'Sieht Loot aus anderen Dimensionen.',
+    rarity: 'exotic',
+    effect: { type: 'loot', value: 0.75, label: '+75% Loot-Chance', icon: '🎲' },
+  },
+  {
+    id: 'hyper_gloves',
+    icon: '🖐️',
+    name: 'Hyperhandschuhe',
+    description: 'Jeder Klick ist verstärkt.',
+    rarity: 'exotic',
+    effect: { type: 'click', value: 1.5, label: '+150% Klick-Coins', icon: '👆' },
+  },
+  {
+    id: 'neural_implant',
+    icon: '🧠',
+    name: 'Neural-Implantat',
+    description: 'XP fließt schneller.',
+    rarity: 'exotic',
+    effect: { type: 'xp', value: 1.2, label: '+120% XP', icon: '⭐' },
+  },
+  {
+    id: 'gravity_boots',
+    icon: '🥾',
+    name: 'Gravitationsstiefel',
+    description: 'Massiv erhöhte Reichweite.',
+    rarity: 'exotic',
+    effect: { type: 'radius', value: 1.0, label: '+100% Radius', icon: '📡' },
+  },
+  {
+    id: 'loot_overdrive',
+    icon: '🎰',
+    name: 'Loot Overdrive',
+    description: 'Extrem erhöhte Loot-Chance.',
+    rarity: 'exotic',
+    effect: { type: 'loot', value: 1.0, label: '+100% Loot-Chance', icon: '🎲' },
+  },
+  {
+    id: 'gold_multiplier',
+    icon: '💸',
+    name: 'Coin-Multiplikator',
+    description: 'Verdoppelt deine Einnahmen.',
+    rarity: 'exotic',
+    effect: { type: 'coins', value: 1.5, label: '+150% Coins', icon: '🪙' },
+  },
+  {
+    id: 'click_overdrive',
+    icon: '⚡',
+    name: 'Click Overdrive',
+    description: 'Massiver Klick-Boost.',
+    rarity: 'exotic',
+    effect: { type: 'click', value: 2.0, label: '+200% Klick-Coins', icon: '👆' },
+  },
+  {
+    id: 'xp_matrix',
+    icon: '💠',
+    name: 'XP-Matrix',
+    description: 'Maximale Lernrate.',
+    rarity: 'exotic',
+    effect: { type: 'xp', value: 1.5, label: '+150% XP', icon: '⭐' },
+  },
+  {
+    id: 'plasma_radar',
+    icon: '📡',
+    name: 'Plasma-Radar',
+    description: 'Erfasst alles.',
+    rarity: 'exotic',
+    effect: { type: 'radius', value: 1.3, label: '+130% Radius', icon: '📡' },
+  },
+  {
+    id: 'time_core',
+    icon: '⏳',
+    name: 'Zeitkern',
+    description: 'Massiver globaler Boost.',
+    rarity: 'mythic',
+    effect: { type: 'coins', value: 2.0, label: '+200% Coins', icon: '🪙' },
+  },
+  {
+    id: 'cosmic_eye',
+    icon: '👁️',
+    name: 'Kosmisches Auge',
+    description: 'Sieht jeden Loot.',
+    rarity: 'mythic',
+    effect: { type: 'loot', value: 2.5, label: '+250% Loot-Chance', icon: '🎲' },
+  },
+  {
+    id: 'god_hand',
+    icon: '✋',
+    name: 'Hand der Götter',
+    description: 'Unfassbare Klickkraft.',
+    rarity: 'mythic',
+    effect: { type: 'click', value: 3.0, label: '+300% Klick-Coins', icon: '👆' },
+  },
+  {
+    id: 'infinite_mind',
+    icon: '🧠',
+    name: 'Unendlicher Geist',
+    description: 'Grenzenloses Lernen.',
+    rarity: 'mythic',
+    effect: { type: 'xp', value: 3.5, label: '+350% XP', icon: '⭐' },
+  },
+  {
+    id: 'universe_engine',
+    icon: '🌌',
+    name: 'Universums-Engine',
+    description: 'Erweitert alles.',
+    rarity: 'mythic',
+    effect: { type: 'radius', value: 2.5, label: '+250% Radius', icon: '📡' },
+  },
+  {
+    id: 'void_generator',
+    icon: '🕳️',
+    name: 'Void Generator',
+    description: 'Erzeugt extrem viele Coins.',
+    rarity: 'mythic',
+    effect: { type: 'coins', value: 5.0, label: '+500% Coins', icon: '🪙' },
+  },
+  {
+    id: 'infinity_core',
+    icon: '♾️',
+    name: 'Infinity Core',
+    description: 'Ultimative Klickpower.',
+    rarity: 'mythic',
+    effect: { type: 'click', value: 5.0, label: '+500% Klick-Coins', icon: '👆' },
+  },
+];
 }
 ];
 
@@ -420,5 +549,6 @@ export const RARITY_COLORS: Record<string, string> = {
   rare: '#4da3ff',
   epic: '#c084fc',
   legendary: '#f97316',
-  exotic: '#ff3b3b', // 🔴 rot statt pink
+  exotic: '#ff3b3b',
+  mythic: '#00ffd5',
 };
