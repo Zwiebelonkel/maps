@@ -43,7 +43,11 @@
     </div>
 
     <!-- Preview -->
-    <div class="outfit-preview" *ngIf="selectedOutfit">
+    <div
+  class="outfit-preview"
+  *ngIf="selectedOutfit"
+  [attr.data-rarity]="selectedOutfit.rarity"
+>
       <div class="outfit-preview-emoji">{{ selectedOutfit.icon }}</div>
       <div class="outfit-preview-info">
         <div class="outfit-preview-top">
