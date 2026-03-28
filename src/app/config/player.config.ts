@@ -32,12 +32,7 @@ export const OUTFITS: Outfit[] = [
     name: 'Münzhandschuh',
     description: 'Jeder Tipp bringt mehr.',
     rarity: 'common',
-    effect: {
-      type: 'click',
-      value: 0.2,
-      label: '+20% Klick-Coins',
-      icon: '👆',
-    },
+    effect: { type: 'click', value: 0.2, label: '+20% Klick-Coins', icon: '👆' },
   },
   {
     id: 'notebook',
@@ -127,12 +122,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Energiehandschuh',
     description: 'Doppelte Kraft beim Tippen.',
     rarity: 'rare',
-    effect: {
-      type: 'click',
-      value: 0.5,
-      label: '+50% Klick-Coins',
-      icon: '👆',
-    },
+    effect: { type: 'click', value: 0.5, label: '+50% Klick-Coins', icon: '👆' },
+  },
   {
     id: 'scholar',
     icon: '🎓',
@@ -147,12 +138,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Schatzkarte',
     description: 'Folge dem X zum Reichtum.',
     rarity: 'rare',
-    effect: {
-      type: 'loot',
-      value: 0.15,
-      label: '+15% Loot-Chance',
-      icon: '🎲',
-    },
+    effect: { type: 'loot', value: 0.15, label: '+15% Loot-Chance', icon: '🎲' },
+  },
   {
     id: 'hiking_boots',
     icon: '🥾',
@@ -183,12 +170,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Stoppuhr',
     description: 'Effizienz ist alles.',
     rarity: 'rare',
-    effect: {
-      type: 'click',
-      value: 0.35,
-      label: '+35% Klick-Coins',
-      icon: '👆',
-    },
+    effect: { type: 'click', value: 0.35, label: '+35% Klick-Coins', icon: '👆' },
+  },
   {
     id: 'radio',
     icon: '📻',
@@ -237,12 +220,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Kristallkugel',
     description: 'Sieht verborgene Schätze voraus.',
     rarity: 'epic',
-    effect: {
-      type: 'loot',
-      value: 0.25,
-      label: '+25% Loot-Chance',
-      icon: '🎲',
-    },
+    effect: { type: 'loot', value: 0.25, label: '+25% Loot-Chance', icon: '🎲' },
+  },
   {
     id: 'professor',
     icon: '🧪',
@@ -265,12 +244,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Diamantspitzhacke',
     description: 'Hau mehr raus aus jedem Klick.',
     rarity: 'epic',
-    effect: {
-      type: 'click',
-      value: 0.75,
-      label: '+75% Klick-Coins',
-      icon: '👆',
-    },
+    effect: { type: 'click', value: 0.75, label: '+75% Klick-Coins', icon: '👆' },
+  },
   {
     id: 'ancient_map',
     icon: '📜',
@@ -301,12 +276,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Radaranlage',
     description: 'Nichts entgeht diesem Sensor.',
     rarity: 'epic',
-    effect: {
-      type: 'loot',
-      value: 0.35,
-      label: '+35% Loot-Chance',
-      icon: '🎲',
-    },
+    effect: { type: 'loot', value: 0.35, label: '+35% Loot-Chance', icon: '🎲' },
+  },
   {
     id: 'jetpack',
     icon: '🚀',
@@ -355,12 +326,8 @@ export const OUTFITS: Outfit[] = [
     name: 'Galaxishandschuh',
     description: 'Unendliche Macht beim Tippen.',
     rarity: 'legendary',
-    effect: {
-      type: 'click',
-      value: 1.0,
-      label: '+100% Klick-Coins',
-      icon: '👆',
-    },
+    effect: { type: 'click', value: 1.0, label: '+100% Klick-Coins', icon: '👆' },
+  },
   {
     id: 'holy_grail',
     icon: '🏆',
@@ -393,17 +360,15 @@ export const OUTFITS: Outfit[] = [
     rarity: 'legendary',
     effect: { type: 'coins', value: 0.75, label: '+75% Coins', icon: '🪙' },
   },
-{
-  id: 'auto_clicker',
-  icon: '🤖',
-  name: 'Auto-Clicker Bot',
-  description: 'Klickt automatisch jede Sekunde für dich.',
-  rarity: 'exotic', // 👉 oder 'exotic' wenn du erweitern willst
-  effect: {
-    type: 'click',
-    value: 0, // wird nicht genutzt
-    label: 'Auto Click jede Sekunde',
-    icon: '⚡',
+
+  // ── EXOTIC ─────────────────────────────────────────────────
+  {
+    id: 'auto_clicker',
+    icon: '🤖',
+    name: 'Auto-Clicker Bot',
+    description: 'Klickt automatisch jede Sekunde für dich.',
+    rarity: 'exotic',
+    effect: { type: 'click', value: 0, label: 'Auto Click jede Sekunde', icon: '⚡' },
   },
   {
     id: 'quantum_scanner',
@@ -477,6 +442,8 @@ export const OUTFITS: Outfit[] = [
     rarity: 'exotic',
     effect: { type: 'radius', value: 1.3, label: '+130% Radius', icon: '📡' },
   },
+
+  // ── MYTHIC ─────────────────────────────────────────────────
   {
     id: 'time_core',
     icon: '⏳',
@@ -533,8 +500,6 @@ export const OUTFITS: Outfit[] = [
     rarity: 'mythic',
     effect: { type: 'click', value: 5.0, label: '+500% Klick-Coins', icon: '👆' },
   },
-];
-}
 ];
 
 export const RARITY_COLORS: Record<string, string> = {
