@@ -10,7 +10,7 @@ export interface LootResult {
   amount?: number;
   item?: ShopItem;
   label: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary' | 'exotic';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary' | 'exotic' | 'mythic';
 }
 
 @Injectable({ providedIn: 'root' })
