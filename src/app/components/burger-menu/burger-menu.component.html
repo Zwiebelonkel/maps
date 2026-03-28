@@ -40,6 +40,15 @@
         </div>
       </div>
     </div>
+    <div class="setting-item" (click)="onInventory()">
+  <div class="setting-info">
+    <div class="setting-icon">🎒</div>
+    <div class="setting-content">
+      <div class="setting-label">Inventar</div>
+      <div class="setting-desc">{{ inventoryService.getBombs().length }} Bomben verfügbar</div>
+    </div>
+  </div>
+</div>
     <div class="setting-item" (click)="onLootbox()">
       <div class="setting-info">
         <div class="setting-icon">🎁</div>
