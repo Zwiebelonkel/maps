@@ -559,37 +559,39 @@
 
 .xp-bar-container {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 0 0 4px;
+  padding: 4px 0 0;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(6px);
 }
 
 .xp-bar-track {
   width: 100%;
-  height: 4px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.06);
 }
 
 .xp-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4da3ff, #a78bfa);
+  background: linear-gradient(90deg, #00c896, #00e676);
   transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 8px rgba(77, 163, 255, 0.6);
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.5);
 }
 
 .xp-bar-labels {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2px 12px 0;
+  padding: 3px 12px 5px;
 }
 
 .xp-level {
   font-size: 0.7rem;
   font-weight: bold;
-  color: #4da3ff;
+  color: #00e676;
   letter-spacing: 0.5px;
 }
 
@@ -598,3 +600,4 @@
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.3px;
 }
+
