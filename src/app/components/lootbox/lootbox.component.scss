@@ -274,6 +274,41 @@
     background: rgba(255, 180, 0, 0.15);
     border: 1px solid rgba(255, 180, 0, 0.4);
   }
+  &.exotic {
+  background: rgba(255, 59, 59, 0.15);
+  border: 1px solid rgba(255, 59, 59, 0.4);
+  box-shadow:
+    0 0 10px rgba(255, 59, 59, 0.3),
+    0 0 20px rgba(255, 59, 59, 0.2);
+}
+&.mythic {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 213, 0.15),
+    rgba(0, 0, 0, 0.4)
+  );
+  border: 1px solid rgba(0, 255, 213, 0.5);
+
+  box-shadow:
+    0 0 12px rgba(0, 255, 213, 0.4),
+    0 0 25px rgba(0, 255, 213, 0.3),
+    0 0 50px rgba(0, 255, 213, 0.2);
+
+  animation: mythicPulse 2s infinite alternate;
+}
+}
+
+@keyframes mythicPulse {
+  0% {
+    box-shadow:
+      0 0 10px rgba(0, 255, 213, 0.3),
+      0 0 20px rgba(0, 255, 213, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 20px rgba(0, 255, 213, 0.6),
+      0 0 40px rgba(0, 255, 213, 0.4);
+  }
 }
 
 @keyframes popIn {
