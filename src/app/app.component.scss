@@ -451,19 +451,47 @@
 
 .bomb-hint {
   position: absolute;
-  bottom: 90px;
+  top: 48px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 100, 0, 0.9);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 80, 0, 0.15), rgba(255, 40, 0, 0.1));
+  border: 1px solid rgba(255, 100, 0, 0.5);
+  color: #ff6a00;
+  padding: 10px 22px;
+  border-radius: 30px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   z-index: 200;
   pointer-events: none;
-  animation: pulse 1s infinite;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px rgba(255, 80, 0, 0.25), inset 0 0 12px rgba(255, 80, 0, 0.05);
+  white-space: nowrap;
+  animation: bombHintEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             bombPulse 1.8s ease-in-out 0.3s infinite;
 }
+
+@keyframes bombHintEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes bombPulse {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(255, 80, 0, 0.25), inset 0 0 12px rgba(255, 80, 0, 0.05);
+    border-color: rgba(255, 100, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(255, 80, 0, 0.5), inset 0 0 16px rgba(255, 80, 0, 0.1);
+    border-color: rgba(255, 140, 0, 0.9);
+  }
+}
+
 
 .session-btn.active {
   background: rgba(255, 80, 80, 0.3);
