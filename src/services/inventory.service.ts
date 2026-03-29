@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ShopItem } from '../app/config/game.config';
 
+export interface InventoryStack {
+  item: ShopItem;
+  count: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class InventoryService {
   private items: ShopItem[] = [];
@@ -14,17 +19,33 @@ export class InventoryService {
     this.save();
   }
 
-  remove(index: number) {
-    this.items.splice(index, 1);
-    this.save();
+  remove(itemId: string) {
+    const index = this.items.findIndex(i => i.id === itemId);
+    if (index !== -1) {
+      this.items.splice(index, 1);
+      this.save();
+    }
   }
 
   getAll(): ShopItem[] {
     return this.items;
   }
 
-  getBombs(): ShopItem[] {
-    return this.items.filter(i => i.bombRadius != null);
+  getBombStacks(): InventoryStack[] {
+    const map = new Map<string, InventoryStack>();
+    for (const item of this.items.filter(i => i.bombRadius != null)) {
+      if (map.has(item.id)) {
+        map.get(item.id)!.count++;
+      } else {
+        map.set(item.id, { item, count: 1 });
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  clear() {
+    this.items = [];
+    this.save();
   }
 
   private save() {
@@ -38,10 +59,5 @@ export class InventoryService {
     } catch {
       this.items = [];
     }
-  }
-
-  clear() {
-    this.items = [];
-    this.save();
   }
 }
