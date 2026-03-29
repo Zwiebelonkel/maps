@@ -1,0 +1,33 @@
+<div class="modal-backdrop" (click)="close.emit()"></div>
+<div class="modal-container">
+  <div class="modal-header">
+    <h2>🎒 Inventar</h2>
+    <button class="close-btn" (click)="close.emit()">✕</button>
+  </div>
+
+  <div class="modal-body">
+    <ng-container *ngIf="inventoryService.getBombs().length > 0; else empty">
+      <p class="section-label">Bomben</p>
+      <div class="item-grid">
+        <div
+          class="item-card"
+          *ngFor="let item of inventoryService.getBombs(); let i = index"
+          (click)="onActivate(item, i)"
+        >
+          <div class="item-icon">{{ item.icon }}</div>
+          <div class="item-name">{{ item.name }}</div>
+          <div class="item-radius">{{ item.bombRadius }}m Radius</div>
+          <div class="item-activate">Aktivieren</div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #empty>
+      <div class="empty-state">
+        <div class="empty-icon">🎒</div>
+        <p>Dein Inventar ist leer.</p>
+        <small>Bomben erhältst du im Shop oder als Loot.</small>
+      </div>
+    </ng-template>
+  </div>
+</div>
