@@ -35,17 +35,19 @@
       <ng-container *ngIf="inventoryService.getBombs().length > 0; else empty">
         <p class="section-label">Bomben</p>
         <div class="item-grid">
-          <div
-            class="item-card"
-            *ngFor="let item of inventoryService.getBombs(); let i = index"
-            (click)="onActivate(item, i)"
-          >
-            <div class="item-icon">{{ item.icon }}</div>
-            <div class="item-name">{{ item.name }}</div>
-            <div class="item-radius">{{ item.bombRadius }}m Radius</div>
-            <div class="item-activate">Aktivieren</div>
-          </div>
-        </div>
+  <div
+    class="item-card"
+    *ngFor="let stack of inventoryService.getBombStacks()"
+    (click)="onActivate(stack.item)"
+  >
+    <div class="item-icon">{{ stack.item.icon }}</div>
+    <div class="item-name">{{ stack.item.name }}</div>
+    <div class="item-radius">{{ stack.item.bombRadius }}m Radius</div>
+    <div class="item-count" *ngIf="stack.count > 1">{{ stack.count }}x</div>
+    <div class="item-activate">Aktivieren</div>
+  </div>
+</div>
+
       </ng-container>
 
       <ng-template #empty>
