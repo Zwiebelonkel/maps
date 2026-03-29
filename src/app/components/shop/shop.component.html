@@ -296,7 +296,7 @@
             (click)="onPurchaseItem(item)"
           >
             <span *ngIf="canAfford(item.cost)">
-              {{ item.icon }} Kaufen & aktivieren
+              {{ item.icon }} Kaufen
             </span>
             <span *ngIf="!canAfford(item.cost)">🔒 Nicht genug Coins</span>
           </button>
