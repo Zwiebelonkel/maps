@@ -27,11 +27,12 @@ export class InventoryComponent {
     setTimeout(() => this.close.emit(), 320);
   }
 
-  onActivate(item: ShopItem, index: number) {
-    this.inventoryService.remove(index);
-    this.activateBomb.emit(item);
-    this.closeWithAnimation();
-  }
+  onActivate(item: ShopItem) {
+  this.inventoryService.remove(item.id);
+  this.activateBomb.emit(item);
+  this.closeWithAnimation();
+}
+}
 
   onHeaderTouchStart(e: TouchEvent) {
     this.touchStartY = e.touches[0].clientY;
