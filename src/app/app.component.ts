@@ -937,7 +937,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.vibrate(100);
     this.totalCoins -= item.cost;
     this.inventoryService.add(item); // ← ins Inventar
-    this.isShopOpen = false;
     this.saveProgress();
   }
 }
