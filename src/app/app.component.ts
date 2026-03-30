@@ -1036,15 +1036,6 @@ onActivateBombFromInventory(item: ShopItem) {
   onUnlockAllOutfits() {
     OUTFITS.forEach((outfit) => this.playerService.unlock(outfit.id));
   }
-
-  onAddRadiusLevel(amount: number) {
-  this.currentRadiusLevel += amount;
-  this.saveGame();
-}
-  onAddClickLevel(amount: number) {
-  this.currentClickLevel += amount;
-  this.saveGame();
-}
   onGiveCoins(amount: number) {
   this.totalCoins += amount;
   this.saveGame();
