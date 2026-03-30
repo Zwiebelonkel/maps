@@ -1038,11 +1038,11 @@ onActivateBombFromInventory(item: ShopItem) {
   }
   onGiveCoins(amount: number) {
   this.totalCoins += amount;
-  this.saveGame();
+  this.saveProgress();
 }
   onResetCoins() {
   this.totalCoins = 0;
-  this.saveGame();
+  this.saveProgress();
 }
   onGiveLootboxes(amount: number) {
   for (let i = 0; i < amount; i++) {
