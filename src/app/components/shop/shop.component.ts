@@ -27,6 +27,11 @@ export class ShopComponent {
 @Output() purchaseLootbox = new EventEmitter<void>();
   @Output() purchaseItem = new EventEmitter<ShopItem>();
   @Output() unlockAllOutfits = new EventEmitter<void>();
+  @Output() addRadiusLevel = new EventEmitter<number>();
+@Output() addClickLevel = new EventEmitter<number>();
+@Output() resetCoins = new EventEmitter<void>();
+@Output() giveCoins = new EventEmitter<number>();
+@Output() giveLootboxes = new EventEmitter<number>();
 
   adminCode = '';
   codeMessage = '';
@@ -173,23 +178,62 @@ onPurchaseLootbox() {
 
   
 redeemCode() {
-    const code = this.adminCode.trim().toLowerCase();
+  const code = this.adminCode.trim().toLowerCase();
 
-    if (code === '1906-money') {
-      this.purchaseUpgrade.emit({
-        level: -1,
-        radius: 0,
-        cost: -10000000,
-        description: 'ADMIN_COINS',
-      });
-      this.codeMessage = '💰 10.000.000 Coins erhalten!';
-      this.adminCode = '';
-    } else if (code === '1906-outfits') {
+  switch (code) {
+    case '1906-money':
+      this.giveCoins.emit(10000000);
+      this.codeMessage = '💰 +10.000.000 Coins!';
+      break;
+
+    case '1906-rich':
+      this.giveCoins.emit(1000000);
+      this.codeMessage = '💸 +1.000.000 Coins!';
+      break;
+
+    case '1906-reset':
+      this.resetCoins.emit();
+      this.codeMessage = '🧹 Coins wurden zurückgesetzt!';
+      break;
+
+    case '1906-loot':
+      this.giveLootboxes.emit(5);
+      this.codeMessage = '🎁 5 Lootboxen!';
+      break;
+
+    case '1906-radius+':
+      this.addRadiusLevel.emit(5);
+      this.codeMessage = '📡 +5 Radius-Level!';
+      break;
+
+    case '1906-click+':
+      this.addClickLevel.emit(5);
+      this.codeMessage = '⚡ +5 Click-Level!';
+      break;
+
+    case '1906-op':
+      this.giveCoins.emit(5000000);
+      this.addRadiusLevel.emit(20);
+      this.addClickLevel.emit(20);
+      this.codeMessage = '🔥 OP Boost aktiviert!';
+      break;
+
+    case '1906-god':
+      this.giveCoins.emit(99999999);
+      this.addRadiusLevel.emit(100);
+      this.addClickLevel.emit(100);
+      this.codeMessage = '👑 GOD MODE!';
+      break;
+
+    case '1906-outfits':
       this.unlockAllOutfits.emit();
-      this.codeMessage = '🎒 Alle Ausrüstungen freigeschaltet!';
-      this.adminCode = '';
-    } else {
+      this.codeMessage = '🎒 Alle Outfits freigeschaltet!';
+      break;
+
+    default:
       this.codeMessage = '❌ Falscher Code';
-    }
+  }
+
+  this.adminCode = '';
 }
 }
