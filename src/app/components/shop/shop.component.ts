@@ -27,8 +27,6 @@ export class ShopComponent {
 @Output() purchaseLootbox = new EventEmitter<void>();
   @Output() purchaseItem = new EventEmitter<ShopItem>();
   @Output() unlockAllOutfits = new EventEmitter<void>();
-  @Output() addRadiusLevel = new EventEmitter<number>();
-@Output() addClickLevel = new EventEmitter<number>();
 @Output() resetCoins = new EventEmitter<void>();
 @Output() giveCoins = new EventEmitter<number>();
 @Output() giveLootboxes = new EventEmitter<number>();
@@ -201,28 +199,10 @@ redeemCode() {
       this.codeMessage = '🎁 5 Lootboxen!';
       break;
 
-    case '1906-radius+':
-      this.addRadiusLevel.emit(5);
-      this.codeMessage = '📡 +5 Radius-Level!';
-      break;
-
-    case '1906-click+':
-      this.addClickLevel.emit(5);
-      this.codeMessage = '⚡ +5 Click-Level!';
-      break;
-
-    case '1906-op':
-      this.giveCoins.emit(5000000);
-      this.addRadiusLevel.emit(20);
-      this.addClickLevel.emit(20);
-      this.codeMessage = '🔥 OP Boost aktiviert!';
-      break;
-
-    case '1906-god':
-      this.giveCoins.emit(99999999);
-      this.addRadiusLevel.emit(100);
-      this.addClickLevel.emit(100);
-      this.codeMessage = '👑 GOD MODE!';
+    case '1906-poor':
+      this.resetCoins.emit();
+      this.giveCoins.emit(1);
+      this.codeMessage = '🥲 Du bist jetzt arm... (1 Coin)';
       break;
 
     case '1906-outfits':
