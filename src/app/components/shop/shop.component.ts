@@ -171,72 +171,25 @@ onPurchaseLootbox() {
 
   // ── Admin Code ───────────────────────────────────────────────
 
-  redeemCode() {
-  const code = this.adminCode.trim().toLowerCase();
+  
+redeemCode() {
+    const code = this.adminCode.trim().toLowerCase();
 
-  if (code === '1906-money') {
-    this.purchaseUpgrade.emit({
-      level: -1,
-      radius: 0,
-      cost: -10000000,
-      description: 'ADMIN_COINS',
-    });
-    this.codeMessage = '💰 10.000.000 Coins erhalten!';
-
-  } else if (code === '1906-reset-money') {
-    this.purchaseUpgrade.emit({
-      level: -1,
-      radius: 0,
-      cost: 9999999999,
-      description: 'ADMIN_RESET_MONEY',
-    });
-    this.codeMessage = '🔄 Geld wurde zurückgesetzt!';
-
-  } else if (code === '1906-outfits') {
-    this.unlockAllOutfits.emit();
-    this.codeMessage = '🎒 Alle Ausrüstungen freigeschaltet!';
-
-  } else if (code === '1906-bomb') {
-    this.addItem.emit({ id: 'bomb_ultra', amount: 5 });
-    this.codeMessage = '💣 5 Ultra Bomben erhalten!';
-
-  } else if (code === '1906-radius') {
-    this.purchaseUpgrade.emit({
-      level: -1,
-      radius: 50,
-      cost: 0,
-      description: 'ADMIN_RADIUS',
-    });
-    this.codeMessage = '📡 Radius +50!';
-
-  } else if (code === '1906-luck') {
-    this.luckBoost.emit(300); // 5 Minuten Luck Boost
-    this.codeMessage = '🍀 Luck Boost für 5 Minuten aktiviert!';
-
-  } else if (code === '1906-xp') {
-    this.addXP.emit(5000);
-    this.codeMessage = '⭐ 5000 XP erhalten!';
-
-  } else if (code === '1906-lootbox') {
-    this.addLootbox.emit(3);
-    this.codeMessage = '🎁 3 Lootboxen erhalten!';
-
-  } else if (code === '1906-godmode') {
-    this.toggleGodMode.emit();
-    this.codeMessage = '👑 Godmode aktiviert!';
-
-  } else if (code === '1906-clear') {
-    this.clearFog.emit();
-    this.codeMessage = '🌫️ Karte komplett aufgedeckt!';
-
-  } else if (code === '1906-speed') {
-    this.speedBoost.emit(300);
-    this.codeMessage = '⚡ Speed Boost für 5 Minuten!';
-
-  } else {
-    this.codeMessage = '❌ Falscher Code';
-  }
-
-  this.adminCode = '';
+    if (code === '1906-money') {
+      this.purchaseUpgrade.emit({
+        level: -1,
+        radius: 0,
+        cost: -10000000,
+        description: 'ADMIN_COINS',
+      });
+      this.codeMessage = '💰 10.000.000 Coins erhalten!';
+      this.adminCode = '';
+    } else if (code === '1906-outfits') {
+      this.unlockAllOutfits.emit();
+      this.codeMessage = '🎒 Alle Ausrüstungen freigeschaltet!';
+      this.adminCode = '';
+    } else {
+      this.codeMessage = '❌ Falscher Code';
+    }
 }
 }
