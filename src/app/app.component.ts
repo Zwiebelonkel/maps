@@ -1031,9 +1031,33 @@ onActivateBombFromInventory(item: ShopItem) {
     );
   }
 
+
+//Cheats
   onUnlockAllOutfits() {
     OUTFITS.forEach((outfit) => this.playerService.unlock(outfit.id));
   }
+
+  onAddRadiusLevel(amount: number) {
+  this.currentRadiusLevel += amount;
+  this.saveGame();
+}
+  onAddClickLevel(amount: number) {
+  this.currentClickLevel += amount;
+  this.saveGame();
+}
+  onGiveCoins(amount: number) {
+  this.totalCoins += amount;
+  this.saveGame();
+}
+  onResetCoins() {
+  this.totalCoins = 0;
+  this.saveGame();
+}
+  onGiveLootboxes(amount: number) {
+  for (let i = 0; i < amount; i++) {
+    this.progressionService.addLootbox();
+  }
+}
 
   private loadProgress() {
     const saved = localStorage.getItem('map_explorer_progress');
