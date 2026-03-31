@@ -36,7 +36,7 @@ import { OUTFITS } from './config/player.config';
 
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { InventoryService } from '../services/inventory.service';
-
+import { Geolocation } from '@capacitor/geolocation';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -101,7 +101,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private leafletUserMarkers: L.Marker[] = [];
   private radiusCircle!: L.Circle;
   private fogLayer!: L.Polygon;
-  private watchId: number | null = null;
+  private watchId: string | null = null;
   private lastTap = 0;
 
   private exploredTiles = new Map<string, MapTile>();
@@ -299,27 +299,26 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Lifecycle ───────────────────────────────────────────────
 
   ngOnInit() {
-  this.markerService.load();
-  this.loadProgress();
-  this.updateGameState();
-  this.startGPSTracking();
+    this.markerService.load();
+    this.loadProgress();
+    this.updateGameState();
+    this.startGPSTracking();
 
-  interval(3000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if (this.currentLocation)
-        this.exploreCurrentArea(this.currentLocation);
-    });
+    interval(3000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
+      });
 
-  // 🟣 AUTCLICKER
-  interval(1000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if (this.playerService.hasAutoClicker()) {
-        this.handleAutoClick();
-      }
-    });
-}
+    // 🟣 AUTCLICKER
+    interval(1000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.playerService.hasAutoClicker()) {
+          this.handleAutoClick();
+        }
+      });
+  }
 
   ngAfterViewInit() {
     (window as any).deleteUserMarker = (id: string) => {
@@ -540,56 +539,72 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async startGPSTracking() {
     try {
-      if (!navigator.geolocation)
-        throw new Error('Geolocation wird nicht unterstützt');
+      // 👉 Permission anfragen
+      const permission = await Geolocation.requestPermissions();
 
-      const position = await new Promise<GeolocationPosition>(
-        (resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
-          });
-        },
-      );
+      if (permission.location !== 'granted') {
+        this.errorMessage = 'GPS Permission verweigert';
+        this.isLoading = false;
+        return;
+      }
+
+      // 👉 Erste Position holen
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+      });
 
       this.updateLocation(position);
       this.isLoading = false;
 
-      this.watchId = navigator.geolocation.watchPosition(
-        (pos) => this.updateLocation(pos),
-        (error) => {
-          this.errorMessage = `GPS-Fehler: ${error.message}`;
+      // 👉 LIVE Tracking starten
+      this.watchId = await Geolocation.watchPosition(
+        {
+          enableHighAccuracy: true,
         },
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
+        (pos, err) => {
+          if (err) {
+            this.errorMessage = `GPS-Fehler: ${err.message}`;
+            return;
+          }
+
+          if (pos) {
+            this.updateLocation(pos);
+          }
+        },
       );
     } catch (error: any) {
-      this.errorMessage = `GPS-Fehler: ${error.message}. Bitte GPS aktivieren.`;
+      this.errorMessage = `GPS-Fehler: ${error.message}`;
       this.isLoading = false;
     }
   }
 
   private stopGPSTracking() {
     if (this.watchId !== null) {
-      navigator.geolocation.clearWatch(this.watchId);
+      Geolocation.clearWatch({ id: this.watchId });
       this.watchId = null;
     }
   }
 
-  private updateLocation(position: GeolocationPosition) {
+  private updateLocation(position: any) {
+    // ❌ Sicherheitscheck (wichtig für Capacitor)
+    if (!position || !position.coords) return;
+
     const newLocation: Location = {
       lat: position.coords.latitude,
       lng: position.coords.longitude,
-      accuracy: position.coords.accuracy,
-      timestamp: position.timestamp,
+      accuracy: position.coords.accuracy ?? 999,
+      timestamp: Date.now(),
     };
 
+    // ❌ Ungenaue GPS-Daten ignorieren
     if (
       newLocation.accuracy &&
       newLocation.accuracy > GAME_CONFIG.MAX_ACCEPTED_ACCURACY
-    )
+    ) {
       return;
+    }
 
+    // ❌ Zu kleine Bewegung ignorieren (Anti-Jitter)
     if (this.lastAcceptedLocation) {
       const moved = this.calculateDistance(
         this.lastAcceptedLocation.lat,
@@ -597,20 +612,25 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         newLocation.lat,
         newLocation.lng,
       );
-      if (moved < GAME_CONFIG.MIN_GPS_MOVEMENT) return;
+
+      if (moved < GAME_CONFIG.MIN_GPS_MOVEMENT) {
+        return;
+      }
     }
 
+    // ✅ Neue Position übernehmen
     this.lastAcceptedLocation = newLocation;
     this.currentLocation = newLocation;
 
-    // Session Punkt hinzufügen
+    // 📍 Session Track
     this.sessionService.addPoint(newLocation.lat, newLocation.lng);
 
-    // Route auf Karte zeichnen
+    // 🧭 Route zeichnen
     if (this.routePolyline) {
       this.routePolyline.addLatLng(L.latLng(newLocation.lat, newLocation.lng));
     }
 
+    // 🗺️ Map updaten
     if (this.map) {
       this.updatePlayerPosition(newLocation);
       this.exploreCurrentArea(newLocation);
@@ -778,33 +798,33 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Loot ────────────────────────────────────────────────────
 
   private applyLoot(loot: LootResult) {
-  switch (loot.type) {
-    case 'coins':
-      this.totalCoins +=
-        (loot.amount || 0) * this.playerService.getCoinMultiplier();
-      break;
-    case 'bomb':
-      if (loot.item) {
-        this.inventoryService.add(loot.item); // ← ins Inventar
-      }
-      break;
-    case 'outfit':
-      if (loot.item) {
-        this.playerService.unlock(loot.item.id);
-      }
-      break;
-    case 'upgrade':
-      const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
-        (u) => u.level === this.currentClickLevel + 1,
-      );
-      if (nextClickUpgrade) {
-        this.upgradeService.applyClickUpgrade(nextClickUpgrade);
-      }
-      break;
-    case 'trophy':
-      break;
+    switch (loot.type) {
+      case 'coins':
+        this.totalCoins +=
+          (loot.amount || 0) * this.playerService.getCoinMultiplier();
+        break;
+      case 'bomb':
+        if (loot.item) {
+          this.inventoryService.add(loot.item); // ← ins Inventar
+        }
+        break;
+      case 'outfit':
+        if (loot.item) {
+          this.playerService.unlock(loot.item.id);
+        }
+        break;
+      case 'upgrade':
+        const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
+          (u) => u.level === this.currentClickLevel + 1,
+        );
+        if (nextClickUpgrade) {
+          this.upgradeService.applyClickUpgrade(nextClickUpgrade);
+        }
+        break;
+      case 'trophy':
+        break;
+    }
   }
-}
 
   // ── Fog of War ──────────────────────────────────────────────
 
@@ -932,21 +952,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onPurchaseShopItem(item: ShopItem) {
-  if (this.totalCoins >= item.cost) {
-    this.soundService.play('purchase');
-    this.vibrate(100);
-    this.totalCoins -= item.cost;
-    this.inventoryService.add(item); // ← ins Inventar
-    this.saveProgress();
+    if (this.totalCoins >= item.cost) {
+      this.soundService.play('purchase');
+      this.vibrate(100);
+      this.totalCoins -= item.cost;
+      this.inventoryService.add(item); // ← ins Inventar
+      this.saveProgress();
+    }
   }
-}
 
-onActivateBombFromInventory(item: ShopItem) {
-  this.activeBombItem = item;
-  document.getElementById('map')!.style.cursor =
-    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
-}
-
+  onActivateBombFromInventory(item: ShopItem) {
+    this.activeBombItem = item;
+    document.getElementById('map')!.style.cursor =
+      `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
+  }
 
   centerOnPlayer() {
     if (!this.currentLocation || !this.map) return;
@@ -1079,28 +1098,27 @@ onActivateBombFromInventory(item: ShopItem) {
     });
   }
 
-onPurchaseLootbox() {
-  if (this.totalCoins >= 5000) {
-    this.totalCoins -= 5000;
-    this.progressionService.addLootbox();
+  onPurchaseLootbox() {
+    if (this.totalCoins >= 5000) {
+      this.totalCoins -= 5000;
+      this.progressionService.addLootbox();
+      this.saveProgress();
+    }
+  }
+
+  private handleAutoClick() {
+    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
+
+    this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
+
+    const leveledUp = this.progressionService.addXP(
+      GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
+    );
+
+    if (leveledUp) this.onLevelUp();
+
     this.saveProgress();
   }
-}
-
-private handleAutoClick() {
-  const earned =
-    this.coinsPerClick * this.playerService.getClickMultiplier();
-
-  this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
-
-  const leveledUp = this.progressionService.addXP(
-    GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
-  );
-
-  if (leveledUp) this.onLevelUp();
-
-  this.saveProgress();
-}
 
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;

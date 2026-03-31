@@ -68,18 +68,6 @@
       </div>
     </div>
 
-    <!-- Standort -->
-    <div class="setting-item">
-      <div class="setting-info">
-        <span class="setting-icon">📍</span>
-        <div class="setting-content">
-          <div class="setting-label">Standort</div>
-          <div class="setting-desc">Karte zentrieren</div>
-        </div>
-        <button class="toggle-btn" (click)="centerMap()">Zentrieren</button>
-      </div>
-    </div>
-
     <!-- Stromsparmodus -->
     <div class="setting-item">
       <div class="setting-info">
@@ -116,29 +104,6 @@
           {{ settings.snapshot.muted ? "AUS" : "AN" }}
         </button>
       </div>
-    </div>
-
-    <!-- Lautstärke -->
-    <div class="setting-item">
-      <div class="setting-info">
-        <span class="setting-icon">🎚️</span>
-        <div class="setting-content">
-          <div class="setting-label">Lautstärke</div>
-          <div class="setting-desc">Sound-Pegel</div>
-        </div>
-        <div class="setting-value">
-          {{ settings.snapshot.soundVolume * 100 | number: "1.0-0" }}%
-        </div>
-      </div>
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.05"
-        [value]="settings.snapshot.soundVolume"
-        [disabled]="settings.snapshot.muted"
-        (input)="settings.update({ soundVolume: +$any($event.target).value })"
-      />
     </div>
 
     <!-- Footer -->

@@ -42,28 +42,6 @@
       </div>
     </div>
 
-    <!-- Preview -->
-    <div
-  class="outfit-preview"
-  *ngIf="selectedOutfit"
-  [attr.data-rarity]="selectedOutfit.rarity"
->
-      <div class="outfit-preview-emoji">{{ selectedOutfit.icon }}</div>
-      <div class="outfit-preview-info">
-        <div class="outfit-preview-top">
-          <div class="outfit-preview-name">{{ selectedOutfit.name }}</div>
-          <div class="rarity-badge" [attr.data-rarity]="selectedOutfit.rarity">
-            {{ selectedOutfit.rarity }}
-          </div>
-        </div>
-        <div class="outfit-preview-desc">{{ selectedOutfit.description }}</div>
-        <div class="outfit-effect-tag">
-          <span class="effect-icon">{{ selectedOutfit.effect.icon }}</span>
-          <span class="effect-label">{{ selectedOutfit.effect.label }}</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Liste -->
     <div class="outfit-list">
       <div
