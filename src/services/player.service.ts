@@ -104,6 +104,12 @@ hasAutoClicker(): boolean {
     );
   }
 
+reset() {
+  this.unlocked = ['default'];
+  this.equipped = ['default'];
+  this.save();
+}
+
   private load() {
     const data = localStorage.getItem(this.STORAGE_KEY);
     if (!data) return;
