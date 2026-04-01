@@ -12,7 +12,7 @@ const RARITY_WEIGHTS = {
   epic: 12,
   legendary: 2.8,
   exotic: 0.19,
-  mythic: 0.01, // 💀 EXTREM SELTEN (~1 in 10.000 Rolls)
+  mythic: 0.01,
 };
 
 const DUPLICATE_COINS: Record<string, number> = {
@@ -21,7 +21,7 @@ const DUPLICATE_COINS: Record<string, number> = {
   epic: 750,
   legendary: 3000,
   exotic: 10000,
-  mythic: 100000, // 💎 fühlt sich richtig fett an
+  mythic: 100000,
 };
 
 @Component({
@@ -41,6 +41,10 @@ export class LootboxComponent implements OnInit {
   reward: Outfit | null = null;
   isDuplicate = false;
   duplicateCoins = 0;
+
+  // 🔥 PITY SYSTEM
+  private pityCounter = 0;
+  private readonly PITY_THRESHOLD = 10;
 
   private touchStartY = 0;
   private touchCurrentY = 0;
@@ -68,6 +72,8 @@ export class LootboxComponent implements OnInit {
     }, 320);
   }
 
+  // ── Touch ─────────────────────────
+
   onHeaderTouchStart(e: TouchEvent) {
     this.touchStartY = e.touches[0].clientY;
     this.touchCurrentY = this.touchStartY;
@@ -81,21 +87,40 @@ export class LootboxComponent implements OnInit {
 
   onHeaderTouchEnd() {
     if (!this.isDraggingHeader) return;
+
     const diff = this.touchCurrentY - this.touchStartY;
     if (diff > 80) this.closeWithAnimation();
+
     this.touchStartY = 0;
     this.touchCurrentY = 0;
     this.isDraggingHeader = false;
   }
 
+  // ── OPEN BOX ─────────────────────
+
   openBox() {
     if (this.state !== 'idle') return;
     if (!this.progression.useLootbox()) return;
+
     this.sound.play('lootbox');
     this.state = 'opening';
 
     setTimeout(() => {
       this.reward = this.rollWeighted();
+
+      // 🔥 PITY LOGIK
+      if (this.isBadDrop(this.reward.rarity)) {
+        this.pityCounter++;
+      } else {
+        this.pityCounter = 0;
+      }
+
+      if (this.pityCounter >= this.PITY_THRESHOLD) {
+        this.reward = this.rollGuaranteedEpic();
+        this.pityCounter = 0;
+        this.sound.play('legendary'); // optional extra feel
+      }
+
       this.isDuplicate = this.player.unlocked.includes(this.reward.id);
 
       if (this.isDuplicate) {
@@ -104,7 +129,7 @@ export class LootboxComponent implements OnInit {
         this.sound.play('purchase', 0.7);
       } else {
         this.player.unlock(this.reward.id);
-        this.notification.addNewOutfit(this.reward.id)
+        this.notification.addNewOutfit(this.reward.id);
         this.sound.play('reward');
       }
 
@@ -112,15 +137,26 @@ export class LootboxComponent implements OnInit {
     }, 1200);
   }
 
+  // ── WEIGHTED ROLL + MULTIPLIER ─────────────────────
+
   private rollWeighted(): Outfit {
-    const totalWeight = Object.values(RARITY_WEIGHTS).reduce(
-      (a, b) => a + b,
-      0,
-    );
+    const multiplier = this.player.getLootMultiplier() + 0.25; // 🔥 Lootbox leicht besser
+
+    const weights = {
+      common: RARITY_WEIGHTS.common / multiplier,
+      rare: RARITY_WEIGHTS.rare,
+      epic: RARITY_WEIGHTS.epic * multiplier,
+      legendary: RARITY_WEIGHTS.legendary * multiplier * 1.3,
+      exotic: RARITY_WEIGHTS.exotic * multiplier * 1.6,
+      mythic: RARITY_WEIGHTS.mythic * multiplier * 2,
+    };
+
+    const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
     let roll = Math.random() * totalWeight;
 
     let targetRarity: string = 'common';
-    for (const [rarity, weight] of Object.entries(RARITY_WEIGHTS)) {
+
+    for (const [rarity, weight] of Object.entries(weights)) {
       roll -= weight;
       if (roll <= 0) {
         targetRarity = rarity;
@@ -128,12 +164,55 @@ export class LootboxComponent implements OnInit {
       }
     }
 
-    const pool = OUTFITS.filter((o) => o.rarity === targetRarity);
-    // Fallback falls keine Outfits dieser Rarität
-    if (!pool.length)
+    const unlocked = this.player.unlocked;
+
+    let pool = OUTFITS.filter(
+      (o) => o.rarity === targetRarity && !unlocked.includes(o.id)
+    );
+
+    if (!pool.length) {
+      pool = OUTFITS.filter((o) => o.rarity === targetRarity);
+    }
+
+    if (!pool.length) {
       return OUTFITS[Math.floor(Math.random() * OUTFITS.length)];
+    }
+
     return pool[Math.floor(Math.random() * pool.length)];
   }
+
+  // ── HELPERS ─────────────────────
+
+  private isBadDrop(rarity: string): boolean {
+    return rarity === 'common' || rarity === 'rare';
+  }
+
+  private rollGuaranteedEpic(): Outfit {
+    const unlocked = this.player.unlocked;
+
+    let pool = OUTFITS.filter(
+      (o) =>
+        (o.rarity === 'epic' ||
+          o.rarity === 'legendary' ||
+          o.rarity === 'exotic' ||
+          o.rarity === 'mythic') &&
+        !unlocked.includes(o.id)
+    );
+
+    if (!pool.length) {
+      pool = OUTFITS.filter(
+        (o) =>
+          o.rarity === 'epic' ||
+          o.rarity === 'legendary' ||
+          o.rarity === 'exotic' ||
+          o.rarity === 'mythic'
+      );
+    }
+
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // ── RESET ─────────────────────
 
   resetState() {
     this.sound.play('button', 0.5);
