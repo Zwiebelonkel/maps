@@ -25,6 +25,9 @@ export class PlayerComponent {
   isOpen = true;
   isClosing = false;
   selectedOutfit: Outfit | null = null;
+  private touchStartY = 0;
+  private touchCurrentY = 0;
+  private isDraggingHeader = false;
 
   constructor(
     public player: PlayerService,
@@ -65,6 +68,31 @@ export class PlayerComponent {
     this.sound.play('button', 0.5);
     this.player.equip(this.selectedOutfit.id);
   }
+
+  onHeaderTouchStart(e: TouchEvent) {
+  this.touchStartY = e.touches[0].clientY;
+  this.touchCurrentY = this.touchStartY;
+  this.isDraggingHeader = true;
+}
+
+onHeaderTouchMove(e: TouchEvent) {
+  if (!this.isDraggingHeader) return;
+  this.touchCurrentY = e.touches[0].clientY;
+}
+
+onHeaderTouchEnd() {
+  if (!this.isDraggingHeader) return;
+
+  const diff = this.touchCurrentY - this.touchStartY;
+
+  if (diff > 80) {
+    this.closeWithAnimation();
+  }
+
+  this.touchStartY = 0;
+  this.touchCurrentY = 0;
+  this.isDraggingHeader = false;
+}
 
   unequip(id: string) {
     if (this.player.equipped.length > 1) {
