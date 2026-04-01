@@ -161,7 +161,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public progressionService: ProgressionService,
     private soundService: SoundService,
     private inventoryService: InventoryService,
-    public notificationService: NotificationService,
+    public notification: NotificationService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -793,7 +793,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     case 'outfit':
       if (loot.item) {
         this.playerService.unlock(loot.item.id);
-        this.notificationService.addNewOutfit(loot.item.id)
+        this.notification.addNewOutfit(loot.item.id)
       }
       break;
     case 'upgrade':
