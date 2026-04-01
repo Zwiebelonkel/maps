@@ -640,3 +640,33 @@
   background: red;
   border-radius: 50%;
 }
+
+.error-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.error-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.retry {
+    background: linear-gradient(135deg, #4da3ff, #667eea);
+    color: white;
+  }
+
+  &.close {
+    background: rgba(255, 255, 255, 0.08);
+    color: #aaa;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
