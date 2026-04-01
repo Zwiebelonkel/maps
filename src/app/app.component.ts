@@ -161,6 +161,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public progressionService: ProgressionService,
     private soundService: SoundService,
     private inventoryService: InventoryService,
+    public notificationService: NotificationService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
