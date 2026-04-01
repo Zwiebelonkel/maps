@@ -21,6 +21,7 @@ import { UpgradeService } from '../services/upgrade.service';
 import { LootService, LootResult } from '../services/loot.service';
 import { SettingsService } from '../services/settings.service';
 import { ProgressionService } from '../services/progression.service';
+import { NotificationService } from '../services/notification.service';
 
 import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
@@ -791,6 +792,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     case 'outfit':
       if (loot.item) {
         this.playerService.unlock(loot.item.id);
+        this.notificationService.addNewOutfit(loot.item.id)
       }
       break;
     case 'upgrade':
