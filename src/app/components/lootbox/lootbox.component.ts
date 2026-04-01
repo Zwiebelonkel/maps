@@ -4,6 +4,7 @@ import { OUTFITS, Outfit } from '../../config/player.config';
 import { PlayerService } from '../../../services/player.service';
 import { ProgressionService } from '../../../services/progression.service';
 import { SoundService } from '../../../services/sound.service';
+import { NotificationService } from '../../../services/notification.service';
 
 const RARITY_WEIGHTS = {
   common: 60,
@@ -49,6 +50,7 @@ export class LootboxComponent implements OnInit {
     public player: PlayerService,
     public progression: ProgressionService,
     private sound: SoundService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit() {
@@ -102,6 +104,7 @@ export class LootboxComponent implements OnInit {
         this.sound.play('purchase', 0.7);
       } else {
         this.player.unlock(this.reward.id);
+        this.notification.addNewOutfit(this.reward.id)
         this.sound.play('reward');
       }
 
