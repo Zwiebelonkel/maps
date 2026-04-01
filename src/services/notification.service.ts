@@ -34,6 +34,11 @@ export class NotificationService {
     );
   }
 
+reset() {
+  this.newOutfits.clear();
+  localStorage.removeItem('new_outfits');
+}
+
   load() {
     const data = localStorage.getItem('new_outfits');
     if (data) {
