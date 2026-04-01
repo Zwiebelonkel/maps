@@ -1120,6 +1120,17 @@ private handleAutoClick() {
   this.saveProgress();
 }
 
+retryGPS() {
+  this.errorMessage = '';
+  this.isLoading = true;
+
+  this.startGPSTracking();
+}
+
+dismissError() {
+  this.errorMessage = '';
+}
+
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
     if (target.closest('button')) {
