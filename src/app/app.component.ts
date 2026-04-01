@@ -1001,26 +1001,36 @@ onActivateBombFromInventory(item: ShopItem) {
   // ── Reset & Persistence ─────────────────────────────────────
 
   resetGame() {
-    localStorage.removeItem('map_explorer_progress');
-    localStorage.removeItem('player_data');
-    localStorage.removeItem('progression');
-    this.exploredTiles.clear();
-    this.totalCoins = 0;
-    this.totalTilesExplored = 0;
-    this.lastExploredGridKey = null;
-    this.upgradeService.reset();
-    this.inventoryService.clear();
-    this.markerService.clear();
-    this.playerService.unlocked = ['default'];
-    this.playerService.equip('default');
-    this.progressionService.xp = 0;
-    this.progressionService.level = 1;
-    this.progressionService.lootboxes = 0;
-    this.updateGameState();
-    if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
-    this.drawFogOfWar();
-    this.renderAllUserMarkers();
+  localStorage.removeItem('map_explorer_progress');
+  localStorage.removeItem('player_data');
+  localStorage.removeItem('progression');
+
+  this.exploredTiles.clear();
+  this.totalCoins = 0;
+  this.totalTilesExplored = 0;
+  this.lastExploredGridKey = null;
+
+  this.upgradeService.reset();
+  this.inventoryService.clear();
+  this.markerService.clear();
+
+  // 🔥 WICHTIG: sauber resetten
+  this.playerService.reset();
+  this.notification.reset();
+
+  this.progressionService.xp = 0;
+  this.progressionService.level = 1;
+  this.progressionService.lootboxes = 0;
+
+  this.updateGameState();
+
+  if (this.currentLocation) {
+    this.updatePlayerPosition(this.currentLocation);
   }
+
+  this.drawFogOfWar();
+  this.renderAllUserMarkers();
+}
 
   public saveProgress() {
     localStorage.setItem(
