@@ -7,16 +7,28 @@
     </div>
   </div>
 
-  <!-- Error Overlay -->
-  <div class="error-overlay" *ngIf="errorMessage && !isLoading">
-    <div class="error-content">
-      <h2>⚠️ Fehler</h2>
-      <p>{{ errorMessage }}</p>
-      <p class="error-hint">
-        Bitte aktiviere GPS in deinen Geräteeinstellungen.
-      </p>
+<!-- Error Overlay -->
+<div class="error-overlay" *ngIf="errorMessage && !isLoading">
+  <div class="error-content">
+    <h2>⚠️ Fehler</h2>
+    <p>{{ errorMessage }}</p>
+
+    <p class="error-hint">
+      Bitte aktiviere GPS in deinen Geräteeinstellungen.
+    </p>
+
+    <!-- 🔥 NEU -->
+    <div class="error-actions">
+      <button class="error-btn retry" (click)="retryGPS()">
+        🔄 Erneut versuchen
+      </button>
+
+      <button class="error-btn close" (click)="dismissError()">
+        ✕ Schließen
+      </button>
     </div>
   </div>
+</div>
 
   <!-- Stromsparmodus -->
   <div
