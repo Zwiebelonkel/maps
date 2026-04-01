@@ -1,0 +1,50 @@
+name: 🔥 Hard Reset Repo UI (Auto Backup)
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: "Commit SHA"
+        required: true
+      branch:
+        description: "Branch (main oder master)"
+        required: true
+        default: "master"
+
+permissions:
+  contents: write
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Set Git config
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: 🔀 Checkout target branch
+        run: |
+          git checkout ${{ github.event.inputs.branch }}
+
+      - name: 💾 Create backup branch
+        run: |
+          BACKUP_BRANCH="backup-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b $BACKUP_BRANCH
+          git push origin $BACKUP_BRANCH
+          echo "Backup erstellt: $BACKUP_BRANCH"
+
+      - name: 💥 Reset to commit
+        run: |
+          git checkout ${{ github.event.inputs.branch }}
+          git reset --hard ${{ github.event.inputs.commit_sha }}
+
+      - name: 🚀 Force push
+        run: |
+          git push origin ${{ github.event.inputs.branch }} --force
