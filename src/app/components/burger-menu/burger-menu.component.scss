@@ -137,6 +137,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
 }
 
 .setting-icon {
@@ -163,12 +164,18 @@
   letter-spacing: 0.5px;
 }
 
-.badge {
+.setting-info .badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+
+  top: 50%;
+  right: 0;
+
+  transform: translateY(-50%);
+
   width: 8px;
   height: 8px;
   background: red;
   border-radius: 50%;
+
+  z-index: 5;
 }
