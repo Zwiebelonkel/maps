@@ -69,6 +69,7 @@
       <div
         class="outfit-row"
         *ngFor="let outfit of outfits"
+        [class.new]="notification.isNewOutfit(outfit.id)"
         [class.locked]="!isUnlocked(outfit.id)"
         [class.active]="player.isEquipped(outfit.id)"
         [class.selected]="selectedOutfit?.id === outfit.id"
