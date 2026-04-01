@@ -1,4 +1,4 @@
-name: 🔥 Hard Reset Repo (Auto Backup)
+name: 🔥 Hard Reset Repo UI (Auto Backup)
 
 on:
   workflow_dispatch:
