@@ -381,3 +381,13 @@
   70% { box-shadow: 0 0 0 6px rgba(255,0,0,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
 }
+
+.modal {
+  transition: transform 0.25s ease;
+  will-change: transform;
+}
+
+.modal-content {
+  overflow-y: auto;
+  max-height: 80vh;
+}
