@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../../services/player.service';
+import { NotificationService } from '../../../services/notification.service';
 import { OUTFITS, Outfit } from '../../config/player.config';
 import { SoundService } from '../../../services/sound.service';
 
@@ -27,6 +28,7 @@ export class PlayerComponent {
 
   constructor(
     public player: PlayerService,
+    public notification: NotificationService,
     private sound: SoundService,
   ) {
     this.selectedOutfit =
@@ -54,6 +56,7 @@ export class PlayerComponent {
   preview(outfit: Outfit) {
     this.sound.play('button', 0.3);
     this.selectedOutfit = outfit;
+    this.notification.markAsSeen(outfit.id)
   }
 
   equip() {
