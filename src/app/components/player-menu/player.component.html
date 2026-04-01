@@ -9,9 +9,14 @@
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
-    <div class="drag-handle">
-      <div class="drag-handle-bar"></div>
-    </div>
+    <div
+  class="drag-handle"
+  (touchstart)="onHeaderTouchStart($event)"
+  (touchmove)="onHeaderTouchMove($event)"
+  (touchend)="onHeaderTouchEnd()"
+>
+  <div class="drag-handle-bar"></div>
+</div>
 
     <div class="modal-header">
       <h2>🎒 Gear</h2>
