@@ -66,13 +66,13 @@
     </div>
 
     <!-- Revealed -->
-    <!-- Revealed -->
     <div class="setting-item lootbox-center" *ngIf="state === 'revealed'">
       <div
         class="reward-card"
         [ngClass]="reward?.rarity"
         (click)="resetState()"
       >
+        <div class="shine"></div>
         <div class="reward-icon">{{ reward?.icon }}</div>
         <div class="reward-name">{{ reward?.name }}</div>
         <div class="reward-desc" *ngIf="!isDuplicate">
