@@ -389,16 +389,35 @@
 
   select {
     flex: 1;
-    padding: 6px 8px;
+    padding: 6px 28px 6px 8px; // rechts Platz für Icon
     border-radius: 8px;
     background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
     color: #fff;
     font-size: 0.75rem;
+
+    // 🔥 wichtig: Standard-Pfeil entfernen
+    appearance: none;
+    -webkit-appearance: none;
+
+    // 🔥 eigener heller Pfeil
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='white'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px;
+
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #4da3ff;
+      background: rgba(255,255,255,0.08);
+    }
 
     &:focus {
       outline: none;
       border-color: #4da3ff;
+      box-shadow: 0 0 6px rgba(77,163,255,0.4);
     }
   }
+}
 }
