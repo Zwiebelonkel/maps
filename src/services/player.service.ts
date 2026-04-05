@@ -34,6 +34,14 @@ export class PlayerService {
     this.save();
   }
 
+  unequip(id: string) {
+  // Niemals komplett leer lassen
+  if (this.equipped.length <= 1) return;
+
+  this.equipped = this.equipped.filter(e => e !== id);
+  this.save();
+}
+
   isEquipped(id: string): boolean {
     return this.equipped.includes(id);
   }
