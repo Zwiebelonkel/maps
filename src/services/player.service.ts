@@ -5,7 +5,7 @@ import { OUTFITS, Outfit } from '../app/config/player.config';
 export class PlayerService {
   private STORAGE_KEY = 'player_data';
   unlocked: string[] = ['default'];
-  equipped: string[] = ['default']; // ← Array statt string
+  equipped: string[] = []; // statt ['default']
 
   constructor() {
     this.load();
@@ -18,21 +18,22 @@ export class PlayerService {
     }
   }
 
-  equip(id: string) {
-    if (this.equipped.includes(id)) {
-      // Bereits ausgerüstet → ausziehen (außer es ist das letzte)
-      if (this.equipped.length > 1) {
-        this.equipped = this.equipped.filter((e) => e !== id);
-      }
-    } else if (this.equipped.length < 2) {
-      // Slot frei → hinzufügen
-      this.equipped.push(id);
-    } else {
-      // Beide Slots voll → ältesten ersetzen
-      this.equipped = [this.equipped[1], id];
-    }
+equip(id: string) {
+  if (this.equipped.includes(id)) {
+    // jetzt IMMER entfernen erlauben
+    this.equipped = this.equipped.filter((e) => e !== id);
     this.save();
+    return;
   }
+
+  if (this.equipped.length < 2) {
+    this.equipped.push(id);
+  } else {
+    this.equipped = [this.equipped[1], id];
+  }
+
+  this.save();
+}
 
   unequip(id: string) {
   // Niemals komplett leer lassen
@@ -114,7 +115,7 @@ hasAutoClicker(): boolean {
 
 reset() {
   this.unlocked = ['default'];
-  this.equipped = ['default'];
+  this.equipped = [];
   this.save();
 }
 
