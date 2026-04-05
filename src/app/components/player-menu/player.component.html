@@ -9,26 +9,29 @@
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
-    <div
-  class="drag-handle"
-  (touchstart)="onHeaderTouchStart($event)"
-  (touchmove)="onHeaderTouchMove($event)"
-  (touchend)="onHeaderTouchEnd()"
->
-  <div class="drag-handle-bar"></div>
-</div>
 
+    <!-- DRAG -->
+    <div
+      class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
+      <div class="drag-handle-bar"></div>
+    </div>
+
+    <!-- HEADER -->
     <div class="modal-header">
       <h2>🎒 Gear</h2>
       <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>
 
-    <!-- Ausgerüstete Slots -->
+    <!-- SLOTS -->
     <div class="gear-slots">
       <div
         class="gear-slot"
-        *ngFor="let slot of [0, 1]"
-        [class.filled]="player.equipped[slot]"
+        *ngFor="let slot of [0,1]"
+        [class.filled]="!!player.equipped[slot]"
       >
         <ng-container *ngIf="player.equipped[slot] as id">
           <div class="gear-slot-icon">{{ getOutfit(id)?.icon }}</div>
@@ -41,80 +44,79 @@
           </div>
           <button class="gear-slot-remove" (click)="unequip(id)">✕</button>
         </ng-container>
+
         <ng-container *ngIf="!player.equipped[slot]">
           <div class="gear-slot-empty">Leer</div>
         </ng-container>
       </div>
     </div>
 
-    <!-- Preview -->
-    <div
-  class="outfit-preview"
-  *ngIf="selectedOutfit"
-  [attr.data-rarity]="selectedOutfit.rarity"
->
-      <div class="outfit-preview-emoji">{{ selectedOutfit.icon }}</div>
-      <div class="outfit-preview-info">
-        <div class="outfit-preview-top">
-          <div class="outfit-preview-name">{{ selectedOutfit.name }}</div>
-          <div class="rarity-badge" [attr.data-rarity]="selectedOutfit.rarity">
-            {{ selectedOutfit.rarity }}
-          </div>
-        </div>
-        <div class="outfit-preview-desc">{{ selectedOutfit.description }}</div>
-        <div class="outfit-effect-tag">
-          <span class="effect-icon">{{ selectedOutfit.effect.icon }}</span>
-          <span class="effect-label">{{ selectedOutfit.effect.label }}</span>
-        </div>
-      </div>
+    <!-- 🔎 FILTER -->
+    <div class="filter-bar">
+      <select [(ngModel)]="filters.rarity">
+        <option value="all">Alle Seltenheiten</option>
+        <option value="common">Common</option>
+        <option value="rare">Rare</option>
+        <option value="epic">Epic</option>
+        <option value="legendary">Legendary</option>
+        <option value="exotic">Exotic</option>
+        <option value="mythic">Mythic</option>
+      </select>
+
+      <select [(ngModel)]="filters.unlocked">
+        <option value="all">Alle</option>
+        <option value="unlocked">Freigeschaltet</option>
+        <option value="locked">Gesperrt</option>
+      </select>
+
+      <select [(ngModel)]="filters.category">
+        <option value="all">Alle Effekte</option>
+        <option value="coins">Coins</option>
+        <option value="radius">Radius</option>
+        <option value="loot">Loot</option>
+        <option value="click">Click</option>
+        <option value="xp">XP</option>
+      </select>
     </div>
 
-    <!-- Liste -->
+    <!-- LISTE -->
     <div class="outfit-list">
       <div
         class="outfit-row"
-        *ngFor="let outfit of outfits"
+        *ngFor="let outfit of filteredOutfits"
         [class.new]="notification.isNewOutfit(outfit.id)"
         [class.locked]="!isUnlocked(outfit.id)"
         [class.active]="player.isEquipped(outfit.id)"
-        [class.selected]="selectedOutfit?.id === outfit.id"
-        (click)="preview(outfit)"
+        (click)="equip(outfit)"
       >
         <div class="outfit-row-icon">{{ outfit.icon }}</div>
+
         <div class="outfit-row-content">
           <div class="outfit-row-name">{{ outfit.name }}</div>
           <div class="outfit-row-effect">
             {{ outfit.effect.icon }} {{ outfit.effect.label }}
           </div>
         </div>
+
         <div class="outfit-row-right">
           <div class="rarity-dot" [attr.data-rarity]="outfit.rarity"></div>
+
           <span
             class="status-badge equipped"
             *ngIf="player.isEquipped(outfit.id)"
-            >Aktiv</span
           >
-          <span class="status-badge locked-badge" *ngIf="!isUnlocked(outfit.id)"
-            >🔒</span
+            Aktiv
+          </span>
+
+          <span
+            class="status-badge locked-badge"
+            *ngIf="!isUnlocked(outfit.id)"
           >
+            🔒
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Ausrüsten -->
-    <div
-      class="outfit-actions"
-      *ngIf="selectedOutfit && isUnlocked(selectedOutfit.id)"
-    >
-      <button
-        class="equip-btn"
-        [class.already-equipped]="player.isEquipped(selectedOutfit.id)"
-        (click)="equip()"
-      >
-        {{
-          player.isEquipped(selectedOutfit.id) ? "✓ Ausgerüstet" : "Ausrüsten"
-        }}
-      </button>
-    </div>
   </div>
 </div>
