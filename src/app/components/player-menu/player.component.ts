@@ -96,6 +96,7 @@ export class PlayerComponent {
 
     this.sound.play('button', 0.5);
     this.player.equip(outfit.id);
+    this.notification.markAsSeen(outfit.id)
   }
 
   unequip(id: string) {
