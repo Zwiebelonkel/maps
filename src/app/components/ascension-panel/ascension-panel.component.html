@@ -1,9 +1,10 @@
 <div class="ascension-overlay" *ngIf="isOpen" (click)="close()">
   <div class="ascension-modal" (click)="$event.stopPropagation()">
-    <!-- HEADER -->
-    <div class="ascension-header">
-      <div class="title">✨ Ascension</div>
-      <button class="close-btn" (click)="close()">✕</button>
+
+    <h2><i class="fa-solid fa-sparkles"></i> Ascension</h2>
+
+    <div class="level">
+      Level {{ ascension.level | number:'1.2-2' }}
     </div>
 
     <!-- LEVEL -->

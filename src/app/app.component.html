@@ -10,7 +10,7 @@
 <!-- Error Overlay -->
 <div class="error-overlay" *ngIf="errorMessage && !isLoading">
   <div class="error-content">
-    <h2>⚠️ Fehler</h2>
+    <h2><i class="fa-solid fa-triangle-exclamation"></i> Fehler</h2>
     <p>{{ errorMessage }}</p>
 
     <p class="error-hint">
@@ -20,11 +20,11 @@
     <!-- 🔥 NEU -->
     <div class="error-actions">
       <button class="error-btn retry" (click)="retryGPS()">
-        🔄 Erneut versuchen
+        <i class="fa-solid fa-rotate-right"></i> Erneut versuchen
       </button>
 
       <button class="error-btn close" (click)="dismissError()">
-        ✕ Schließen
+        <i class="fa-solid fa-xmark"></i> Schließen
       </button>
     </div>
   </div>
@@ -46,26 +46,26 @@
   <!-- Stats Panel -->
   <div class="stats-panel">
     <div class="stat-item">
-      <div class="stat-icon">🪙</div>
+      <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
       <div class="stat-content">
-        <div class="stat-value">{{ totalCoins }}</div>
+        <div class="stat-value">{{ totalCoins | number:'1.2-2' }}</div>
         <div class="stat-label">Coins</div>
       </div>
     </div>
     <div class="stat-item">
-      <div class="stat-icon">🗺️</div>
+      <div class="stat-icon"><i class="fa-solid fa-map"></i></div>
       <div class="stat-content">
-        <div class="stat-value">{{ totalTilesExplored }}</div>
+        <div class="stat-value">{{ totalTilesExplored | number:'1.2-2' }}</div>
         <div class="stat-label">Kacheln</div>
       </div>
     </div>
     <div class="stat-item">
-      <div class="stat-icon">📍</div>
+      <div class="stat-icon"><i class="fa-solid fa-location-dot"></i></div>
       <div class="stat-content">
         <div class="stat-value">
           {{
             currentRadius * playerService.getRadiusMultiplier()
-              | number: "1.0-0"
+              | number: "1.2-2"
           }}m
         </div>
         <div class="stat-label">Radius</div>
@@ -82,16 +82,16 @@
       ></div>
     </div>
     <div class="xp-bar-labels">
-      <span class="xp-level">Lv. {{ progressionService.level }}</span>
+      <span class="xp-level">Lv. {{ progressionService.level | number:'1.2-2' }}</span>
       <span class="xp-text"
-        >{{ progressionService.xp }} /
-        {{ progressionService.getRequiredXP() }} XP</span
+        >{{ progressionService.xp | number:'1.2-2' }} /
+        {{ progressionService.getRequiredXP() | number:'1.2-2' }} XP</span
       >
     </div>
   </div>
   <!-- Coin Animation -->
   <div class="coin-popup" *ngIf="showCoinAnimation">
-    +{{ lastExploredCount * coinsPerTile }} 🪙
+    +{{ (lastExploredCount * coinsPerTile) | number:'1.2-2' }} <i class="fa-solid fa-coins"></i>
   </div>
 
   <!-- Bombe aktiv Hinweis -->
@@ -101,9 +101,9 @@
 
   <!-- Control Buttons -->
   <div class="control-buttons">
-    <button class="control-btn" (click)="toggleShop()" title="Shop">🏪</button>
+    <button class="control-btn" (click)="toggleShop()" title="Shop"><i class="fa-solid fa-store"></i></button>
     <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
-      🎯
+      <i class="fa-solid fa-bullseye"></i>
     </button>
     <!-- Session Button -->
     <button
@@ -113,10 +113,10 @@
       (click)="toggleSession()"
       title="Session"
     >
-      {{ sessionService.isActive ? "⏹️" : "▶️" }}
+      <i class="fa-solid fa-stop"></i>
     </button>
     <button class="control-btn" (click)="isMenuOpen = true">
-  ☰
+  <i class="fa-solid fa-bars"></i>
   <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
 </button>
   </div>
@@ -197,7 +197,7 @@
 
   <!-- Info Box (Desktop only) -->
   <div class="info-box">
-    <h4>🗺️ Map Explorer</h4>
+    <h4><i class="fa-solid fa-map"></i> Map Explorer</h4>
     <p>Bewege dich in der echten Welt, um die Karte aufzudecken!</p>
     <ul>
       <li>Erkunde neue Bereiche für Coins</li>

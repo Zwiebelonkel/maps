@@ -27,37 +27,44 @@
       (touchmove)="onHeaderTouchMove($event)"
       (touchend)="onHeaderTouchEnd()"
     >
-      <h2>🎒 Gear</h2>
-      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+<div class="modal-header"
+  (touchstart)="onHeaderTouchStart($event)"
+  (touchmove)="onHeaderTouchMove($event)"
+  (touchend)="onHeaderTouchEnd()"
+>
+  <h2><i class="fa-solid fa-backpack"></i> Gear</h2>
+  <button class="close-btn" (click)="closeWithAnimation()">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+</div>
+
+<div class="ascension-card" (click)="ascensionPanel.open()">
+  <div class="ascension-left">
+    <i class="fa-solid fa-sparkles"></i>
+  </div>
+
+  <div class="ascension-content">
+    <div class="ascension-top">
+      <span class="ascension-title">Ascension</span>
+      <span class="ascension-level">
+        Lv. {{ ascensionService.level }}
+      </span>
     </div>
 
-    <div class="ascension-card" (click)="ascensionPanel.open()">
-      <div class="ascension-left">✨</div>
-
-      <div class="ascension-content">
-        <div class="ascension-top">
-          <span class="ascension-title">Ascension</span>
-          <span class="ascension-level">Lv. {{ ascensionService.level }}</span>
-        </div>
-
-        <div class="ascension-bar">
-          <div
-            class="ascension-fill"
-            [style.width.%]="
-              (ascensionService.points / ascensionService.getPointsNeeded()) *
-              100
-            "
-          ></div>
-        </div>
-
-        <div class="ascension-bottom">
-          +{{
-            (ascensionService.getGlobalMultiplier() * 100 - 100).toFixed(0)
-          }}%
-        </div>
+    <div class="ascension-bar">
+      <div
+        class="ascension-fill"
+        [style.width.%]="
+          (ascensionService.points / ascensionService.getPointsNeeded()) * 100
+        ">
       </div>
     </div>
 
+    <div class="ascension-bottom">
+      +{{ (ascensionService.getGlobalMultiplier() * 100 - 100).toFixed(0) }}%
+    </div>
+  </div>
+</div>
     <!-- SLOTS -->
     <div class="gear-slots">
       <div
@@ -74,7 +81,7 @@
               {{ getOutfit(id)?.effect?.label }}
             </div>
           </div>
-          <button class="gear-slot-remove" (click)="unequip(id)">✕</button>
+          <button class="gear-slot-remove" (click)="unequip(id)"><i class="fa-solid fa-xmark"></i></button>
         </ng-container>
 
         <ng-container *ngIf="!player.equipped[slot]">
@@ -144,7 +151,7 @@
             class="status-badge locked-badge"
             *ngIf="!isUnlocked(outfit.id)"
           >
-            🔒
+            <i class="fa-solid fa-lock"></i>
           </span>
         </div>
       </div>
