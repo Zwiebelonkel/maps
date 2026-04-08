@@ -70,14 +70,14 @@ export class SessionService {
     const h = Math.floor(ms / 3600000);
     const m = Math.floor((ms % 3600000) / 60000);
     const s = Math.floor((ms % 60000) / 1000);
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
+    if (h > 0) return `${h.toFixed(2)}h ${m.toFixed(2)}m`;
+    if (m > 0) return `${m.toFixed(2)}m ${s.toFixed(2)}s`;
+    return `${s.toFixed(2)}s`;
   }
 
   formatDistance(meters: number): string {
     if (meters >= 1000) return `${(meters / 1000).toFixed(2)} km`;
-    return `${Math.round(meters)} m`;
+    return `${meters.toFixed(2)} m`;
   }
 
   private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {

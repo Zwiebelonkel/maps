@@ -32,7 +32,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Münzhandschuh',
     description: 'Jeder Tipp bringt mehr.',
     rarity: 'common',
-    effect: { type: 'click', value: 0.2, label: '+20% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 0.2,
+      label: '+20% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'notebook',
@@ -40,7 +45,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Notizbuch',
     description: 'Dokumentiere alles – lerne schneller.',
     rarity: 'common',
-    effect: { type: 'xp', value: 0.1, label: '+10% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.1,
+      label: '+10% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'compass',
@@ -88,7 +98,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Bleistift',
     description: 'Kleine Notizen, große Erkenntnisse.',
     rarity: 'common',
-    effect: { type: 'xp', value: 0.12, label: '+12% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.12,
+      label: '+12% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'map_pin',
@@ -122,7 +137,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Energiehandschuh',
     description: 'Doppelte Kraft beim Tippen.',
     rarity: 'rare',
-    effect: { type: 'click', value: 0.5, label: '+50% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 0.5,
+      label: '+50% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'scholar',
@@ -130,7 +150,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Studentenmütze',
     description: 'Lerne aus jeder Erkundung.',
     rarity: 'rare',
-    effect: { type: 'xp', value: 0.2, label: '+20% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.2,
+      label: '+20% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'treasure_map',
@@ -138,7 +163,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Schatzkarte',
     description: 'Folge dem X zum Reichtum.',
     rarity: 'rare',
-    effect: { type: 'loot', value: 0.15, label: '+15% Loot-Chance', icon: '🎲' },
+    effect: {
+      type: 'loot',
+      value: 0.15,
+      label: '+15% Loot-Chance',
+      icon: '🎲',
+    },
   },
   {
     id: 'hiking_boots',
@@ -154,7 +184,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Lupe',
     description: 'Kein Detail entgeht dir.',
     rarity: 'rare',
-    effect: { type: 'xp', value: 0.25, label: '+25% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.25,
+      label: '+25% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'briefcase',
@@ -170,7 +205,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Stoppuhr',
     description: 'Effizienz ist alles.',
     rarity: 'rare',
-    effect: { type: 'click', value: 0.35, label: '+35% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 0.35,
+      label: '+35% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'radio',
@@ -186,7 +226,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Forschungstagebuch',
     description: 'Jede Entdeckung hinterlässt Spuren.',
     rarity: 'rare',
-    effect: { type: 'xp', value: 0.22, label: '+22% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.22,
+      label: '+22% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'four_leaf',
@@ -220,7 +265,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Kristallkugel',
     description: 'Sieht verborgene Schätze voraus.',
     rarity: 'epic',
-    effect: { type: 'loot', value: 0.25, label: '+25% Loot-Chance', icon: '🎲' },
+    effect: {
+      type: 'loot',
+      value: 0.25,
+      label: '+25% Loot-Chance',
+      icon: '🎲',
+    },
   },
   {
     id: 'professor',
@@ -228,7 +278,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Professorflask',
     description: 'Wissenschaftliche Methoden verdoppeln das Lernen.',
     rarity: 'epic',
-    effect: { type: 'xp', value: 0.35, label: '+35% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.35,
+      label: '+35% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'satellite',
@@ -244,7 +299,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Diamantspitzhacke',
     description: 'Hau mehr raus aus jedem Klick.',
     rarity: 'epic',
-    effect: { type: 'click', value: 0.75, label: '+75% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 0.75,
+      label: '+75% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'ancient_map',
@@ -252,7 +312,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Alte Karte',
     description: 'Uraltes Wissen beschleunigt dein Wachstum.',
     rarity: 'epic',
-    effect: { type: 'xp', value: 0.4, label: '+40% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.4,
+      label: '+40% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'treasure_chest',
@@ -268,7 +333,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Eule der Weisheit',
     description: 'Nachtaktiv und stets lernbereit.',
     rarity: 'epic',
-    effect: { type: 'xp', value: 0.45, label: '+45% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.45,
+      label: '+45% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'radar',
@@ -276,7 +346,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Radaranlage',
     description: 'Nichts entgeht diesem Sensor.',
     rarity: 'epic',
-    effect: { type: 'loot', value: 0.35, label: '+35% Loot-Chance', icon: '🎲' },
+    effect: {
+      type: 'loot',
+      value: 0.35,
+      label: '+35% Loot-Chance',
+      icon: '🎲',
+    },
   },
   {
     id: 'jetpack',
@@ -292,7 +367,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Laptop',
     description: 'Code schreiben = XP verdienen.',
     rarity: 'epic',
-    effect: { type: 'xp', value: 0.38, label: '+38% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.38,
+      label: '+38% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
 
   // ── LEGENDARY ──────────────────────────────────────────────
@@ -318,7 +398,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Stein der Weisen',
     description: 'Verwandelt Erfahrung in pures Gold.',
     rarity: 'legendary',
-    effect: { type: 'xp', value: 0.6, label: '+60% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.6,
+      label: '+60% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'infinity_gauntlet',
@@ -326,7 +411,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Galaxishandschuh',
     description: 'Unendliche Macht beim Tippen.',
     rarity: 'legendary',
-    effect: { type: 'click', value: 1.0, label: '+100% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 1.0,
+      label: '+100% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'holy_grail',
@@ -342,7 +432,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Uraltes Buch',
     description: 'Jahrtausende gesammeltes Wissen.',
     rarity: 'legendary',
-    effect: { type: 'xp', value: 0.75, label: '+75% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.75,
+      label: '+75% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'phoenix_feather',
@@ -350,7 +445,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Phönixfeder',
     description: 'Steig aus der Asche und lerne doppelt.',
     rarity: 'legendary',
-    effect: { type: 'xp', value: 0.65, label: '+65% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 0.65,
+      label: '+65% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'black_hole',
@@ -368,7 +468,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Auto-Clicker Bot',
     description: 'Klickt automatisch jede Sekunde für dich.',
     rarity: 'exotic',
-    effect: { type: 'click', value: 0, label: 'Auto Click jede Sekunde', icon: '⚡' },
+    effect: {
+      type: 'click',
+      value: 0,
+      label: 'Auto Click jede Sekunde',
+      icon: '⚡',
+    },
   },
   {
     id: 'quantum_scanner',
@@ -376,7 +481,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Quantum Scanner',
     description: 'Sieht Loot aus anderen Dimensionen.',
     rarity: 'exotic',
-    effect: { type: 'loot', value: 0.75, label: '+75% Loot-Chance', icon: '🎲' },
+    effect: {
+      type: 'loot',
+      value: 0.75,
+      label: '+75% Loot-Chance',
+      icon: '🎲',
+    },
   },
   {
     id: 'hyper_gloves',
@@ -384,7 +494,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Hyperhandschuhe',
     description: 'Jeder Klick ist verstärkt.',
     rarity: 'exotic',
-    effect: { type: 'click', value: 1.5, label: '+150% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 1.5,
+      label: '+150% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'neural_implant',
@@ -392,7 +507,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Neural-Implantat',
     description: 'XP fließt schneller.',
     rarity: 'exotic',
-    effect: { type: 'xp', value: 1.2, label: '+120% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 1.2,
+      label: '+120% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'gravity_boots',
@@ -408,7 +528,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Loot Overdrive',
     description: 'Extrem erhöhte Loot-Chance.',
     rarity: 'exotic',
-    effect: { type: 'loot', value: 1.0, label: '+100% Loot-Chance', icon: '🎲' },
+    effect: {
+      type: 'loot',
+      value: 1.0,
+      label: '+100% Loot-Chance',
+      icon: '🎲',
+    },
   },
   {
     id: 'gold_multiplier',
@@ -424,7 +549,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Click Overdrive',
     description: 'Massiver Klick-Boost.',
     rarity: 'exotic',
-    effect: { type: 'click', value: 2.0, label: '+200% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 2.0,
+      label: '+200% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'xp_matrix',
@@ -432,7 +562,12 @@ export const OUTFITS: Outfit[] = [
     name: 'XP-Matrix',
     description: 'Maximale Lernrate.',
     rarity: 'exotic',
-    effect: { type: 'xp', value: 1.5, label: '+150% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 1.5,
+      label: '+150% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'plasma_radar',
@@ -458,7 +593,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Kosmisches Auge',
     description: 'Sieht jeden Loot.',
     rarity: 'mythic',
-    effect: { type: 'loot', value: 2.5, label: '+250% Loot-Chance', icon: '🎲' },
+    effect: {
+      type: 'loot',
+      value: 2.5,
+      label: '+250% Loot-Chance',
+      icon: '🎲',
+    },
   },
   {
     id: 'god_hand',
@@ -466,7 +606,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Hand der Götter',
     description: 'Unfassbare Klickkraft.',
     rarity: 'mythic',
-    effect: { type: 'click', value: 3.0, label: '+300% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 3.0,
+      label: '+300% Klick-Coins',
+      icon: '👆',
+    },
   },
   {
     id: 'infinite_mind',
@@ -474,7 +619,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Unendlicher Geist',
     description: 'Grenzenloses Lernen.',
     rarity: 'mythic',
-    effect: { type: 'xp', value: 3.5, label: '+350% XP', icon: '⭐' },
+    effect: {
+      type: 'xp',
+      value: 3.5,
+      label: '+350% XP',
+      icon: '<i class="fa-solid fa-star"></i>',
+    },
   },
   {
     id: 'universe_engine',
@@ -498,7 +648,12 @@ export const OUTFITS: Outfit[] = [
     name: 'Infinity Core',
     description: 'Ultimative Klickpower.',
     rarity: 'mythic',
-    effect: { type: 'click', value: 5.0, label: '+500% Klick-Coins', icon: '👆' },
+    effect: {
+      type: 'click',
+      value: 5.0,
+      label: '+500% Klick-Coins',
+      icon: '👆',
+    },
   },
 ];
 

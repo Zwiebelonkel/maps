@@ -1,39 +1,8 @@
+/* Globale Modal-Basis kommt aus src/styles/modal.scss */
 .summary-overlay {
-  position: fixed;
-  inset: 0;
   background: rgba(5, 5, 5, 0.75);
-  backdrop-filter: blur(8px);
   z-index: 3000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.summary-modal {
-  background: rgba(20, 20, 20, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px 20px 0 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-bottom: none;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
-  width: 100%;
-  max-width: 600px;
-  padding-bottom: 24px;
-  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-
-  &.closing {
-    animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-  }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-
-@keyframes slideDown {
-  from { transform: translateY(0); }
-  to   { transform: translateY(100%); }
+  will-change: backdrop-filter;
 }
 
 .drag-handle {
@@ -165,32 +134,4 @@
   transition: all 0.2s;
 
   &:hover { background: rgba(255, 255, 255, 0.1); }
-}
-
-.summary-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 5, 5, 0.75);
-  backdrop-filter: blur(8px);
-  z-index: 3000;
-
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-
-  transition: backdrop-filter 0.3s ease, background 0.3s ease;
-  will-change: backdrop-filter;
-
-  &.closing {
-    backdrop-filter: blur(0px);
-    background: rgba(5, 5, 5, 0);
-  }
-}
-
-.summary-modal {
-  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-
-  &.closing {
-    animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-  }
 }

@@ -82,8 +82,8 @@ export class LootService {
     // Rest → Coins
     return {
       type: 'coins',
-      amount: GAME_CONFIG.COINS_PER_TILE,
-      label: `+${GAME_CONFIG.COINS_PER_TILE} Coins`,
+      amount: GAME_CONFIG.COINS_PER_TILE*10,
+      label: `+${GAME_CONFIG.COINS_PER_TILE*10} Coins`,
       rarity: 'common',
     };
   }

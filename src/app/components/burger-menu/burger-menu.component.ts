@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProgressionService } from '../../../services/progression.service';
 import { SoundService } from '../../../services/sound.service';
 import { InventoryService } from '../../../services/inventory.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-burger-menu',
@@ -24,7 +25,8 @@ export class BurgerMenuComponent {
   constructor(
     public progression: ProgressionService,
     private sound: SoundService,
-    public inventoryService: InventoryService
+    public inventoryService: InventoryService,
+    public notification: NotificationService,
   ) {}
 
   get lootboxes() {

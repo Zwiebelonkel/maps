@@ -1,11 +1,11 @@
 <div
-  class="burger-overlay"
+  class="modal-overlay burger-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="burger-modal"
+    class="modal burger-modal"
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
@@ -25,15 +25,21 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="settings-title">
-        <div class="settings-icon">☰</div>
+        <div class="settings-icon"><i class="fa-solid fa-bars"></i></div>
         <h2>Menü</h2>
       </div>
 
-      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
     <div class="setting-item" (click)="onPlayer()">
       <div class="setting-info">
-        <div class="setting-icon">👤</div>
+        <div class="setting-icon"><i class="fa-solid fa-user"></i></div>
+
+        <!-- 🔴 Badge -->
+        <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
+
         <div class="setting-content">
           <div class="setting-label">Player</div>
           <div class="setting-desc">Ausrüstung auswählen</div>
@@ -41,17 +47,20 @@
       </div>
     </div>
     <div class="setting-item" (click)="onInventory()">
-  <div class="setting-info">
-    <div class="setting-icon">🎒</div>
-    <div class="setting-content">
-      <div class="setting-label">Inventar</div>
-      <div class="setting-desc">{{ inventoryService.getBombStacks().length }} Bomben verfügbar</div>
+      <div class="setting-info">
+        <div class="setting-icon"><i class="fa-solid fa-box-open"></i></div>
+        <div class="setting-content">
+          <div class="setting-label">Inventar</div>
+          <div class="setting-desc">
+            {{ inventoryService.getBombStacks().length }}
+            Bomben verfügbar
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
     <div class="setting-item" (click)="onLootbox()">
       <div class="setting-info">
-        <div class="setting-icon">🎁</div>
+        <div class="setting-icon"><i class="fa-solid fa-gift"></i></div>
         <div class="setting-content">
           <div class="setting-label">Lootbox</div>
           <div class="setting-desc">{{ lootboxes }} verfügbar</div>
@@ -60,7 +69,9 @@
     </div>
     <div class="setting-item" (click)="onSession()">
       <div class="setting-info">
-        <div class="setting-icon">▶️</div>
+        <div class="setting-icon">
+          <i class="fa-solid fa-play"></i>
+        </div>
         <div class="setting-content">
           <div class="setting-label">Session</div>
           <div class="setting-desc">Start / Stop</div>
@@ -70,7 +81,7 @@
 
     <div class="setting-item" (click)="onSettings()">
       <div class="setting-info">
-        <div class="setting-icon">⚙️</div>
+        <div class="setting-icon"><i class="fa-solid fa-gear"></i></div>
         <div class="setting-content">
           <div class="setting-label">Settings</div>
           <div class="setting-desc">App Einstellungen</div>
@@ -80,7 +91,7 @@
 
     <div class="setting-item" (click)="onMarkers()">
       <div class="setting-info">
-        <div class="setting-icon">📍</div>
+        <div class="setting-icon"><i class="fa-solid fa-location-dot"></i></div>
         <div class="setting-content">
           <div class="setting-label">Marker</div>
           <div class="setting-desc">Liste anzeigen</div>

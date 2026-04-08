@@ -27,6 +27,9 @@ export class ShopComponent {
 @Output() purchaseLootbox = new EventEmitter<void>();
   @Output() purchaseItem = new EventEmitter<ShopItem>();
   @Output() unlockAllOutfits = new EventEmitter<void>();
+@Output() resetCoins = new EventEmitter<void>();
+@Output() giveCoins = new EventEmitter<number>();
+@Output() giveLootboxes = new EventEmitter<number>();
 
   adminCode = '';
   codeMessage = '';
@@ -173,23 +176,44 @@ onPurchaseLootbox() {
 
   
 redeemCode() {
-    const code = this.adminCode.trim().toLowerCase();
+  const code = this.adminCode.trim().toLowerCase();
 
-    if (code === '1906-money') {
-      this.purchaseUpgrade.emit({
-        level: -1,
-        radius: 0,
-        cost: -10000000,
-        description: 'ADMIN_COINS',
-      });
-      this.codeMessage = '💰 10.000.000 Coins erhalten!';
-      this.adminCode = '';
-    } else if (code === '1906-outfits') {
+  switch (code) {
+    case '1906-money':
+      this.giveCoins.emit(10000000);
+      this.codeMessage = '💰 +10.000.000 Coins!';
+      break;
+
+    case '1906-rich':
+      this.giveCoins.emit(1000000);
+      this.codeMessage = '💸 +1.000.000 Coins!';
+      break;
+
+    case '1906-reset':
+      this.resetCoins.emit();
+      this.codeMessage = '🧹 Coins wurden zurückgesetzt!';
+      break;
+
+    case '1906-loot':
+      this.giveLootboxes.emit(5);
+      this.codeMessage = '🎁 5 Lootboxen!';
+      break;
+
+    case '1906-poor':
+      this.resetCoins.emit();
+      this.giveCoins.emit(1);
+      this.codeMessage = '🥲 Du bist jetzt arm... (1 Coin)';
+      break;
+
+    case '1906-outfits':
       this.unlockAllOutfits.emit();
-      this.codeMessage = '🎒 Alle Ausrüstungen freigeschaltet!';
-      this.adminCode = '';
-    } else {
+      this.codeMessage = '🎒 Alle Outfits freigeschaltet!';
+      break;
+
+    default:
       this.codeMessage = '❌ Falscher Code';
-    }
+  }
+
+  this.adminCode = '';
 }
 }

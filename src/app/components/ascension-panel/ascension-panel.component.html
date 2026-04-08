@@ -1,0 +1,35 @@
+<div class="ascension-overlay" *ngIf="isOpen" (click)="close()">
+  <div class="ascension-modal" (click)="$event.stopPropagation()">
+
+    <h2><i class="fa-solid fa-sparkles"></i> Ascension</h2>
+
+    <div class="level">
+      Level {{ ascension.level | number:'1.2-2' }}
+    </div>
+
+    <!-- LEVEL -->
+    <div class="ascension-level-block">
+      <div class="level-label">LEVEL</div>
+      <div class="level-value">{{ ascension.level }}</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="ascension-progress-block">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+
+      <div class="progress-text">
+        {{ ascension.points }} / {{ ascension.getPointsNeeded() }}
+      </div>
+    </div>
+
+    <!-- BOOST -->
+    <div class="ascension-boost-block">
+      <div class="boost-label">GLOBAL MULTIPLIER</div>
+      <div class="boost-value">
+        x{{ ascension.getGlobalMultiplier().toFixed(2) }}
+      </div>
+    </div>
+  </div>
+</div>

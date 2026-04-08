@@ -21,6 +21,7 @@ import { UpgradeService } from '../services/upgrade.service';
 import { LootService, LootResult } from '../services/loot.service';
 import { SettingsService } from '../services/settings.service';
 import { ProgressionService } from '../services/progression.service';
+import { NotificationService } from '../services/notification.service';
 
 import { SessionService, SessionStats } from '../services/session.service';
 import { SessionSummaryComponent } from './components/session-summary/session-summary.component';
@@ -33,6 +34,7 @@ import { PlayerService } from '../services/player.service';
 import { SoundService } from '../services/sound.service';
 import { UserMarker } from '../../models/user-marker.model';
 import { OUTFITS } from './config/player.config';
+import { AscensionService } from '../services/ascension.service';
 
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { InventoryService } from '../services/inventory.service';
@@ -83,8 +85,8 @@ interface GridCoordinate {
     LootPopupComponent,
     SettingsComponent,
     SessionSummaryComponent,
-    BurgerMenuComponent, // ✅ hinzufügen
-    MarkerListComponent, // ✅ hinzufügen
+    BurgerMenuComponent,
+    MarkerListComponent,
     PlayerComponent,
     LootboxComponent,
     InventoryComponent,
@@ -160,6 +162,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public progressionService: ProgressionService,
     private soundService: SoundService,
     private inventoryService: InventoryService,
+    public notification: NotificationService,
+    public ascensionService: AscensionService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -810,7 +814,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         break;
       case 'outfit':
         if (loot.item) {
+          const isDuplicate = this.playerService.unlocked.includes(
+            loot.item.id,
+          );
+
           this.playerService.unlock(loot.item.id);
+          this.notification.addNewOutfit(loot.item.id);
+
+          // 🔥 ASCENSION
+          const base = this.ascensionService.getPointsForRarity(loot.rarity);
+          const points = isDuplicate ? base * 2 : base;
+
+          this.ascensionService.addPoints(points);
         }
         break;
       case 'upgrade':
@@ -1020,20 +1035,30 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     localStorage.removeItem('map_explorer_progress');
     localStorage.removeItem('player_data');
     localStorage.removeItem('progression');
+
     this.exploredTiles.clear();
     this.totalCoins = 0;
     this.totalTilesExplored = 0;
     this.lastExploredGridKey = null;
+
     this.upgradeService.reset();
     this.inventoryService.clear();
     this.markerService.clear();
-    this.playerService.unlocked = ['default'];
-    this.playerService.equip('default');
+
+    // 🔥 WICHTIG: sauber resetten
+    this.playerService.reset();
+    this.notification.reset();
+
     this.progressionService.xp = 0;
     this.progressionService.level = 1;
     this.progressionService.lootboxes = 0;
+
     this.updateGameState();
-    if (this.currentLocation) this.updatePlayerPosition(this.currentLocation);
+
+    if (this.currentLocation) {
+      this.updatePlayerPosition(this.currentLocation);
+    }
+
     this.drawFogOfWar();
     this.renderAllUserMarkers();
   }
@@ -1050,8 +1075,22 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
+  //Cheats
   onUnlockAllOutfits() {
     OUTFITS.forEach((outfit) => this.playerService.unlock(outfit.id));
+  }
+  onGiveCoins(amount: number) {
+    this.totalCoins += amount;
+    this.saveProgress();
+  }
+  onResetCoins() {
+    this.totalCoins = 0;
+    this.saveProgress();
+  }
+  onGiveLootboxes(amount: number) {
+    for (let i = 0; i < amount; i++) {
+      this.progressionService.addLootbox();
+    }
   }
 
   private loadProgress() {
@@ -1118,6 +1157,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     if (leveledUp) this.onLevelUp();
 
     this.saveProgress();
+  }
+
+  retryGPS() {
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.startGPSTracking();
+  }
+
+  dismissError() {
+    this.errorMessage = '';
   }
 
   onGlobalClick(event: MouseEvent) {

@@ -1,11 +1,11 @@
 <div
-  class="settings-overlay"
+  class="modal-overlay settings-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="settings-modal"
+    class="modal settings-modal"
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
@@ -24,20 +24,20 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="settings-title">
-        <span class="settings-icon">🎁</span>
+        <span class="settings-icon"><i class="fa-solid fa-gift"></i></span>
         <h2>Lootbox</h2>
       </div>
-      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <div class="setting-item">
       <div class="setting-info">
-        <span class="setting-icon">📦</span>
+        <span class="setting-icon"><i class="fa-solid fa-box-open"></i></span>
         <div class="setting-content">
           <div class="setting-label">Verfügbar</div>
           <div class="setting-desc">Durch Level-Ups verdient</div>
         </div>
-        <div class="setting-value">{{ progression.lootboxes }}</div>
+        <div class="setting-value">{{ progression.lootboxes | number:'1.2-2' }}</div>
       </div>
     </div>
 
@@ -48,7 +48,7 @@
         [class.disabled]="progression.lootboxes <= 0"
         (click)="openBox()"
       >
-        📦
+        <i class="fa-solid fa-box-open"></i>
       </div>
       <p class="lootbox-hint">
         {{
@@ -61,11 +61,10 @@
 
     <!-- Opening -->
     <div class="setting-item lootbox-center" *ngIf="state === 'opening'">
-      <div class="lootbox-box opening">📦</div>
+      <div class="lootbox-box opening"><i class="fa-solid fa-box-open"></i></div>
       <p class="lootbox-hint">Öffne...</p>
     </div>
 
-    <!-- Revealed -->
     <!-- Revealed -->
     <div class="setting-item lootbox-center" *ngIf="state === 'revealed'">
       <div
@@ -73,6 +72,7 @@
         [ngClass]="reward?.rarity"
         (click)="resetState()"
       >
+        <div class="shine"></div>
         <div class="reward-icon">{{ reward?.icon }}</div>
         <div class="reward-name">{{ reward?.name }}</div>
         <div class="reward-desc" *ngIf="!isDuplicate">
@@ -82,7 +82,7 @@
         <!-- Duplikat -->
         <div class="duplicate-badge" *ngIf="isDuplicate">
           <div class="duplicate-label">Bereits besessen</div>
-          <div class="duplicate-coins">+{{ duplicateCoins }} 🪙</div>
+          <div class="duplicate-coins">+{{ duplicateCoins | number:'1.2-2' }} <i class="fa-solid fa-coins"></i></div>
         </div>
 
         <div class="reward-hint">Tippen für nächste</div>

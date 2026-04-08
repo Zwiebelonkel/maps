@@ -1,11 +1,11 @@
 <div
-  class="settings-overlay"
+  class="modal-overlay settings-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="settings-modal"
+    class="modal settings-modal"
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
@@ -24,21 +24,23 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="settings-title">
-        <span class="settings-icon">⚙️</span>
+        <span class="settings-icon"><i class="fa-solid fa-gear"></i></span>
         <h2>Einstellungen</h2>
       </div>
-      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
     <!-- Max Render Tiles -->
     <div class="setting-item">
       <div class="setting-info">
-        <span class="setting-icon">🗺️</span>
+        <span class="setting-icon"><i class="fa-solid fa-map"></i></span>
         <div class="setting-content">
           <div class="setting-label">Max Render Tiles</div>
           <div class="setting-desc">Höher = mehr sichtbare Tiles</div>
         </div>
-        <div class="setting-value">{{ maxRenderTiles }}</div>
+        <div class="setting-value">{{ maxRenderTiles | number: "1.2-2" }}</div>
       </div>
       <input
         type="range"
@@ -53,7 +55,7 @@
     <!-- Dark Map -->
     <div class="setting-item">
       <div class="setting-info">
-        <span class="setting-icon">🌑</span>
+        <span class="setting-icon"><i class="fa-solid fa-moon"></i></span>
         <div class="setting-content">
           <div class="setting-label">Dark Map</div>
           <div class="setting-desc">Dunkles Kartenlayout</div>
@@ -71,7 +73,9 @@
     <!-- Stromsparmodus -->
     <div class="setting-item">
       <div class="setting-info">
-        <span class="setting-icon">🔋</span>
+        <span class="setting-icon"
+          ><i class="fa-solid fa-battery-half"></i
+        ></span>
         <div class="setting-content">
           <div class="setting-label">Stromsparmodus</div>
           <div class="setting-desc">Doppeltippen zum Deaktivieren</div>
@@ -89,9 +93,15 @@
     <!-- Sound Mute -->
     <div class="setting-item">
       <div class="setting-info">
-        <span class="setting-icon">{{
-          settings.snapshot.muted ? "🔇" : "🔊"
-        }}</span>
+        <span class="setting-icon">
+          <i
+            [class]="
+              settings.snapshot.muted
+                ? 'fa-solid fa-volume-xmark'
+                : 'fa-solid fa-volume-high'
+            "
+          ></i>
+        </span>
         <div class="setting-content">
           <div class="setting-label">Sound</div>
           <div class="setting-desc">Alle Sounds ein/aus</div>
@@ -109,10 +119,10 @@
     <!-- Footer -->
     <div class="settings-footer">
       <button class="reset-settings-btn" (click)="reset()">
-        ♻️ Einstellungen zurücksetzen
+        <i class="fa-solid fa-rotate-left"></i> Einstellungen zurücksetzen
       </button>
       <button class="reset-game-btn" (click)="resetGame()">
-        🗑️ Spielfortschritt löschen
+        <i class="fa-solid fa-trash"></i> Spielfortschritt löschen
       </button>
     </div>
   </div>

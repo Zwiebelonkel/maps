@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { OUTFITS, Outfit } from '../app/config/player.config';
+import { AscensionService } from './ascension.service';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
   private STORAGE_KEY = 'player_data';
   unlocked: string[] = ['default'];
-  equipped: string[] = ['default']; // ← Array statt string
+  equipped: string[] = []; // statt ['default']
 
-  constructor() {
+  constructor(private ascension: AscensionService) {
     this.load();
   }
 
@@ -20,17 +21,26 @@ export class PlayerService {
 
   equip(id: string) {
     if (this.equipped.includes(id)) {
-      // Bereits ausgerüstet → ausziehen (außer es ist das letzte)
-      if (this.equipped.length > 1) {
-        this.equipped = this.equipped.filter((e) => e !== id);
-      }
-    } else if (this.equipped.length < 2) {
-      // Slot frei → hinzufügen
+      // jetzt IMMER entfernen erlauben
+      this.equipped = this.equipped.filter((e) => e !== id);
+      this.save();
+      return;
+    }
+
+    if (this.equipped.length < 2) {
       this.equipped.push(id);
     } else {
-      // Beide Slots voll → ältesten ersetzen
       this.equipped = [this.equipped[1], id];
     }
+
+    this.save();
+  }
+
+  unequip(id: string) {
+    // Niemals komplett leer lassen
+    if (this.equipped.length <= 1) return;
+
+    this.equipped = this.equipped.filter((e) => e !== id);
     this.save();
   }
 
@@ -46,12 +56,13 @@ export class PlayerService {
 
   // Multiplier summieren beide Slots
   getCoinMultiplier(): number {
-    return (
+    const gear =
       1 +
       this.getEquippedOutfits()
         .filter((o) => o.effect.type === 'coins')
-        .reduce((sum, o) => sum + o.effect.value, 0)
-    );
+        .reduce((sum, o) => sum + o.effect.value, 0);
+
+    return gear * this.ascension.getGlobalMultiplier();
   }
 
   getRadiusMultiplier(): number {
@@ -73,26 +84,28 @@ export class PlayerService {
   }
 
   getClickMultiplier(): number {
-    return (
+    const gear =
       1 +
       this.getEquippedOutfits()
         .filter((o) => o.effect.type === 'click')
-        .reduce((sum, o) => sum + o.effect.value, 0)
-    );
+        .reduce((sum, o) => sum + o.effect.value, 0);
+
+    return gear * this.ascension.getGlobalMultiplier();
   }
 
   getXPMultiplier(): number {
-    return (
+    const gear =
       1 +
       this.getEquippedOutfits()
         .filter((o) => o.effect.type === 'xp')
-        .reduce((sum, o) => sum + o.effect.value, 0)
-    );
+        .reduce((sum, o) => sum + o.effect.value, 0);
+
+    return gear * this.ascension.getGlobalMultiplier();
   }
 
-hasAutoClicker(): boolean {
-  return this.getEquippedOutfits().some(o => o.id === 'auto_clicker');
-}
+  hasAutoClicker(): boolean {
+    return this.getEquippedOutfits().some((o) => o.id === 'auto_clicker');
+  }
 
   private save() {
     localStorage.setItem(
@@ -102,6 +115,12 @@ hasAutoClicker(): boolean {
         equipped: this.equipped,
       }),
     );
+  }
+
+  reset() {
+    this.unlocked = ['default'];
+    this.equipped = [];
+    this.save();
   }
 
   private load() {
