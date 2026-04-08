@@ -7,22 +7,29 @@
       Level {{ ascension.level | number:'1.2-2' }}
     </div>
 
-    <div class="progress-bar">
-      <div
-        class="progress"
-        [style.width.%]="progressPercent">
+    <!-- LEVEL -->
+    <div class="ascension-level-block">
+      <div class="level-label">LEVEL</div>
+      <div class="level-value">{{ ascension.level }}</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="ascension-progress-block">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+
+      <div class="progress-text">
+        {{ ascension.points }} / {{ ascension.getPointsNeeded() }}
       </div>
     </div>
 
-    <p>
-      {{ ascension.points | number:'1.2-2' }} / {{ ascension.getPointsNeeded() | number:'1.2-2' }} Punkte
-    </p>
-
-    <div class="multiplier">
-      Global Boost: {{ (ascension.getGlobalMultiplier() * 100 - 100) | number:'1.2-2' }}%
+    <!-- BOOST -->
+    <div class="ascension-boost-block">
+      <div class="boost-label">GLOBAL MULTIPLIER</div>
+      <div class="boost-value">
+        x{{ ascension.getGlobalMultiplier().toFixed(2) }}
+      </div>
     </div>
-
-    <button (click)="close()">Schließen</button>
-
   </div>
 </div>

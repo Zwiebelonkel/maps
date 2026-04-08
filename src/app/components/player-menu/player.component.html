@@ -1,4 +1,3 @@
-
 <app-ascension-panel #ascensionPanel></app-ascension-panel>
 <div
   class="modal-overlay"
@@ -11,7 +10,6 @@
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
-
     <!-- DRAG -->
     <div
       class="drag-handle"
@@ -29,19 +27,49 @@
       (touchmove)="onHeaderTouchMove($event)"
       (touchend)="onHeaderTouchEnd()"
     >
-      <h2><i class="fa-solid fa-backpack"></i> Gear</h2>
-      <button class="close-btn" (click)="closeWithAnimation()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    
-    <button class="ascension-btn" (click)="ascensionPanel.open()">
-  <i class="fa-solid fa-sparkles"></i> Ascension
-</button>
+<div class="modal-header"
+  (touchstart)="onHeaderTouchStart($event)"
+  (touchmove)="onHeaderTouchMove($event)"
+  (touchend)="onHeaderTouchEnd()"
+>
+  <h2><i class="fa-solid fa-backpack"></i> Gear</h2>
+  <button class="close-btn" (click)="closeWithAnimation()">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+</div>
 
+<div class="ascension-card" (click)="ascensionPanel.open()">
+  <div class="ascension-left">
+    <i class="fa-solid fa-sparkles"></i>
+  </div>
+
+  <div class="ascension-content">
+    <div class="ascension-top">
+      <span class="ascension-title">Ascension</span>
+      <span class="ascension-level">
+        Lv. {{ ascensionService.level }}
+      </span>
+    </div>
+
+    <div class="ascension-bar">
+      <div
+        class="ascension-fill"
+        [style.width.%]="
+          (ascensionService.points / ascensionService.getPointsNeeded()) * 100
+        ">
+      </div>
+    </div>
+
+    <div class="ascension-bottom">
+      +{{ (ascensionService.getGlobalMultiplier() * 100 - 100).toFixed(0) }}%
+    </div>
+  </div>
+</div>
     <!-- SLOTS -->
     <div class="gear-slots">
       <div
         class="gear-slot"
-        *ngFor="let slot of [0,1]"
+        *ngFor="let slot of [0, 1]"
         [class.filled]="!!player.equipped[slot]"
       >
         <ng-container *ngIf="player.equipped[slot] as id">
@@ -128,6 +156,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>

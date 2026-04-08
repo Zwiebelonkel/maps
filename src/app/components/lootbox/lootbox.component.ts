@@ -5,6 +5,7 @@ import { PlayerService } from '../../../services/player.service';
 import { ProgressionService } from '../../../services/progression.service';
 import { SoundService } from '../../../services/sound.service';
 import { NotificationService } from '../../../services/notification.service';
+import { AscensionService } from '../../../services/ascension.service';
 
 const RARITY_WEIGHTS = {
   common: 60,
@@ -54,7 +55,8 @@ export class LootboxComponent implements OnInit {
     public player: PlayerService,
     public progression: ProgressionService,
     private sound: SoundService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private ascensionService: AscensionService,
   ) {}
 
   ngOnInit() {
@@ -126,10 +128,24 @@ export class LootboxComponent implements OnInit {
       if (this.isDuplicate) {
         this.duplicateCoins = DUPLICATE_COINS[this.reward.rarity];
         this.coinsEarned.emit(this.duplicateCoins);
+
+        // 🔥 ASCENSION POINTS (DUPLICATE BONUS optional stärker)
+        const points = this.ascensionService.getPointsForRarity(
+          this.reward.rarity,
+        );
+        this.ascensionService.addPoints(points);
+
         this.sound.play('purchase', 0.7);
       } else {
         this.player.unlock(this.reward.id);
         this.notification.addNewOutfit(this.reward.id);
+
+        // 🔥 ASCENSION POINTS (neues Item)
+        const points = this.ascensionService.getPointsForRarity(
+          this.reward.rarity,
+        );
+        this.ascensionService.addPoints(points);
+
         this.sound.play('reward');
       }
 
@@ -167,7 +183,7 @@ export class LootboxComponent implements OnInit {
     const unlocked = this.player.unlocked;
 
     let pool = OUTFITS.filter(
-      (o) => o.rarity === targetRarity && !unlocked.includes(o.id)
+      (o) => o.rarity === targetRarity && !unlocked.includes(o.id),
     );
 
     if (!pool.length) {
@@ -196,7 +212,7 @@ export class LootboxComponent implements OnInit {
           o.rarity === 'legendary' ||
           o.rarity === 'exotic' ||
           o.rarity === 'mythic') &&
-        !unlocked.includes(o.id)
+        !unlocked.includes(o.id),
     );
 
     if (!pool.length) {
@@ -205,7 +221,7 @@ export class LootboxComponent implements OnInit {
           o.rarity === 'epic' ||
           o.rarity === 'legendary' ||
           o.rarity === 'exotic' ||
-          o.rarity === 'mythic'
+          o.rarity === 'mythic',
       );
     }
 
