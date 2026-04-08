@@ -15,19 +15,40 @@ export class SessionSummaryComponent {
   @Output() close = new EventEmitter<void>();
   isOpen = true;
   isClosing = false;
+  private touchStartY = 0;
+  private touchCurrentY = 0;
+  private isDraggingHeader = false;
 
   constructor(public sessionService: SessionService) {}
 
-closeWithAnimation() {
-  if (this.isClosing) return;
+  closeWithAnimation() {
+    if (this.isClosing) return;
 
-  this.isClosing = true;
+    this.isClosing = true;
 
-  setTimeout(() => {
-    this.isOpen = false;
-    this.isClosing = false;
-    this.close.emit();
-  }, 320);
-}
+    setTimeout(() => {
+      this.isOpen = false;
+      this.isClosing = false;
+      this.close.emit();
+    }, 320);
+  }
 
+  onHeaderTouchStart(e: TouchEvent) {
+    this.touchStartY = e.touches[0].clientY;
+    this.isDraggingHeader = true;
+  }
+
+  onHeaderTouchMove(e: TouchEvent) {
+    if (!this.isDraggingHeader) return;
+    this.touchCurrentY = e.touches[0].clientY;
+  }
+
+  onHeaderTouchEnd() {
+    if (!this.isDraggingHeader) return;
+    const diff = this.touchCurrentY - this.touchStartY;
+    if (diff > 80) this.closeWithAnimation();
+    this.touchStartY = 0;
+    this.touchCurrentY = 0;
+    this.isDraggingHeader = false;
+  }
 }

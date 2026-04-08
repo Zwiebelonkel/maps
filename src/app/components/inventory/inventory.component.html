@@ -1,11 +1,11 @@
 <div
-  class="inventory-overlay"
+  class="modal-overlay inventory-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="inventory-modal"
+    class="modal inventory-modal"
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
