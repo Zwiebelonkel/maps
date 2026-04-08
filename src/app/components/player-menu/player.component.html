@@ -23,7 +23,12 @@
     </div>
 
     <!-- HEADER -->
-    <div class="modal-header">
+    <div
+      class="modal-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
       <h2>🎒 Gear</h2>
       <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>

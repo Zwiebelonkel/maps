@@ -1,11 +1,11 @@
 <div
-  class="marker-overlay"
+  class="modal-overlay marker-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="marker-modal"
+    class="modal marker-modal"
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >

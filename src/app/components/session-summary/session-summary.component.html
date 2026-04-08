@@ -1,20 +1,30 @@
 <div
-  class="summary-overlay"
+  class="modal-overlay summary-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="summary-modal"
+    class="modal summary-modal"
     [class.closing]="isClosing"
     (click)="$event.stopPropagation()"
   >
 
-    <div class="drag-handle">
+    <div
+      class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="drag-handle-bar"></div>
     </div>
 
-    <div class="summary-header">
+    <div
+      class="summary-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
       <div class="summary-title">
         <span>🏁</span>
         <h2>Session beendet</h2>
