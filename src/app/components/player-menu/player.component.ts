@@ -11,11 +11,12 @@ import { NotificationService } from '../../../services/notification.service';
 import { OUTFITS, Outfit } from '../../config/player.config';
 import { SoundService } from '../../../services/sound.service';
 import { AscensionService } from '../../../services/ascension.service';
+import { AscensionPanelComponent } from '../ascension-panel/ascension-panel.component';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AscensionPanelComponent],
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss'],
   encapsulation: ViewEncapsulation.None,
