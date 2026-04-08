@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AscensionService } from '../../services/ascension.service';
+import { AscensionService } from '../../../services/ascension.service';
 
 @Component({
   selector: 'app-ascension-panel',
