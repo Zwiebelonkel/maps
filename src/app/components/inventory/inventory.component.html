@@ -1,11 +1,11 @@
 <div
-  class="inventory-overlay"
+  class="modal-overlay inventory-overlay"
   *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
   (click)="closeWithAnimation()"
 >
   <div
-    class="inventory-modal"
+    class="modal inventory-modal"
     (click)="$event.stopPropagation()"
     [class.closing]="isClosing"
   >
@@ -25,10 +25,10 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="settings-title">
-        <div class="settings-icon">🎒</div>
+        <div class="settings-icon"><i class="fa-solid fa-backpack"></i></div>
         <h2>Inventar</h2>
       </div>
-      <button class="close-btn" (click)="closeWithAnimation()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <div class="inventory-list-container">
@@ -42,8 +42,8 @@
     >
       <div class="item-icon">{{ stack.item.icon }}</div>
       <div class="item-name">{{ stack.item.name }}</div>
-      <div class="item-radius">{{ stack.item.bombRadius }}m Radius</div>
-      <div class="item-count" *ngIf="stack.count > 1">{{ stack.count }}x</div>
+      <div class="item-radius">{{ stack.item.bombRadius | number:'1.2-2' }}m Radius</div>
+      <div class="item-count" *ngIf="stack.count > 1">{{ stack.count | number:'1.2-2' }}x</div>
       <div class="item-activate">Aktivieren</div>
     </div>
   </div>
@@ -52,7 +52,7 @@
 
       <ng-template #empty>
         <div class="empty-state">
-          <div class="empty-icon">🎒</div>
+          <div class="empty-icon"><i class="fa-solid fa-backpack"></i></div>
           <p>Dein Inventar ist leer.</p>
           <small>Bomben erhältst du im Shop oder als Loot.</small>
         </div>

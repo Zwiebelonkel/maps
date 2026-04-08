@@ -1,10 +1,10 @@
 <div class="ascension-overlay" *ngIf="isOpen" (click)="close()">
   <div class="ascension-modal" (click)="$event.stopPropagation()">
 
-    <h2>✨ Ascension</h2>
+    <h2><i class="fa-solid fa-sparkles"></i> Ascension</h2>
 
     <div class="level">
-      Level {{ ascension.level }}
+      Level {{ ascension.level | number:'1.2-2' }}
     </div>
 
     <div class="progress-bar">
@@ -15,11 +15,11 @@
     </div>
 
     <p>
-      {{ ascension.points }} / {{ ascension.getPointsNeeded() }} Punkte
+      {{ ascension.points | number:'1.2-2' }} / {{ ascension.getPointsNeeded() | number:'1.2-2' }} Punkte
     </p>
 
     <div class="multiplier">
-      Global Boost: {{ (ascension.getGlobalMultiplier() * 100 - 100) | number:'1.0-0' }}%
+      Global Boost: {{ (ascension.getGlobalMultiplier() * 100 - 100) | number:'1.2-2' }}%
     </div>
 
     <button (click)="close()">Schließen</button>
