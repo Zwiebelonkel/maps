@@ -1,3 +1,5 @@
+
+<app-ascension-panel #ascensionPanel></app-ascension-panel>
 <div
   class="modal-overlay"
   *ngIf="isOpen || isClosing"
@@ -25,6 +27,10 @@
       <h2>🎒 Gear</h2>
       <button class="close-btn" (click)="closeWithAnimation()">✕</button>
     </div>
+    
+    <button class="ascension-btn" (click)="ascensionPanel.open()">
+  ✨ Ascension
+</button>
 
     <!-- SLOTS -->
     <div class="gear-slots">
