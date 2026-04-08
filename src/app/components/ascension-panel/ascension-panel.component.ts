@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
 import { AscensionService } from '../../../services/ascension.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-ascension-panel',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './ascension-panel.component.html',
   styleUrls: ['./ascension-panel.component.scss']
 })
