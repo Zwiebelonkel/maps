@@ -1,7 +1,8 @@
 .ascension-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -9,24 +10,129 @@
 }
 
 .ascension-modal {
-  background: #111;
-  border-radius: 20px;
-  padding: 20px;
   width: 90%;
-  max-width: 400px;
-  color: white;
-  text-align: center;
+  max-width: 380px;
+
+  padding: 20px;
+  border-radius: 20px;
+
+  background: rgba(15, 15, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  box-shadow:
+    0 0 40px rgba(0, 255, 213, 0.08),
+    inset 0 0 10px rgba(255, 255, 255, 0.03);
+}
+
+/* HEADER */
+.ascension-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .close-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    color: #aaa;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 80, 80, 0.2);
+      color: #ff5050;
+    }
+  }
+}
+
+/* LEVEL */
+.ascension-level-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  .level-label {
+    font-size: 0.7rem;
+    color: #666;
+    letter-spacing: 1px;
+  }
+
+  .level-value {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #00ffd5;
+
+    text-shadow:
+      0 0 10px rgba(0, 255, 213, 0.5),
+      0 0 20px rgba(0, 255, 213, 0.3);
+  }
+}
+
+/* PROGRESS */
+.ascension-progress-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .progress-bar {
   height: 10px;
-  background: #333;
   border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
   overflow: hidden;
-  margin: 10px 0;
 }
 
-.progress {
+.progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  background: linear-gradient(90deg, #ff00ff, #00ffd5);
+
+  box-shadow:
+    0 0 10px rgba(255, 0, 255, 0.4),
+    0 0 20px rgba(0, 255, 213, 0.3);
+
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.7rem;
+  color: #888;
+  text-align: right;
+}
+
+/* BOOST */
+.ascension-boost-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+
+  .boost-label {
+    font-size: 0.75rem;
+    color: #aaa;
+  }
+
+  .boost-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ff00ff;
+
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
+  }
 }

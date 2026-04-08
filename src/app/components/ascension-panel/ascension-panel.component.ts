@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { AscensionService } from '../../../services/ascension.service';
 import { CommonModule } from '@angular/common';
+import { AscensionService } from '../../../services/ascension.service';
 
 @Component({
   selector: 'app-ascension-panel',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './ascension-panel.component.html',
-  styleUrls: ['./ascension-panel.component.scss']
+  styleUrls: ['./ascension-panel.component.scss'],
 })
 export class AscensionPanelComponent {
   isOpen = false;

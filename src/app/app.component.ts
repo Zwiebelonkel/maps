@@ -34,10 +34,10 @@ import { PlayerService } from '../services/player.service';
 import { SoundService } from '../services/sound.service';
 import { UserMarker } from '../../models/user-marker.model';
 import { OUTFITS } from './config/player.config';
+import { AscensionService } from '../services/ascension.service';
 
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { InventoryService } from '../services/inventory.service';
-
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -84,8 +84,8 @@ interface GridCoordinate {
     LootPopupComponent,
     SettingsComponent,
     SessionSummaryComponent,
-    BurgerMenuComponent, // ✅ hinzufügen
-    MarkerListComponent, // ✅ hinzufügen
+    BurgerMenuComponent,
+    MarkerListComponent,
     PlayerComponent,
     LootboxComponent,
     InventoryComponent,
@@ -162,6 +162,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private soundService: SoundService,
     private inventoryService: InventoryService,
     public notification: NotificationService,
+    public ascensionService: AscensionService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -301,27 +302,26 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Lifecycle ───────────────────────────────────────────────
 
   ngOnInit() {
-  this.markerService.load();
-  this.loadProgress();
-  this.updateGameState();
-  this.startGPSTracking();
+    this.markerService.load();
+    this.loadProgress();
+    this.updateGameState();
+    this.startGPSTracking();
 
-  interval(3000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if (this.currentLocation)
-        this.exploreCurrentArea(this.currentLocation);
-    });
+    interval(3000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.currentLocation) this.exploreCurrentArea(this.currentLocation);
+      });
 
-  // 🟣 AUTCLICKER
-  interval(1000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if (this.playerService.hasAutoClicker()) {
-        this.handleAutoClick();
-      }
-    });
-}
+    // 🟣 AUTCLICKER
+    interval(1000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.playerService.hasAutoClicker()) {
+          this.handleAutoClick();
+        }
+      });
+  }
 
   ngAfterViewInit() {
     (window as any).deleteUserMarker = (id: string) => {
@@ -780,34 +780,44 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Loot ────────────────────────────────────────────────────
 
   private applyLoot(loot: LootResult) {
-  switch (loot.type) {
-    case 'coins':
-      this.totalCoins +=
-        (loot.amount || 0) * this.playerService.getCoinMultiplier();
-      break;
-    case 'bomb':
-      if (loot.item) {
-        this.inventoryService.add(loot.item); // ← ins Inventar
-      }
-      break;
-    case 'outfit':
-      if (loot.item) {
-        this.playerService.unlock(loot.item.id);
-        this.notification.addNewOutfit(loot.item.id)
-      }
-      break;
-    case 'upgrade':
-      const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
-        (u) => u.level === this.currentClickLevel + 1,
-      );
-      if (nextClickUpgrade) {
-        this.upgradeService.applyClickUpgrade(nextClickUpgrade);
-      }
-      break;
-    case 'trophy':
-      break;
+    switch (loot.type) {
+      case 'coins':
+        this.totalCoins +=
+          (loot.amount || 0) * this.playerService.getCoinMultiplier();
+        break;
+      case 'bomb':
+        if (loot.item) {
+          this.inventoryService.add(loot.item); // ← ins Inventar
+        }
+        break;
+      case 'outfit':
+        if (loot.item) {
+          const isDuplicate = this.playerService.unlocked.includes(
+            loot.item.id,
+          );
+
+          this.playerService.unlock(loot.item.id);
+          this.notification.addNewOutfit(loot.item.id);
+
+          // 🔥 ASCENSION
+          const base = this.ascensionService.getPointsForRarity(loot.rarity);
+          const points = isDuplicate ? base * 2 : base;
+
+          this.ascensionService.addPoints(points);
+        }
+        break;
+      case 'upgrade':
+        const nextClickUpgrade = GAME_CONFIG.CLICK_UPGRADES.find(
+          (u) => u.level === this.currentClickLevel + 1,
+        );
+        if (nextClickUpgrade) {
+          this.upgradeService.applyClickUpgrade(nextClickUpgrade);
+        }
+        break;
+      case 'trophy':
+        break;
+    }
   }
-}
 
   // ── Fog of War ──────────────────────────────────────────────
 
@@ -935,21 +945,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onPurchaseShopItem(item: ShopItem) {
-  if (this.totalCoins >= item.cost) {
-    this.soundService.play('purchase');
-    this.vibrate(100);
-    this.totalCoins -= item.cost;
-    this.inventoryService.add(item); // ← ins Inventar
-    this.saveProgress();
+    if (this.totalCoins >= item.cost) {
+      this.soundService.play('purchase');
+      this.vibrate(100);
+      this.totalCoins -= item.cost;
+      this.inventoryService.add(item); // ← ins Inventar
+      this.saveProgress();
+    }
   }
-}
 
-onActivateBombFromInventory(item: ShopItem) {
-  this.activeBombItem = item;
-  document.getElementById('map')!.style.cursor =
-    `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
-}
-
+  onActivateBombFromInventory(item: ShopItem) {
+    this.activeBombItem = item;
+    document.getElementById('map')!.style.cursor =
+      `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='28' font-size='28'>${item.icon}</text></svg>") 16 16, crosshair`;
+  }
 
   centerOnPlayer() {
     if (!this.currentLocation || !this.map) return;
@@ -1001,36 +1010,36 @@ onActivateBombFromInventory(item: ShopItem) {
   // ── Reset & Persistence ─────────────────────────────────────
 
   resetGame() {
-  localStorage.removeItem('map_explorer_progress');
-  localStorage.removeItem('player_data');
-  localStorage.removeItem('progression');
+    localStorage.removeItem('map_explorer_progress');
+    localStorage.removeItem('player_data');
+    localStorage.removeItem('progression');
 
-  this.exploredTiles.clear();
-  this.totalCoins = 0;
-  this.totalTilesExplored = 0;
-  this.lastExploredGridKey = null;
+    this.exploredTiles.clear();
+    this.totalCoins = 0;
+    this.totalTilesExplored = 0;
+    this.lastExploredGridKey = null;
 
-  this.upgradeService.reset();
-  this.inventoryService.clear();
-  this.markerService.clear();
+    this.upgradeService.reset();
+    this.inventoryService.clear();
+    this.markerService.clear();
 
-  // 🔥 WICHTIG: sauber resetten
-  this.playerService.reset();
-  this.notification.reset();
+    // 🔥 WICHTIG: sauber resetten
+    this.playerService.reset();
+    this.notification.reset();
 
-  this.progressionService.xp = 0;
-  this.progressionService.level = 1;
-  this.progressionService.lootboxes = 0;
+    this.progressionService.xp = 0;
+    this.progressionService.level = 1;
+    this.progressionService.lootboxes = 0;
 
-  this.updateGameState();
+    this.updateGameState();
 
-  if (this.currentLocation) {
-    this.updatePlayerPosition(this.currentLocation);
+    if (this.currentLocation) {
+      this.updatePlayerPosition(this.currentLocation);
+    }
+
+    this.drawFogOfWar();
+    this.renderAllUserMarkers();
   }
-
-  this.drawFogOfWar();
-  this.renderAllUserMarkers();
-}
 
   public saveProgress() {
     localStorage.setItem(
@@ -1044,24 +1053,23 @@ onActivateBombFromInventory(item: ShopItem) {
     );
   }
 
-
-//Cheats
+  //Cheats
   onUnlockAllOutfits() {
     OUTFITS.forEach((outfit) => this.playerService.unlock(outfit.id));
   }
   onGiveCoins(amount: number) {
-  this.totalCoins += amount;
-  this.saveProgress();
-}
-  onResetCoins() {
-  this.totalCoins = 0;
-  this.saveProgress();
-}
-  onGiveLootboxes(amount: number) {
-  for (let i = 0; i < amount; i++) {
-    this.progressionService.addLootbox();
+    this.totalCoins += amount;
+    this.saveProgress();
   }
-}
+  onResetCoins() {
+    this.totalCoins = 0;
+    this.saveProgress();
+  }
+  onGiveLootboxes(amount: number) {
+    for (let i = 0; i < amount; i++) {
+      this.progressionService.addLootbox();
+    }
+  }
 
   private loadProgress() {
     const saved = localStorage.getItem('map_explorer_progress');
@@ -1107,39 +1115,38 @@ onActivateBombFromInventory(item: ShopItem) {
     });
   }
 
-onPurchaseLootbox() {
-  if (this.totalCoins >= 5000) {
-    this.totalCoins -= 5000;
-    this.progressionService.addLootbox();
+  onPurchaseLootbox() {
+    if (this.totalCoins >= 5000) {
+      this.totalCoins -= 5000;
+      this.progressionService.addLootbox();
+      this.saveProgress();
+    }
+  }
+
+  private handleAutoClick() {
+    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
+
+    this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
+
+    const leveledUp = this.progressionService.addXP(
+      GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
+    );
+
+    if (leveledUp) this.onLevelUp();
+
     this.saveProgress();
   }
-}
 
-private handleAutoClick() {
-  const earned =
-    this.coinsPerClick * this.playerService.getClickMultiplier();
+  retryGPS() {
+    this.errorMessage = '';
+    this.isLoading = true;
 
-  this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
+    this.startGPSTracking();
+  }
 
-  const leveledUp = this.progressionService.addXP(
-    GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
-  );
-
-  if (leveledUp) this.onLevelUp();
-
-  this.saveProgress();
-}
-
-retryGPS() {
-  this.errorMessage = '';
-  this.isLoading = true;
-
-  this.startGPSTracking();
-}
-
-dismissError() {
-  this.errorMessage = '';
-}
+  dismissError() {
+    this.errorMessage = '';
+  }
 
   onGlobalClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
