@@ -33,10 +33,19 @@
   align-items: center;
   gap: 10px;
 
-  .settings-icon {
-    font-size: 2rem;
-  }
+  .setting-icon {
+    width: 34px;
+    height: 34px;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+  }
   h2 {
     margin: 0;
     font-size: 1.3rem;
@@ -128,4 +137,12 @@
   border-radius: 50%;
 
   z-index: 5;
+}
+.setting-icon i {
+  font-size: 16px;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

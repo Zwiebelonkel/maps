@@ -29,45 +29,49 @@
         <h2>Menü</h2>
       </div>
 
-      <button class="close-btn" (click)="closeWithAnimation()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="close-btn" (click)="closeWithAnimation()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
     <div class="setting-item" (click)="onPlayer()">
-  <div class="setting-info">
-    <div class="setting-icon"><i class="fa-solid fa-user"></i></div>
+      <div class="setting-info">
+        <div class="setting-icon"><i class="fa-solid fa-user"></i></div>
 
-    <!-- 🔴 Badge -->
-    <span
-      *ngIf="notification.hasAnyNewOutfits()"
-      class="badge"
-    ></span>
+        <!-- 🔴 Badge -->
+        <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
 
-    <div class="setting-content">
-      <div class="setting-label">Player</div>
-      <div class="setting-desc">Ausrüstung auswählen</div>
+        <div class="setting-content">
+          <div class="setting-label">Player</div>
+          <div class="setting-desc">Ausrüstung auswählen</div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
     <div class="setting-item" (click)="onInventory()">
-  <div class="setting-info">
-    <div class="setting-icon"><i class="fa-solid fa-backpack"></i></div>
-    <div class="setting-content">
-      <div class="setting-label">Inventar</div>
-      <div class="setting-desc">{{ inventoryService.getBombStacks().length | number:'1.2-2' }} Bomben verfügbar</div>
+      <div class="setting-info">
+        <div class="setting-icon"><i class="fa-solid fa-box-open"></i></div>
+        <div class="setting-content">
+          <div class="setting-label">Inventar</div>
+          <div class="setting-desc">
+            {{ inventoryService.getBombStacks().length }}
+            Bomben verfügbar
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
     <div class="setting-item" (click)="onLootbox()">
       <div class="setting-info">
         <div class="setting-icon"><i class="fa-solid fa-gift"></i></div>
         <div class="setting-content">
           <div class="setting-label">Lootbox</div>
-          <div class="setting-desc">{{ lootboxes | number:'1.2-2' }} verfügbar</div>
+          <div class="setting-desc">{{ lootboxes }} verfügbar</div>
         </div>
       </div>
     </div>
     <div class="setting-item" (click)="onSession()">
       <div class="setting-info">
-        <div class="setting-icon">▶️</div>
+        <div class="setting-icon">
+          <i class="fa-solid fa-play"></i>
+        </div>
         <div class="setting-content">
           <div class="setting-label">Session</div>
           <div class="setting-desc">Start / Stop</div>

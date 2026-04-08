@@ -7,28 +7,28 @@
     </div>
   </div>
 
-<!-- Error Overlay -->
-<div class="error-overlay" *ngIf="errorMessage && !isLoading">
-  <div class="error-content">
-    <h2><i class="fa-solid fa-triangle-exclamation"></i> Fehler</h2>
-    <p>{{ errorMessage }}</p>
+  <!-- Error Overlay -->
+  <div class="error-overlay" *ngIf="errorMessage && !isLoading">
+    <div class="error-content">
+      <h2><i class="fa-solid fa-triangle-exclamation"></i> Fehler</h2>
+      <p>{{ errorMessage }}</p>
 
-    <p class="error-hint">
-      Bitte aktiviere GPS in deinen Geräteeinstellungen.
-    </p>
+      <p class="error-hint">
+        Bitte aktiviere GPS in deinen Geräteeinstellungen.
+      </p>
 
-    <!-- 🔥 NEU -->
-    <div class="error-actions">
-      <button class="error-btn retry" (click)="retryGPS()">
-        <i class="fa-solid fa-rotate-right"></i> Erneut versuchen
-      </button>
+      <!-- 🔥 NEU -->
+      <div class="error-actions">
+        <button class="error-btn retry" (click)="retryGPS()">
+          <i class="fa-solid fa-rotate-right"></i> Erneut versuchen
+        </button>
 
-      <button class="error-btn close" (click)="dismissError()">
-        <i class="fa-solid fa-xmark"></i> Schließen
-      </button>
+        <button class="error-btn close" (click)="dismissError()">
+          <i class="fa-solid fa-xmark"></i> Schließen
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- Stromsparmodus -->
   <div
@@ -48,14 +48,14 @@
     <div class="stat-item">
       <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
       <div class="stat-content">
-        <div class="stat-value">{{ totalCoins | number:'1.2-2' }}</div>
+        <div class="stat-value">{{ totalCoins | number: "1.2-2" }}</div>
         <div class="stat-label">Coins</div>
       </div>
     </div>
     <div class="stat-item">
       <div class="stat-icon"><i class="fa-solid fa-map"></i></div>
       <div class="stat-content">
-        <div class="stat-value">{{ totalTilesExplored | number:'1.2-2' }}</div>
+        <div class="stat-value">{{ totalTilesExplored }}</div>
         <div class="stat-label">Kacheln</div>
       </div>
     </div>
@@ -82,16 +82,19 @@
       ></div>
     </div>
     <div class="xp-bar-labels">
-      <span class="xp-level">Lv. {{ progressionService.level | number:'1.2-2' }}</span>
+      <span class="xp-level"
+        >Lv. {{ progressionService.level | number: "1.2-2" }}</span
+      >
       <span class="xp-text"
-        >{{ progressionService.xp | number:'1.2-2' }} /
-        {{ progressionService.getRequiredXP() | number:'1.2-2' }} XP</span
+        >{{ progressionService.xp | number: "1.2-2" }} /
+        {{ progressionService.getRequiredXP() | number: "1.2-2" }} XP</span
       >
     </div>
   </div>
   <!-- Coin Animation -->
   <div class="coin-popup" *ngIf="showCoinAnimation">
-    +{{ (lastExploredCount * coinsPerTile) | number:'1.2-2' }} <i class="fa-solid fa-coins"></i>
+    +{{ lastExploredCount * coinsPerTile | number: "1.2-2" }}
+    <i class="fa-solid fa-coins"></i>
   </div>
 
   <!-- Bombe aktiv Hinweis -->
@@ -101,7 +104,9 @@
 
   <!-- Control Buttons -->
   <div class="control-buttons">
-    <button class="control-btn" (click)="toggleShop()" title="Shop"><i class="fa-solid fa-store"></i></button>
+    <button class="control-btn" (click)="toggleShop()" title="Shop">
+      <i class="fa-solid fa-store"></i>
+    </button>
     <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
       <i class="fa-solid fa-bullseye"></i>
     </button>
@@ -116,9 +121,9 @@
       <i class="fa-solid fa-stop"></i>
     </button>
     <button class="control-btn" (click)="isMenuOpen = true">
-  <i class="fa-solid fa-bars"></i>
-  <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
-</button>
+      <i class="fa-solid fa-bars"></i>
+      <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
+    </button>
   </div>
 
   <!-- Session Summary -->
@@ -135,29 +140,27 @@
 
   <!-- Shop Component -->
   <app-shop
-  [isOpen]="isShopOpen"
-  [totalCoins]="totalCoins"
-  [currentLevel]="currentRadiusLevel"
-  [currentClickLevel]="currentClickLevel"
-  (close)="closeShop()"
-  (purchaseUpgrade)="onPurchaseUpgrade($event)"
-  (purchaseClickUpgrade)="onPurchaseClickUpgrade($event)"
-  (purchaseItem)="onPurchaseShopItem($event)"
-  (purchaseLootbox)="onPurchaseLootbox()"
-  (unlockAllOutfits)="onUnlockAllOutfits()"
-  (giveCoins)="onGiveCoins($event)"
-  (resetCoins)="onResetCoins()"
-  (giveLootboxes)="onGiveLootboxes($event)"
->
-</app-shop>
+    [isOpen]="isShopOpen"
+    [totalCoins]="totalCoins"
+    [currentLevel]="currentRadiusLevel"
+    [currentClickLevel]="currentClickLevel"
+    (close)="closeShop()"
+    (purchaseUpgrade)="onPurchaseUpgrade($event)"
+    (purchaseClickUpgrade)="onPurchaseClickUpgrade($event)"
+    (purchaseItem)="onPurchaseShopItem($event)"
+    (purchaseLootbox)="onPurchaseLootbox()"
+    (unlockAllOutfits)="onUnlockAllOutfits()"
+    (giveCoins)="onGiveCoins($event)"
+    (resetCoins)="onResetCoins()"
+    (giveLootboxes)="onGiveLootboxes($event)"
+  >
+  </app-shop>
 
-<app-inventory
-  *ngIf="isInventoryOpen"
-  (close)="isInventoryOpen = false"
-  (activateBomb)="onActivateBombFromInventory($event)"
-></app-inventory>
-
-
+  <app-inventory
+    *ngIf="isInventoryOpen"
+    (close)="isInventoryOpen = false"
+    (activateBomb)="onActivateBombFromInventory($event)"
+  ></app-inventory>
 
   <app-burger-menu
     *ngIf="isMenuOpen"
