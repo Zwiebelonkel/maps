@@ -124,15 +124,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   coinsPerTile = GAME_CONFIG.COINS_PER_TILE;
   flashActive = false;
   private tileLayer!: L.TileLayer;
-  isMenuOpen = false;
-  isMarkerListOpen = false;
-  isLootboxOpen = false;
+  private _isMenuOpen = false;
+  private _isMarkerListOpen = false;
+  private _isLootboxOpen = false;
 
   // Shop / Bomb
   isShopOpen = false;
   isSettingsOpen = false;
-  isPlayerOpen = false;
-  isInventoryOpen = false;
+  private _isPlayerOpen = false;
+  private _isInventoryOpen = false;
 
   activeBombItem: ShopItem | null = null;
 
@@ -142,6 +142,52 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   sessionMapImageUrl: string | null = null;
   private routePolyline: L.Polyline | null = null;
   private lastBannerVisibility: boolean | null = null;
+  private bannerSyncTimer: ReturnType<typeof setTimeout> | null = null;
+
+  get isMenuOpen() {
+    return this._isMenuOpen;
+  }
+  set isMenuOpen(value: boolean) {
+    if (this._isMenuOpen === value) return;
+    this._isMenuOpen = value;
+    this.scheduleBannerSync();
+  }
+
+  get isMarkerListOpen() {
+    return this._isMarkerListOpen;
+  }
+  set isMarkerListOpen(value: boolean) {
+    if (this._isMarkerListOpen === value) return;
+    this._isMarkerListOpen = value;
+    this.scheduleBannerSync();
+  }
+
+  get isLootboxOpen() {
+    return this._isLootboxOpen;
+  }
+  set isLootboxOpen(value: boolean) {
+    if (this._isLootboxOpen === value) return;
+    this._isLootboxOpen = value;
+    this.scheduleBannerSync();
+  }
+
+  get isPlayerOpen() {
+    return this._isPlayerOpen;
+  }
+  set isPlayerOpen(value: boolean) {
+    if (this._isPlayerOpen === value) return;
+    this._isPlayerOpen = value;
+    this.scheduleBannerSync();
+  }
+
+  get isInventoryOpen() {
+    return this._isInventoryOpen;
+  }
+  set isInventoryOpen(value: boolean) {
+    if (this._isInventoryOpen === value) return;
+    this._isInventoryOpen = value;
+    this.scheduleBannerSync();
+  }
 
   get currentRadius() {
     return this.upgradeService.snapshot.currentRadius;
@@ -194,6 +240,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.startSession();
     }
+    this.scheduleBannerSync();
   }
 
   private startSession() {
@@ -280,6 +327,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Popup zeigen
       this.showSessionSummary = true;
+      this.scheduleBannerSync();
 
       // Polyline entfernen
       if (this.routePolyline) {
@@ -293,6 +341,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showSessionSummary = false;
     this.sessionSummaryStats = null;
     this.sessionMapImageUrl = null;
+    this.scheduleBannerSync();
   }
 
   // ── Power Save ──────────────────────────────────────────────
@@ -349,6 +398,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.bannerSyncTimer) clearTimeout(this.bannerSyncTimer);
     this.admobService.hideBanner();
     this.stopGPSTracking();
     if (this.map) this.map.remove();
@@ -381,10 +431,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private async initAds() {
     await this.admobService.init();
 
-    // 🔥 einmal initial anzeigen (safe)
-    setTimeout(() => {
-      this.syncBannerVisibility();
-    }, 1000);
+    // Native View braucht Zeit
+    setTimeout(() => this.scheduleBannerSync(), 2500);
+  }
+
+  private scheduleBannerSync() {
+    if (this.bannerSyncTimer) clearTimeout(this.bannerSyncTimer);
+    this.bannerSyncTimer = setTimeout(() => this.syncBannerVisibility(), 150);
   }
 
   private syncBannerVisibility() {
@@ -988,9 +1041,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleShop() {
     this.isShopOpen = !this.isShopOpen;
+    this.scheduleBannerSync();
   }
   closeShop() {
     this.isShopOpen = false;
+    this.scheduleBannerSync();
   }
 
   onPurchaseUpgrade(upgrade: RadiusUpgrade) {
