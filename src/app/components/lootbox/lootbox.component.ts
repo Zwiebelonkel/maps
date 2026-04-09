@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OUTFITS, Outfit } from '../../config/player.config';
 import { PlayerService } from '../../../services/player.service';
@@ -32,7 +32,7 @@ const DUPLICATE_COINS: Record<string, number> = {
   templateUrl: './lootbox.component.html',
   styleUrls: ['./lootbox.component.scss'],
 })
-export class LootboxComponent implements OnInit {
+export class LootboxComponent implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
   @Output() coinsEarned = new EventEmitter<number>();
 
@@ -42,6 +42,9 @@ export class LootboxComponent implements OnInit {
   reward: Outfit | null = null;
   isDuplicate = false;
   duplicateCoins = 0;
+  isWatchingInterstitial = false;
+  interstitialSecondsLeft = 0;
+  private interstitialTimer: ReturnType<typeof setInterval> | null = null;
 
   // 🔥 PITY SYSTEM
   private pityCounter = 0;
@@ -61,6 +64,10 @@ export class LootboxComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => (this.isOpen = true), 10);
+  }
+
+  ngOnDestroy() {
+    this.clearInterstitialTimer();
   }
 
   closeWithAnimation() {
@@ -236,5 +243,32 @@ export class LootboxComponent implements OnInit {
     this.reward = null;
     this.isDuplicate = false;
     this.duplicateCoins = 0;
+  }
+
+  watchInterstitialForLootbox() {
+    if (this.isWatchingInterstitial) return;
+    if (this.progression.lootboxes > 0) return;
+
+    this.sound.play('button', 0.5);
+    this.isWatchingInterstitial = true;
+    this.interstitialSecondsLeft = 8;
+    this.clearInterstitialTimer();
+
+    this.interstitialTimer = setInterval(() => {
+      this.interstitialSecondsLeft--;
+
+      if (this.interstitialSecondsLeft > 0) return;
+
+      this.clearInterstitialTimer();
+      this.isWatchingInterstitial = false;
+      this.progression.addLootbox();
+      this.sound.play('reward');
+    }, 1000);
+  }
+
+  private clearInterstitialTimer() {
+    if (!this.interstitialTimer) return;
+    clearInterval(this.interstitialTimer);
+    this.interstitialTimer = null;
   }
 }

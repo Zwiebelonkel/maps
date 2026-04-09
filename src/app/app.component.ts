@@ -96,6 +96,7 @@ interface GridCoordinate {
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(LootPopupComponent) lootPopup!: LootPopupComponent;
+  @ViewChild('settingsRef') settingsRef?: SettingsComponent;
 
   private destroy$ = new Subject<void>();
   private map!: L.Map;
@@ -338,6 +339,28 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
     this.stopGPSTracking();
     if (this.map) this.map.remove();
+  }
+
+  get isAnyModalOpen(): boolean {
+    const isSettingsOpen = !!(
+      this.settingsRef &&
+      (this.settingsRef.isOpen || this.settingsRef.isClosing)
+    );
+
+    return (
+      this.isShopOpen ||
+      this.isMenuOpen ||
+      this.isMarkerListOpen ||
+      this.isLootboxOpen ||
+      this.isPlayerOpen ||
+      this.isInventoryOpen ||
+      this.showSessionSummary ||
+      isSettingsOpen
+    );
+  }
+
+  get shouldShowMainBanner(): boolean {
+    return !this.isAnyModalOpen;
   }
 
   // ── Map ─────────────────────────────────────────────────────
