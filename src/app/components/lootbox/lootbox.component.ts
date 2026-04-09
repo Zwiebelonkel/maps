@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OUTFITS, Outfit } from '../../config/player.config';
 import { PlayerService } from '../../../services/player.service';
@@ -6,6 +6,7 @@ import { ProgressionService } from '../../../services/progression.service';
 import { SoundService } from '../../../services/sound.service';
 import { NotificationService } from '../../../services/notification.service';
 import { AscensionService } from '../../../services/ascension.service';
+import { AdmobService } from '../../../services/admob.service';
 
 const RARITY_WEIGHTS = {
   common: 60,
@@ -32,7 +33,7 @@ const DUPLICATE_COINS: Record<string, number> = {
   templateUrl: './lootbox.component.html',
   styleUrls: ['./lootbox.component.scss'],
 })
-export class LootboxComponent implements OnInit, OnDestroy {
+export class LootboxComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() coinsEarned = new EventEmitter<number>();
 
@@ -43,8 +44,6 @@ export class LootboxComponent implements OnInit, OnDestroy {
   isDuplicate = false;
   duplicateCoins = 0;
   isWatchingInterstitial = false;
-  interstitialSecondsLeft = 0;
-  private interstitialTimer: ReturnType<typeof setInterval> | null = null;
 
   // 🔥 PITY SYSTEM
   private pityCounter = 0;
@@ -60,14 +59,11 @@ export class LootboxComponent implements OnInit, OnDestroy {
     private sound: SoundService,
     private notification: NotificationService,
     private ascensionService: AscensionService,
+    private admobService: AdmobService,
   ) {}
 
   ngOnInit() {
     setTimeout(() => (this.isOpen = true), 10);
-  }
-
-  ngOnDestroy() {
-    this.clearInterstitialTimer();
   }
 
   closeWithAnimation() {
@@ -245,30 +241,22 @@ export class LootboxComponent implements OnInit, OnDestroy {
     this.duplicateCoins = 0;
   }
 
-  watchInterstitialForLootbox() {
+  async watchInterstitialForLootbox() {
     if (this.isWatchingInterstitial) return;
     if (this.progression.lootboxes > 0) return;
 
     this.sound.play('button', 0.5);
     this.isWatchingInterstitial = true;
-    this.interstitialSecondsLeft = 8;
-    this.clearInterstitialTimer();
 
-    this.interstitialTimer = setInterval(() => {
-      this.interstitialSecondsLeft--;
-
-      if (this.interstitialSecondsLeft > 0) return;
-
-      this.clearInterstitialTimer();
+    try {
+      await this.admobService.init();
+      const rewarded = await this.admobService.showRewardAd();
+      if (rewarded && this.progression.lootboxes <= 0) {
+        this.progression.addLootbox();
+        this.sound.play('reward');
+      }
+    } finally {
       this.isWatchingInterstitial = false;
-      this.progression.addLootbox();
-      this.sound.play('reward');
-    }, 1000);
-  }
-
-  private clearInterstitialTimer() {
-    if (!this.interstitialTimer) return;
-    clearInterval(this.interstitialTimer);
-    this.interstitialTimer = null;
+    }
   }
 }

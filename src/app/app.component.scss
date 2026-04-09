@@ -670,35 +670,3 @@
     transform: scale(1.05);
   }
 }
-
-.ad-banner {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 88px;
-  z-index: 180;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: rgba(20, 20, 20, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 12px 14px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px);
-}
-
-.ad-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  color: #e7e7e7;
-  font-size: 0.86rem;
-  text-align: center;
-
-  strong {
-    color: #ffd166;
-    font-size: 0.95rem;
-  }
-}
