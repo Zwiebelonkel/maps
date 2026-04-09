@@ -433,6 +433,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.scheduleBannerSync();
   }
 
+    // Native View braucht Zeit
+    setTimeout(() => this.scheduleBannerSync(), 2500);
+  }
+
   private scheduleBannerSync() {
     if (this.bannerSyncTimer) clearTimeout(this.bannerSyncTimer);
     this.bannerSyncTimer = setTimeout(() => this.syncBannerVisibility(), 150);
