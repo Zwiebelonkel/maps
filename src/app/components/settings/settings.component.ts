@@ -17,6 +17,7 @@ export class SettingsComponent {
   @Output() gameReset = new EventEmitter<void>();
   @Output() darkMapChanged = new EventEmitter<boolean>();
   @Output() centerRequested = new EventEmitter<void>();
+  @Output() visibilityChanged = new EventEmitter<boolean>();
   private touchStartY = 0;
   private touchCurrentY = 0;
   private isDraggingHeader = false;
@@ -34,15 +35,18 @@ export class SettingsComponent {
     if (this.isOpen) this.closeWithAnimation();
     else {
       this.isOpen = true;
+      this.visibilityChanged.emit(true);
     }
   }
 
   closeWithAnimation() {
     this.sound.play('button', 0.5);
     this.isClosing = true;
+    this.visibilityChanged.emit(true);
     setTimeout(() => {
       this.isClosing = false;
       this.isOpen = false;
+      this.visibilityChanged.emit(false);
     }, 320);
   }
 

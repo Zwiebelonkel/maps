@@ -430,6 +430,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async initAds() {
     await this.admobService.init();
+    this.scheduleBannerSync();
+  }
 
     // Native View braucht Zeit
     setTimeout(() => this.scheduleBannerSync(), 2500);
@@ -1280,6 +1282,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   dismissError() {
     this.errorMessage = '';
+  }
+
+  onSettingsVisibilityChanged() {
+    this.scheduleBannerSync();
   }
 
   onGlobalClick(event: MouseEvent) {

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { registerPlugin } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 interface BannerAdOptions {
   adId: string;
@@ -25,6 +26,8 @@ const AdMob = registerPlugin<AdMobPlugin>('AdMob');
 export class AdmobService {
   private bannerVisible = false;
   private initialized = false;
+  private viewReady = false;
+  private pendingShow = false;
 
   async init() {
     if (this.initialized) return;
@@ -34,6 +37,26 @@ export class AdmobService {
         requestTrackingAuthorization: false,
       });
       this.initialized = true;
+
+      App.addListener('appStateChange', ({ isActive }: { isActive: boolean }) => {
+        if (isActive && !this.viewReady) {
+          this.viewReady = true;
+          if (this.pendingShow) {
+            this.pendingShow = false;
+            void this.showBanner();
+          }
+        }
+      });
+
+      setTimeout(() => {
+        if (!this.viewReady) {
+          this.viewReady = true;
+          if (this.pendingShow) {
+            this.pendingShow = false;
+            void this.showBanner();
+          }
+        }
+      }, 3000);
     } catch (error) {
       console.warn('AdMob init fehlgeschlagen:', error);
     }
@@ -41,6 +64,10 @@ export class AdmobService {
 
   async showBanner() {
     if (this.bannerVisible) return;
+    if (!this.viewReady) {
+      this.pendingShow = true;
+      return;
+    }
 
     const options: BannerAdOptions = {
       adId: 'ca-app-pub-6598292330712260/9917079191',
@@ -57,6 +84,7 @@ export class AdmobService {
   }
 
   async hideBanner() {
+    this.pendingShow = false;
     if (!this.bannerVisible) return;
 
     try {
