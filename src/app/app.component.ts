@@ -35,6 +35,7 @@ import { SoundService } from '../services/sound.service';
 import { UserMarker } from '../../models/user-marker.model';
 import { OUTFITS } from './config/player.config';
 import { AscensionService } from '../services/ascension.service';
+import { AdmobService } from '../services/admob.service';
 
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { InventoryService } from '../services/inventory.service';
@@ -164,6 +165,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private inventoryService: InventoryService,
     public notification: NotificationService,
     public ascensionService: AscensionService,
+    public admobService: AdmobService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -302,7 +304,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ── Lifecycle ───────────────────────────────────────────────
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.admobService.init();
+
+    setTimeout(() => {
+      this.admobService.showBanner();
+    }, 1000);
+
     this.markerService.load();
     this.loadProgress();
     this.updateGameState();
@@ -1174,6 +1182,23 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     const target = event.target as HTMLElement;
     if (target.closest('button')) {
       this.soundService.play('button', 0.5);
+    }
+  }
+
+  private updateBannerVisibility() {
+    const anyModalOpen =
+      this.isShopOpen ||
+      this.isSettingsOpen ||
+      this.isPlayerOpen ||
+      this.isInventoryOpen ||
+      this.isLootboxOpen ||
+      this.isMarkerListOpen ||
+      this.showSessionSummary;
+
+    if (anyModalOpen) {
+      this.admobService.hideBanner();
+    } else {
+      this.admobService.showBanner();
     }
   }
 }
