@@ -173,6 +173,28 @@
   letter-spacing: 0.5px;
 }
 
+.watch-ad-btn {
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #111;
+  background: linear-gradient(135deg, #ffd166, #ffb703);
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
 // ── Reward Card ──
 
 .reward-card {

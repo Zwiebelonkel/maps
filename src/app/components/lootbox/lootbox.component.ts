@@ -6,6 +6,7 @@ import { ProgressionService } from '../../../services/progression.service';
 import { SoundService } from '../../../services/sound.service';
 import { NotificationService } from '../../../services/notification.service';
 import { AscensionService } from '../../../services/ascension.service';
+import { AdmobService } from '../../../services/admob.service';
 
 const RARITY_WEIGHTS = {
   common: 60,
@@ -42,6 +43,7 @@ export class LootboxComponent implements OnInit {
   reward: Outfit | null = null;
   isDuplicate = false;
   duplicateCoins = 0;
+  isWatchingInterstitial = false;
 
   // 🔥 PITY SYSTEM
   private pityCounter = 0;
@@ -57,6 +59,7 @@ export class LootboxComponent implements OnInit {
     private sound: SoundService,
     private notification: NotificationService,
     private ascensionService: AscensionService,
+    private admobService: AdmobService,
   ) {}
 
   ngOnInit() {
@@ -236,5 +239,24 @@ export class LootboxComponent implements OnInit {
     this.reward = null;
     this.isDuplicate = false;
     this.duplicateCoins = 0;
+  }
+
+  async watchInterstitialForLootbox() {
+    if (this.isWatchingInterstitial) return;
+    if (this.progression.lootboxes > 0) return;
+
+    this.sound.play('button', 0.5);
+    this.isWatchingInterstitial = true;
+
+    try {
+      await this.admobService.init();
+      const rewarded = await this.admobService.showRewardAd();
+      if (rewarded && this.progression.lootboxes <= 0) {
+        this.progression.addLootbox();
+        this.sound.play('reward');
+      }
+    } finally {
+      this.isWatchingInterstitial = false;
+    }
   }
 }

@@ -3,6 +3,7 @@ import {
   OnInit,
   OnDestroy,
   AfterViewInit,
+  DoCheck,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -39,6 +40,7 @@ import { AscensionService } from '../services/ascension.service';
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { InventoryService } from '../services/inventory.service';
 import { Geolocation } from '@capacitor/geolocation';
+import { AdmobService } from '../services/admob.service';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -94,8 +96,11 @@ interface GridCoordinate {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AppComponent
+  implements OnInit, OnDestroy, AfterViewInit, DoCheck
+{
   @ViewChild(LootPopupComponent) lootPopup!: LootPopupComponent;
+  @ViewChild('settingsRef') settingsRef?: SettingsComponent;
 
   private destroy$ = new Subject<void>();
   private map!: L.Map;
@@ -138,6 +143,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   sessionSummaryStats: SessionStats | null = null;
   sessionMapImageUrl: string | null = null;
   private routePolyline: L.Polyline | null = null;
+  private lastBannerVisibility: boolean | null = null;
 
   get currentRadius() {
     return this.upgradeService.snapshot.currentRadius;
@@ -164,6 +170,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private inventoryService: InventoryService,
     public notification: NotificationService,
     public ascensionService: AscensionService,
+    private admobService: AdmobService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -303,6 +310,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Lifecycle ───────────────────────────────────────────────
 
   ngOnInit() {
+    this.initAds();
     this.markerService.load();
     this.loadProgress();
     this.updateGameState();
@@ -336,11 +344,51 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.admobService.hideBanner();
     this.stopGPSTracking();
     if (this.map) this.map.remove();
   }
 
+  ngDoCheck() {
+    this.syncBannerVisibility();
+  }
+
+  get isAnyModalOpen(): boolean {
+    const isSettingsOpen = !!(
+      this.settingsRef &&
+      (this.settingsRef.isOpen || this.settingsRef.isClosing)
+    );
+
+    return (
+      this.isShopOpen ||
+      this.isMenuOpen ||
+      this.isMarkerListOpen ||
+      this.isLootboxOpen ||
+      this.isPlayerOpen ||
+      this.isInventoryOpen ||
+      this.showSessionSummary ||
+      isSettingsOpen
+    );
+  }
+
   // ── Map ─────────────────────────────────────────────────────
+
+  private async initAds() {
+    await this.admobService.init();
+    this.syncBannerVisibility();
+  }
+
+  private syncBannerVisibility() {
+    const shouldShowBanner = !this.isAnyModalOpen;
+    if (this.lastBannerVisibility === shouldShowBanner) return;
+
+    this.lastBannerVisibility = shouldShowBanner;
+    if (shouldShowBanner) {
+      this.admobService.showBanner();
+    } else {
+      this.admobService.hideBanner();
+    }
+  }
 
   private initMap() {
     const mapElement = document.getElementById('map');
