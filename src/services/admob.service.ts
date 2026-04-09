@@ -1,11 +1,25 @@
 import { Injectable } from '@angular/core';
-import {
-  AdMob,
-  BannerAdOptions,
-  BannerAdPosition,
-  BannerAdSize,
-  RewardAdOptions,
-} from '@capacitor-community/admob';
+import { registerPlugin } from '@capacitor/core';
+
+interface BannerAdOptions {
+  adId: string;
+  adSize: 'ADAPTIVE_BANNER';
+  position: 'BOTTOM_CENTER';
+}
+
+interface RewardAdOptions {
+  adId: string;
+}
+
+interface AdMobPlugin {
+  initialize(options: { requestTrackingAuthorization: boolean }): Promise<void>;
+  showBanner(options: BannerAdOptions): Promise<void>;
+  hideBanner(): Promise<void>;
+  prepareRewardVideoAd(options: RewardAdOptions): Promise<void>;
+  showRewardVideoAd(): Promise<void>;
+}
+
+const AdMob = registerPlugin<AdMobPlugin>('AdMob');
 
 @Injectable({ providedIn: 'root' })
 export class AdmobService {
@@ -15,49 +29,55 @@ export class AdmobService {
   async init() {
     if (this.initialized) return;
 
-    await AdMob.initialize({
-      requestTrackingAuthorization: false,
-    });
-
-    this.initialized = true;
+    try {
+      await AdMob.initialize({
+        requestTrackingAuthorization: false,
+      });
+      this.initialized = true;
+    } catch (error) {
+      console.warn('AdMob init fehlgeschlagen:', error);
+    }
   }
-
-  // ───────────── Banner ─────────────
 
   async showBanner() {
     if (this.bannerVisible) return;
 
     const options: BannerAdOptions = {
-      adId: 'ca-app-pub-6598292330712260/9917079191', // DEINE ID
-      adSize: BannerAdSize.ADAPTIVE_BANNER,
-      position: BannerAdPosition.BOTTOM_CENTER,
+      adId: 'ca-app-pub-6598292330712260/9917079191',
+      adSize: 'ADAPTIVE_BANNER',
+      position: 'BOTTOM_CENTER',
     };
 
-    await AdMob.showBanner(options);
-    this.bannerVisible = true;
+    try {
+      await AdMob.showBanner(options);
+      this.bannerVisible = true;
+    } catch (error) {
+      console.warn('Banner konnte nicht angezeigt werden:', error);
+    }
   }
 
   async hideBanner() {
     if (!this.bannerVisible) return;
 
-    await AdMob.hideBanner();
-    this.bannerVisible = false;
+    try {
+      await AdMob.hideBanner();
+      this.bannerVisible = false;
+    } catch (error) {
+      console.warn('Banner konnte nicht ausgeblendet werden:', error);
+    }
   }
-
-  // ───────────── Reward Ad ─────────────
 
   async showRewardAd(): Promise<boolean> {
     try {
       const options: RewardAdOptions = {
-        adId: 'ca-app-pub-3940256099942544/5224354917', // TEST Reward!
+        adId: 'ca-app-pub-6598292330712260/6878289211',
       };
 
       await AdMob.prepareRewardVideoAd(options);
       await AdMob.showRewardVideoAd();
-
       return true;
-    } catch (e) {
-      console.log('Reward Ad Fehler:', e);
+    } catch (error) {
+      console.warn('Reward Ad Fehler:', error);
       return false;
     }
   }

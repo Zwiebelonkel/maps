@@ -57,6 +57,20 @@
             : "Keine Lootboxen verfügbar"
         }}
       </p>
+
+      <button
+        class="watch-ad-btn"
+        *ngIf="progression.lootboxes <= 0"
+        [disabled]="isWatchingInterstitial"
+        (click)="watchInterstitialForLootbox()"
+      >
+        <i class="fa-solid fa-video"></i>
+        {{
+          isWatchingInterstitial
+            ? "Interstitial wird geöffnet..."
+            : "Interstitial ansehen (+1 Lootbox)"
+        }}
+      </button>
     </div>
 
     <!-- Opening -->
