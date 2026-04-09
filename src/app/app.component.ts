@@ -96,7 +96,7 @@ interface GridCoordinate {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit, OnDestroy, AfterViewInit, DoCheck {
+export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(LootPopupComponent) lootPopup!: LootPopupComponent;
   @ViewChild('settingsRef') settingsRef?: SettingsComponent;
 
@@ -308,7 +308,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit, DoCheck {
   // ── Lifecycle ───────────────────────────────────────────────
 
   ngOnInit() {
-    this.initAds();
     this.markerService.load();
     this.loadProgress();
     this.updateGameState();
@@ -336,7 +335,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit, DoCheck {
       this.renderAllUserMarkers();
     };
 
-    setTimeout(() => this.initMap(), 100);
+    // 1️⃣ Map laden
+    setTimeout(() => {
+      this.initMap();
+
+      // 2️⃣ Ads ERST DANACH starten
+      setTimeout(() => {
+        this.initAds();
+      }, 1500); // 🔥 wichtig (stabil!)
+    }, 100);
   }
 
   ngOnDestroy() {
@@ -347,9 +354,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit, DoCheck {
     if (this.map) this.map.remove();
   }
 
-  ngDoCheck() {
-    this.syncBannerVisibility();
-  }
+  // ngDoCheck() {
+  //   this.syncBannerVisibility();
+  // }
 
   get isAnyModalOpen(): boolean {
     const isSettingsOpen = !!(
@@ -373,7 +380,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit, DoCheck {
 
   private async initAds() {
     await this.admobService.init();
-    this.syncBannerVisibility();
+
+    // 🔥 einmal initial anzeigen (safe)
+    setTimeout(() => {
+      this.syncBannerVisibility();
+    }, 1000);
   }
 
   private syncBannerVisibility() {
