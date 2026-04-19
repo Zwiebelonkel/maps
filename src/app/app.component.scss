@@ -4,12 +4,18 @@
   background: #050505;
   color: #e5e5e5;
   display: block;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 .app-container {
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
+  min-height: 100svh;
   overflow: hidden;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -17,6 +23,8 @@
 .map-container {
   width: 100%;
   height: 100vh;
+  height: 100dvh;
+  min-height: 100svh;
   z-index: 1;
 }
 
@@ -102,16 +110,17 @@
 
 .stats-panel {
   position: absolute;
-  top: 44px;
-  left: 20px;
+  top: calc(44px + var(--safe-top));
+  left: max(12px, calc(12px + var(--safe-left)));
   background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  padding: 15px;
+  padding: 12px;
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  max-width: min(72vw, 560px);
   z-index: 100;
 }
 
@@ -296,23 +305,23 @@
 
 .control-buttons {
   position: absolute;
-  top: 44px;
-  right: 20px;
+  top: calc(44px + var(--safe-top));
+  right: max(12px, calc(12px + var(--safe-right)));
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   z-index: 100;
 }
 
 .control-btn {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: clamp(42px, 8vw, 50px);
+  height: clamp(42px, 8vw, 50px);
   background: rgba(20, 20, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.05);
   color: white;
   border-radius: 50%;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
@@ -332,8 +341,8 @@
 
 .info-box {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: max(16px, calc(16px + var(--safe-bottom)));
+  right: max(12px, calc(12px + var(--safe-right)));
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -387,22 +396,35 @@
 
 @media (max-width: 768px) {
   .stats-panel {
-    top: 44px;
-    left: 10px;
-    right: 70px;
+    top: calc(40px + var(--safe-top));
+    left: max(8px, calc(8px + var(--safe-left)));
+    right: max(62px, calc(62px + var(--safe-right)));
     flex-direction: column;
-    gap: 10px;
-    padding: 10px;
+    gap: 8px;
+    padding: 8px 10px;
+    max-width: none;
   }
 
   .control-buttons {
-    top: 44px;
-    right: 10px;
+    top: calc(40px + var(--safe-top));
+    right: max(8px, calc(8px + var(--safe-right)));
   }
 
   .upgrade-panel {
-    bottom: 10px;
+    bottom: max(10px, calc(10px + var(--safe-bottom)));
     min-width: 280px;
+  }
+
+  .stat-icon {
+    font-size: 1.4rem;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
   }
 }
 
@@ -593,7 +615,7 @@
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 0 0 4px;
+  padding: var(--safe-top) 0 4px;
   background: rgba(10, 10, 10, 0.75);
   backdrop-filter: blur(6px);
 }
@@ -644,6 +666,7 @@
 .error-actions {
   margin-top: 20px;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
 }
@@ -668,5 +691,55 @@
 
   &:hover {
     transform: scale(1.05);
+  }
+}
+
+@media (max-width: 480px) {
+  .xp-bar-labels {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 5px 10px 6px;
+  }
+
+  .xp-level,
+  .xp-text {
+    font-size: 0.68rem;
+  }
+
+  .bomb-hint {
+    width: calc(100% - 32px);
+    white-space: normal;
+    text-align: center;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .stats-panel {
+    top: calc(30px + var(--safe-top));
+    flex-direction: row;
+    padding: 6px 10px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    font-size: 1.1rem;
+  }
+
+  .stat-value {
+    font-size: 0.9rem;
+  }
+
+  .control-buttons {
+    top: calc(30px + var(--safe-top));
+    gap: 6px;
+  }
+
+  .control-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
   }
 }

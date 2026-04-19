@@ -1,5 +1,10 @@
 /* ───────── Overlay ───────── */
 .modal-overlay {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
   position: fixed;
   inset: 0;
   z-index: 2000;
@@ -7,6 +12,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding: max(8px, var(--safe-top)) max(8px, var(--safe-right))
+    max(8px, var(--safe-bottom)) max(8px, var(--safe-left));
 
   background: rgba(5, 5, 5, 0.6);
   backdrop-filter: blur(8px);
@@ -25,8 +32,9 @@
 
 /* ───────── Modal ───────── */
 .modal {
-  width: 100%;
+  width: min(100%, 600px);
   max-width: 600px;
+  max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 16px);
 
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
@@ -38,11 +46,43 @@
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
 
   padding-bottom: 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 
   &.closing {
     animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    border-radius: 16px 16px 0 0;
+    padding-bottom: 14px;
+  }
+
+  .modal-header {
+    padding: 8px 14px 12px;
+  }
+
+  .close-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .modal-overlay {
+    align-items: center;
+  }
+
+  .modal {
+    border-radius: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   }
 }
 
