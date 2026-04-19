@@ -1,0 +1,92 @@
+<div
+  class="modal-overlay daily-quests-overlay"
+  *ngIf="isOpen || isClosing"
+  [class.closing]="isClosing"
+  (click)="closeWithAnimation()"
+>
+  <div
+    class="modal daily-quests-modal"
+    (click)="$event.stopPropagation()"
+    [class.closing]="isClosing"
+  >
+    <div
+      class="drag-handle"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
+      <div class="drag-handle-bar"></div>
+    </div>
+
+    <div
+      class="settings-header"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+    >
+      <div class="settings-title">
+        <span class="settings-icon"><i class="fa-solid fa-list-check"></i></span>
+        <h2>Daily Quests</h2>
+      </div>
+      <button class="close-btn" (click)="closeWithAnimation()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="setting-item reward-row">
+      <div class="setting-info">
+        <span class="setting-icon"><i class="fa-solid fa-sack-dollar"></i></span>
+        <div class="setting-content">
+          <div class="setting-label">Quest-Belohnung</div>
+          <div class="setting-desc">Je abgeschlossene Quest +100 Coins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-item reward-row">
+      <div class="setting-info">
+        <span class="setting-icon"><i class="fa-solid fa-box-open"></i></span>
+        <div class="setting-content">
+          <div class="setting-label">Tagesbonus</div>
+          <div class="setting-desc">
+            Alle Daily Quests abschließen: +3 Lootboxen
+          </div>
+        </div>
+        <div class="bonus-status" [class.done]="allCompletedRewardClaimed">
+          {{ allCompletedRewardClaimed ? 'Erhalten' : 'Offen' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="quest-list">
+      <div class="quest-card" *ngFor="let quest of quests" [class.completed]="quest.completed">
+        <div class="quest-header">
+          <div>
+            <div class="quest-title">{{ quest.title }}</div>
+            <div class="quest-description">{{ quest.description }}</div>
+          </div>
+          <div class="quest-progress-text">
+            {{ quest.progress }} / {{ quest.target }}
+          </div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="progressPercentage(quest)"></div>
+        </div>
+
+        <div class="quest-footer">
+          <span class="reward">+100 <i class="fa-solid fa-coins"></i></span>
+          <span class="status" [class.done]="quest.completed">
+            {{ quest.completed ? 'Abgeschlossen' : 'In Arbeit' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-footer">
+      <button class="reset-settings-btn" (click)="closeWithAnimation()">
+        Schließen
+      </button>
+    </div>
+  </div>
+</div>

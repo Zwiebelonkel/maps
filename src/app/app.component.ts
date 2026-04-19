@@ -37,7 +37,9 @@ import { OUTFITS } from './config/player.config';
 import { AscensionService } from '../services/ascension.service';
 
 import { InventoryComponent } from './components/inventory/inventory.component';
+import { DailyQuestsComponent } from './components/daily-quests/daily-quests.component';
 import { InventoryService } from '../services/inventory.service';
+import { DailyQuestService, DailyQuest } from '../services/daily-quest.service';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -89,6 +91,7 @@ interface GridCoordinate {
     PlayerComponent,
     LootboxComponent,
     InventoryComponent,
+    DailyQuestsComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -123,6 +126,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isMenuOpen = false;
   isMarkerListOpen = false;
   isLootboxOpen = false;
+  isDailyQuestsOpen = false;
 
   // Shop / Bomb
   isShopOpen = false;
@@ -151,6 +155,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.upgradeService.snapshot.coinsPerClick;
   }
 
+  get dailyQuests(): DailyQuest[] {
+    return this.dailyQuestService.snapshot.quests;
+  }
+
+  get allDailyRewardsClaimed(): boolean {
+    return this.dailyQuestService.snapshot.allCompletedRewardClaimed;
+  }
+
   constructor(
     private upgradeService: UpgradeService,
     private lootService: LootService,
@@ -161,6 +173,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public progressionService: ProgressionService,
     private soundService: SoundService,
     private inventoryService: InventoryService,
+    public dailyQuestService: DailyQuestService,
     public notification: NotificationService,
     public ascensionService: AscensionService,
   ) {}
@@ -529,6 +542,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         GAME_CONFIG.COINS_PER_TILE *
         this.playerService.getCoinMultiplier();
       this.totalTilesExplored = this.exploredTiles.size;
+      this.trackDailyQuestProgress('tiles', newTiles);
       this.lastExploredCount = newTiles;
       this.showCoinAnimation = true;
       setTimeout(() => (this.showCoinAnimation = false), 2000);
@@ -685,6 +699,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         GAME_CONFIG.COINS_PER_TILE *
         this.playerService.getCoinMultiplier();
       this.totalTilesExplored = this.exploredTiles.size;
+      this.trackDailyQuestProgress('tiles', newTiles);
       this.sessionService.addTiles(newTiles);
       const leveledUp = this.progressionService.addXP(
         newTiles *
@@ -992,6 +1007,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
     );
     if (leveledUp) this.onLevelUp();
+    this.trackDailyQuestProgress('clicks', 1);
     this.saveProgress();
   }
 
@@ -1013,6 +1029,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     localStorage.removeItem('map_explorer_progress');
     localStorage.removeItem('player_data');
     localStorage.removeItem('progression');
+    localStorage.removeItem('daily_quests');
 
     this.exploredTiles.clear();
     this.totalCoins = 0;
@@ -1134,7 +1151,45 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (leveledUp) this.onLevelUp();
 
+    this.trackDailyQuestProgress('clicks', 1);
     this.saveProgress();
+  }
+
+  onLootboxOpened() {
+    this.trackDailyQuestProgress('lootbox', 1);
+  }
+
+  private trackDailyQuestProgress(type: 'tiles' | 'clicks' | 'lootbox', amount: number) {
+    const rewards = this.dailyQuestService.addProgress(type, amount);
+    let shouldPersistProgress = false;
+
+    if (rewards.coinsGranted > 0) {
+      this.totalCoins = Math.round((this.totalCoins + rewards.coinsGranted) * 100) / 100;
+      this.lootPopup?.show({
+        type: 'coins',
+        amount: rewards.coinsGranted,
+        label: `Daily Quest abgeschlossen! +${rewards.coinsGranted} Coins`,
+        rarity: 'rare',
+      });
+      shouldPersistProgress = true;
+    }
+
+    if (rewards.lootboxesGranted > 0) {
+      for (let i = 0; i < rewards.lootboxesGranted; i++) {
+        this.progressionService.addLootbox();
+      }
+
+      this.lootPopup?.show({
+        type: 'trophy',
+        label: `Alle Daily Quests geschafft! +${rewards.lootboxesGranted} Lootboxen`,
+        rarity: 'epic',
+      });
+      shouldPersistProgress = true;
+    }
+
+    if (shouldPersistProgress) {
+      this.saveProgress();
+    }
   }
 
   retryGPS() {

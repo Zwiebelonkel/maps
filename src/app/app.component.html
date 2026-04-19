@@ -110,6 +110,9 @@
     <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
       <i class="fa-solid fa-bullseye"></i>
     </button>
+    <button class="control-btn" (click)="isDailyQuestsOpen = true" title="Daily Quests">
+      <i class="fa-solid fa-list-check"></i>
+    </button>
     <!-- Session Button -->
     <button
       *ngIf="sessionService.isActive"
@@ -187,7 +190,15 @@
     *ngIf="isLootboxOpen"
     (close)="isLootboxOpen = false"
     (coinsEarned)="totalCoins = totalCoins + $event; saveProgress()"
+    (lootboxOpened)="onLootboxOpened()"
   ></app-lootbox>
+
+  <app-daily-quests
+    *ngIf="isDailyQuestsOpen"
+    [quests]="dailyQuests"
+    [allCompletedRewardClaimed]="allDailyRewardsClaimed"
+    (close)="isDailyQuestsOpen = false"
+  ></app-daily-quests>
 
   <!-- Settings -->
   <app-settings
