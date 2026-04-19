@@ -1,6 +1,6 @@
 /* Globale Modal-Basis kommt aus src/styles/modal.scss */
 .shop-modal {
-  max-height: 88vh;
+  max-height: min(88vh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 16px));
   overflow-y: auto;
   touch-action: pan-y;
 }
