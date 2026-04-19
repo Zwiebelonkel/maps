@@ -35,6 +35,7 @@ const DUPLICATE_COINS: Record<string, number> = {
 export class LootboxComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() coinsEarned = new EventEmitter<number>();
+  @Output() lootboxOpened = new EventEmitter<void>();
 
   isOpen = false;
   isClosing = false;
@@ -104,6 +105,7 @@ export class LootboxComponent implements OnInit {
     if (this.state !== 'idle') return;
     if (!this.progression.useLootbox()) return;
 
+    this.lootboxOpened.emit();
     this.sound.play('lootbox');
     this.state = 'opening';
 
