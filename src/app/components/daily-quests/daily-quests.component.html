@@ -25,17 +25,17 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="settings-title">
-        <span class="settings-icon"><i class="fa-solid fa-list-check"></i></span>
+        <span class="settings-icon">✅</span>
         <h2>Daily Quests</h2>
       </div>
       <button class="close-btn" (click)="closeWithAnimation()">
-        <i class="fa-solid fa-xmark"></i>
+        ✖️
       </button>
     </div>
 
     <div class="setting-item reward-row">
       <div class="setting-info">
-        <span class="setting-icon"><i class="fa-solid fa-sack-dollar"></i></span>
+        <span class="setting-icon">💰</span>
         <div class="setting-content">
           <div class="setting-label">Quest-Belohnung</div>
           <div class="setting-desc">Je abgeschlossene Quest +100 Coins</div>
@@ -45,7 +45,7 @@
 
     <div class="setting-item reward-row">
       <div class="setting-info">
-        <span class="setting-icon"><i class="fa-solid fa-box-open"></i></span>
+        <span class="setting-icon">📦</span>
         <div class="setting-content">
           <div class="setting-label">Tagesbonus</div>
           <div class="setting-desc">
@@ -75,7 +75,7 @@
         </div>
 
         <div class="quest-footer">
-          <span class="reward">+100 <i class="fa-solid fa-coins"></i></span>
+          <span class="reward">+100 🪙</span>
           <span class="status" [class.done]="quest.completed">
             {{ quest.completed ? 'Abgeschlossen' : 'In Arbeit' }}
           </span>

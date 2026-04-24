@@ -49,7 +49,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.1,
       label: '+10% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -102,7 +102,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.12,
       label: '+12% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -154,7 +154,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.2,
       label: '+20% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -188,7 +188,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.25,
       label: '+25% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -230,7 +230,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.22,
       label: '+22% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -282,7 +282,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.35,
       label: '+35% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -316,7 +316,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.4,
       label: '+40% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -337,7 +337,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.45,
       label: '+45% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -371,7 +371,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.38,
       label: '+38% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
 
@@ -402,7 +402,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.6,
       label: '+60% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -436,7 +436,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.75,
       label: '+75% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -449,7 +449,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 0.65,
       label: '+65% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -511,7 +511,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 1.2,
       label: '+120% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -566,7 +566,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 1.5,
       label: '+150% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {
@@ -623,7 +623,7 @@ export const OUTFITS: Outfit[] = [
       type: 'xp',
       value: 3.5,
       label: '+350% XP',
-      icon: '<i class="fa-solid fa-star"></i>',
+      icon: '⭐',
     },
   },
   {

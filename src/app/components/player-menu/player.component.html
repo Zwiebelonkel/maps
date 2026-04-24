@@ -28,16 +28,16 @@
       (touchmove)="onHeaderTouchMove($event)"
       (touchend)="onHeaderTouchEnd()"
     >
-      <h2><i class="fa-solid fa-box-open"></i> Gear</h2>
+      <h2>📦 Gear</h2>
       <button class="close-btn" (click)="closeWithAnimation()">
-        <i class="fa-solid fa-xmark"></i>
+        ✖️
       </button>
     </div>
 
     <!-- ASCENSION CARD -->
     <div class="ascension-card" (click)="ascensionPanel.open()">
       <div class="ascension-left">
-        <i class="fa-solid fa-sparkles"></i>
+        ✨
       </div>
 
       <div class="ascension-content">
@@ -83,7 +83,7 @@
             </div>
           </div>
           <button class="gear-slot-remove" (click)="unequip(id)">
-            <i class="fa-solid fa-xmark"></i>
+            ✖️
           </button>
         </ng-container>
 
@@ -154,7 +154,7 @@
             class="status-badge locked-badge"
             *ngIf="!isUnlocked(outfit.id)"
           >
-            <i class="fa-solid fa-lock"></i>
+            🔒
           </span>
         </div>
       </div>

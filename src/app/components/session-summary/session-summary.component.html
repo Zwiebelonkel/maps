@@ -26,24 +26,24 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="summary-title">
-        <span><i class="fa-solid fa-flag-checkered"></i></span>
+        <span>🏁</span>
         <h2>Session beendet</h2>
       </div>
-      <button class="close-btn" (click)="closeWithAnimation()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="close-btn" (click)="closeWithAnimation()">✖️</button>
     </div>
 
     <!-- Map -->
     <div class="map-preview">
       <img *ngIf="mapImageUrl" [src]="mapImageUrl" />
       <div *ngIf="!mapImageUrl" class="map-placeholder">
-        <i class="fa-solid fa-location-dot"></i> Route wird geladen...
+        📍 Route wird geladen...
       </div>
     </div>
 
     <!-- Stats -->
     <div class="summary-stats" *ngIf="stats">
       <div class="summary-stat">
-        <span class="summary-stat-icon"><i class="fa-solid fa-ruler"></i></span>
+        <span class="summary-stat-icon">📏</span>
         <div class="summary-stat-content">
           <div class="summary-stat-value">
             {{ sessionService.formatDistance(stats.distanceMeters) }}
@@ -63,7 +63,7 @@
       </div>
 
       <div class="summary-stat">
-        <span class="summary-stat-icon"><i class="fa-solid fa-map"></i></span>
+        <span class="summary-stat-icon">🗺️</span>
         <div class="summary-stat-content">
           <div class="summary-stat-value">{{ stats.tilesExplored | number:'1.2-2' }}</div>
           <div class="summary-stat-label">Tiles</div>
