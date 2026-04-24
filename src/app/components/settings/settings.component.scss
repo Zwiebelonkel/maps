@@ -30,12 +30,15 @@
   align-items: center;
   gap: 10px;
 
-  .settings-icon { font-size: 2rem; }
+  .settings-icon {
+    font-size: clamp(1.1rem, 1rem + 0.9vw, 1.45rem);
+    line-height: 1;
+  }
 
   h2 {
     margin: 0;
-    font-size: 1.3rem;
-    font-weight: bold;
+    font-size: clamp(1rem, 0.95rem + 0.6vw, 1.2rem);
+    font-weight: 600;
     color: #ffffff;
   }
 }
@@ -47,7 +50,7 @@
   background: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
   color: #aaa;
-  font-size: 1.1rem;
+  font-size: clamp(0.86rem, 0.82rem + 0.35vw, 0.98rem);
   cursor: pointer;
   transition: all 0.2s;
 
@@ -74,8 +77,9 @@
 }
 
 .setting-icon {
-  font-size: 2rem;
+  font-size: clamp(1.1rem, 1rem + 0.9vw, 1.45rem);
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .setting-content {
@@ -85,21 +89,21 @@
 }
 
 .setting-label {
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: clamp(0.92rem, 0.88rem + 0.45vw, 1rem);
+  font-weight: 600;
   color: #ffffff;
 }
 
 .setting-desc {
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 0.68rem + 0.2vw, 0.78rem);
   color: #aaa;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .setting-value {
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: clamp(0.9rem, 0.85rem + 0.4vw, 1rem);
+  font-weight: 600;
   color: #ffffff;
   min-width: 52px;
   text-align: right;
@@ -118,8 +122,8 @@ input[type="range"] {
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
   color: #aaa;
-  font-size: 0.9rem;
-  font-weight: bold;
+  font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -128,6 +132,21 @@ input[type="range"] {
     background: rgba(255, 255, 255, 0.12);
     border-color: rgba(255, 255, 255, 0.2);
     color: #fff;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-header {
+    padding: 8px 16px 12px;
+  }
+
+  .setting-item {
+    padding: 11px 16px;
+    gap: 8px;
+  }
+
+  .setting-info {
+    gap: 8px;
   }
 }
 
@@ -174,4 +193,3 @@ input[type="range"] {
     border-color: rgba(255, 80, 80, 0.4);
   }
 }
-
