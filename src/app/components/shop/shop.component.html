@@ -27,17 +27,17 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="shop-title">
-        <span class="shop-icon"><i class="fa-solid fa-store"></i></span>
+        <span class="shop-icon">🏪</span>
         <h2>Upgrade Shop</h2>
       </div>
       <button class="close-btn" (click)="closeWithAnimation()">
-        <i class="fa-solid fa-xmark"></i>
+        ✖️
       </button>
     </div>
 
     <!-- Coins -->
     <div class="coins-display">
-      <span class="coin-icon"><i class="fa-solid fa-coins"></i></span>
+      <span class="coin-icon">🪙</span>
       <span class="coin-amount">{{ totalCoins | number: "1.2-2" }}</span>
       <span class="coin-label">Coins</span>
     </div>
@@ -49,7 +49,7 @@
         [class.active]="activeTab === 'radius'"
         (click)="setTab('radius')"
       >
-        <i class="fa-solid fa-location-dot"></i> Radius
+        📍 Radius
       </button>
 
       <button
@@ -57,7 +57,7 @@
         [class.active]="activeTab === 'click'"
         (click)="setTab('click')"
       >
-        <i class="fa-solid fa-hand-pointer"></i> Click
+        👆 Click
       </button>
 
       <button
@@ -65,7 +65,7 @@
         [class.active]="activeTab === 'items'"
         (click)="setTab('items')"
       >
-        <i class="fa-solid fa-box-open"></i> Items
+        📦 Items
       </button>
     </div>
 
@@ -73,13 +73,13 @@
     <div class="tab-content" *ngIf="activeTab === 'radius'">
       <div class="current-level">
         <div class="level-badge">
-          <i class="fa-solid fa-star"></i> Level
+          ⭐ Level
           {{ currentUpgrade.level | number: "1.2-2" }}
         </div>
         <div class="level-info">
           <h3>{{ currentUpgrade.description }}</h3>
           <p>
-            <i class="fa-solid fa-location-dot"></i> Radius:
+            📍 Radius:
             {{ currentUpgrade.radius | number: "1.2-2" }}m
           </p>
         </div>
@@ -101,7 +101,7 @@
 
           <div class="upgrade-stats">
             <div class="stat-item">
-              <span><i class="fa-solid fa-location-dot"></i></span>
+              <span>📍</span>
               <span class="stat-label">Radius:</span>
               <span class="stat-value"
                 >{{ upgrade.radius | number: "1.2-2" }}m</span
@@ -109,7 +109,7 @@
             </div>
 
             <div class="stat-item">
-              <span><i class="fa-solid fa-angles-up"></i></span>
+              <span>⏫</span>
               <span class="stat-label">+</span>
               <span class="stat-value">
                 {{ upgrade.radius - currentUpgrade.radius | number: "1.2-2" }}m
@@ -133,7 +133,7 @@
               <span class="required-coins">{{
                 upgrade.cost | number: "1.2-2"
               }}</span>
-              <span><i class="fa-solid fa-coins"></i></span>
+              <span>🪙</span>
             </div>
           </div>
 
@@ -143,17 +143,17 @@
             (click)="onPurchase(upgrade)"
           >
             <span *ngIf="canAfford(upgrade.cost)"
-              ><i class="fa-solid fa-wand-magic-sparkles"></i> Upgrade
+              >🪄 Upgrade
               kaufen</span
             >
             <span *ngIf="!canAfford(upgrade.cost)"
-              ><i class="fa-solid fa-lock"></i> Nicht genug Coins</span
+              >🔒 Nicht genug Coins</span
             >
           </button>
         </div>
 
         <div class="max-level-card" *ngIf="nextUpgrades.length === 0">
-          <div class="max-level-icon"><i class="fa-solid fa-crown"></i></div>
+          <div class="max-level-icon">👑</div>
           <h3>Max Level erreicht!</h3>
         </div>
       </div>
@@ -163,13 +163,13 @@
     <div class="tab-content" *ngIf="activeTab === 'click'">
       <div class="current-level">
         <div class="level-badge">
-          <i class="fa-solid fa-hand-pointer"></i> Level
+          👆 Level
           {{ currentClickUpgrade.level | number: "1.2-2" }}
         </div>
         <div class="level-info">
           <h3>{{ currentClickUpgrade.description }}</h3>
           <p>
-            <i class="fa-solid fa-coins"></i>
+            🪙
             {{ currentClickUpgrade.coinsPerClick | number: "1.2-2" }} Coins pro
             Klick
           </p>
@@ -192,7 +192,7 @@
 
           <div class="upgrade-stats">
             <div class="stat-item">
-              <span><i class="fa-solid fa-coins"></i></span>
+              <span>🪙</span>
               <span class="stat-label">Pro Klick:</span>
               <span class="stat-value">{{
                 upgrade.coinsPerClick | number: "1.2-2"
@@ -200,7 +200,7 @@
             </div>
 
             <div class="stat-item">
-              <span><i class="fa-solid fa-angles-up"></i></span>
+              <span>⏫</span>
               <span class="stat-label">+</span>
               <span class="stat-value">
                 {{
@@ -227,7 +227,7 @@
               <span class="required-coins">{{
                 upgrade.cost | number: "1.2-2"
               }}</span>
-              <span><i class="fa-solid fa-coins"></i></span>
+              <span>🪙</span>
             </div>
           </div>
 
@@ -237,17 +237,17 @@
             (click)="onPurchaseClick(upgrade)"
           >
             <span *ngIf="canAfford(upgrade.cost)"
-              ><i class="fa-solid fa-wand-magic-sparkles"></i> Upgrade
+              >🪄 Upgrade
               kaufen</span
             >
             <span *ngIf="!canAfford(upgrade.cost)"
-              ><i class="fa-solid fa-lock"></i> Nicht genug Coins</span
+              >🔒 Nicht genug Coins</span
             >
           </button>
         </div>
 
         <div class="max-level-card" *ngIf="nextClickUpgrades.length === 0">
-          <div class="max-level-icon"><i class="fa-solid fa-crown"></i></div>
+          <div class="max-level-icon">👑</div>
           <h3>Max Level erreicht!</h3>
         </div>
       </div>
@@ -263,7 +263,7 @@
           [class.locked]="!canAfford(5000)"
         >
           <div class="upgrade-header">
-            <div class="item-icon-big"><i class="fa-solid fa-gift"></i></div>
+            <div class="item-icon-big">🎁</div>
             <div>
               <div class="upgrade-name">Lootbox</div>
               <div class="item-description">Enthält ein zufälliges Outfit</div>
@@ -284,7 +284,7 @@
               }}</span>
               <span class="separator">/</span>
               <span class="required-coins">5000</span>
-              <span><i class="fa-solid fa-coins"></i></span>
+              <span>🪙</span>
             </div>
           </div>
 
@@ -294,10 +294,10 @@
             (click)="onPurchaseLootbox()"
           >
             <span *ngIf="canAfford(5000)"
-              ><i class="fa-solid fa-gift"></i> Kaufen</span
+              >🎁 Kaufen</span
             >
             <span *ngIf="!canAfford(5000)"
-              ><i class="fa-solid fa-lock"></i> Nicht genug Coins</span
+              >🔒 Nicht genug Coins</span
             >
           </button>
         </div>
@@ -333,7 +333,7 @@
               <span class="required-coins">{{
                 item.cost | number: "1.2-2"
               }}</span>
-              <span><i class="fa-solid fa-coins"></i></span>
+              <span>🪙</span>
             </div>
           </div>
 
@@ -344,7 +344,7 @@
           >
             <span *ngIf="canAfford(item.cost)"> {{ item.icon }} Kaufen </span>
             <span *ngIf="!canAfford(item.cost)"
-              ><i class="fa-solid fa-lock"></i> Nicht genug Coins</span
+              >🔒 Nicht genug Coins</span
             >
           </button>
         </div>
@@ -353,7 +353,7 @@
 
     <!-- Tips -->
     <div class="tips-section">
-      <h4><i class="fa-solid fa-lightbulb"></i> Tipps</h4>
+      <h4>💡 Tipps</h4>
       <ul>
         <li>Erkunde neue Bereiche, um Coins zu sammeln</li>
         <li>Größerer Radius = mehr Kacheln pro Schritt</li>
@@ -363,7 +363,7 @@
 
     <!-- Admin Code -->
     <div class="admin-code-section">
-      <h4><i class="fa-solid fa-lock"></i> Code eingeben</h4>
+      <h4>🔒 Code eingeben</h4>
 
       <div class="code-input-row">
         <input

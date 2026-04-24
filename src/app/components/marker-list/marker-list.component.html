@@ -27,11 +27,11 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <div class="settings-title">
-        <div class="settings-icon"><i class="fa-solid fa-location-dot"></i></div>
+        <div class="settings-icon">📍</div>
         <h2>Marker</h2>
       </div>
 
-      <button class="close-btn" (click)="closeWithAnimation()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="close-btn" (click)="closeWithAnimation()">✖️</button>
     </div>
 
     <!-- LIST -->
@@ -43,7 +43,7 @@
           class="setting-info"
           (click)="selectMarker(marker)"
         >
-          <div class="setting-icon"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="setting-icon">📍</div>
 
           <div class="setting-content">
             <div class="setting-label">{{ marker.name }}</div>
@@ -57,14 +57,14 @@
               class="edit-btn"
               (click)="startEdit(marker); $event.stopPropagation()"
             >
-              <i class="fa-solid fa-pen"></i>
+              ✏️
             </button>
 
             <button
               class="delete-btn"
               (click)="delete(marker); $event.stopPropagation()"
             >
-              <i class="fa-solid fa-trash"></i>
+              🗑️
             </button>
           </div>
         </div>
@@ -80,15 +80,15 @@
           />
 
           <div class="edit-actions">
-            <button class="save-btn" (click)="saveEdit(marker)"><i class="fa-solid fa-floppy-disk"></i></button>
-            <button class="cancel-btn" (click)="cancelEdit()"><i class="fa-solid fa-xmark"></i></button>
+            <button class="save-btn" (click)="saveEdit(marker)">💾</button>
+            <button class="cancel-btn" (click)="cancelEdit()">✖️</button>
           </div>
         </div>
       </div>
 
       <!-- EMPTY STATE -->
       <div class="empty-state" *ngIf="markerService.getAll().length === 0">
-        <i class="fa-solid fa-inbox"></i> Keine Marker vorhanden
+        📭 Keine Marker vorhanden
       </div>
     </div>
   </div>
