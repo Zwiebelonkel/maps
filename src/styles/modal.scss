@@ -58,8 +58,8 @@
 
   h2 {
     margin: 0;
-    font-size: 1.3rem;
-    font-weight: bold;
+    font-size: clamp(1rem, 0.96rem + 0.55vw, 1.2rem);
+    font-weight: 600;
     color: #fff;
   }
 }
@@ -90,7 +90,7 @@
   background: rgba(255, 255, 255, 0.05);
   color: #aaa;
 
-  font-size: 1.1rem;
+  font-size: clamp(0.86rem, 0.82rem + 0.35vw, 0.98rem);
   cursor: pointer;
 
   transition: all 0.2s;
@@ -99,6 +99,17 @@
     background: rgba(255, 255, 255, 0.1);
     color: white;
     transform: scale(1.1);
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-header {
+    padding: 8px 16px 12px;
+  }
+
+  .close-btn {
+    width: 32px;
+    height: 32px;
   }
 }
 
