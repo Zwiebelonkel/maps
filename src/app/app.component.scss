@@ -318,6 +318,13 @@
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
 }
 
+.control-buttons-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 56px;
+}
+
 .control-btn {
   position: relative;
 
@@ -359,6 +366,26 @@
   &.reset-btn {
     background: linear-gradient(140deg, #ff6262, #ff3f7b);
     color: white;
+  }
+}
+
+.control-btn--center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  height: 56px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+
+  &:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+
+  &:hover {
+    transform: translateX(-50%);
   }
 }
 
