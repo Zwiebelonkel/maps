@@ -104,26 +104,26 @@
 
   <!-- Control Buttons -->
   <div class="control-buttons">
-    <button class="control-btn" (click)="toggleShop()" title="Shop">
-      🏪
-    </button>
-    <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
-      🎯
-    </button>
-    <button class="control-btn" (click)="isDailyQuestsOpen = true" title="Daily Quests">
-      ✅
-    </button>
-    <!-- Session Button -->
-    <button
-      *ngIf="sessionService.isActive"
-      class="control-btn session-btn"
-      [class.active]="sessionService.isActive"
-      (click)="toggleSession()"
-      title="Session"
-    >
-      ⏹️
-    </button>
-    <button class="control-btn" (click)="isMenuOpen = true">
+    <div class="control-buttons-row">
+      <button class="control-btn" (click)="toggleShop()" title="Shop">
+        🏪
+      </button>
+      <button class="control-btn" (click)="isDailyQuestsOpen = true" title="Daily Quests">
+        ✅
+      </button>
+      <!-- Session Button -->
+      <button
+        *ngIf="sessionService.isActive"
+        class="control-btn session-btn"
+        [class.active]="sessionService.isActive"
+        (click)="toggleSession()"
+        title="Session"
+      >
+        ⏹️
+      </button>
+    </div>
+
+    <button class="control-btn control-btn--center" (click)="isMenuOpen = true" title="Menü">
       ☰
       <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
     </button>
