@@ -295,36 +295,91 @@
 /* ===== Control Buttons ===== */
 
 .control-buttons {
-  position: absolute;
-  top: 44px;
-  right: 20px;
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 5000;
+
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+  border-radius: 22px;
+
+  background: rgba(20, 20, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.34);
 }
 
 .control-btn {
   position: relative;
-  width: 50px;
+
+  flex: 1;
   height: 50px;
+
   background: rgba(20, 20, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.05);
   color: white;
-  border-radius: 50%;
-  font-size: 1.5rem;
+
+  border-radius: 16px;
+
+  font-size: 1.35rem;
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
 
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.04);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
   }
 
   &.reset-btn {
     background: #ff5252;
     color: white;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+
+  width: 9px;
+  height: 9px;
+
+  border-radius: 999px;
+  background: #ff5252;
+  box-shadow: 0 0 10px rgba(255, 82, 82, 0.9);
+}
+
+@keyframes sessionPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
   }
 }
 
@@ -396,8 +451,10 @@
   }
 
   .control-buttons {
-    top: 44px;
-    right: 10px;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    top: auto;
   }
 
   .upgrade-panel {
@@ -496,9 +553,10 @@
 
 
 .session-btn.active {
-  background: rgba(255, 80, 80, 0.3);
-  border-color: rgba(255, 80, 80, 0.4);
-  animation: pulse 1.5s infinite;
+  background: rgba(255, 82, 82, 0.95);
+  border-color: rgba(255, 82, 82, 0.45);
+  color: white;
+  animation: sessionPulse 1.2s ease-in-out infinite;
 }
 
 ::ng-deep .user-marker {
@@ -629,16 +687,6 @@
   font-size: 0.65rem;
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.3px;
-}
-
-.badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 8px;
-  height: 8px;
-  background: red;
-  border-radius: 50%;
 }
 
 .error-actions {
