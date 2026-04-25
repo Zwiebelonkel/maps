@@ -155,6 +155,32 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.upgradeService.snapshot.coinsPerClick;
   }
 
+  formatCompactNumber(value: number): string {
+    const absValue = Math.abs(value);
+
+    if (absValue < 1000) {
+      return value.toLocaleString('de-DE', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    const suffixes = ['k', 'm', 'b', 't'];
+    let scaled = absValue;
+    let suffixIndex = -1;
+
+    while (scaled >= 1000 && suffixIndex < suffixes.length - 1) {
+      scaled /= 1000;
+      suffixIndex++;
+    }
+
+    const formatted = Number.isInteger(scaled)
+      ? scaled.toString()
+      : scaled.toFixed(1).replace(/\.0$/, '');
+
+    return `${value < 0 ? '-' : ''}${formatted}${suffixes[suffixIndex]}`;
+  }
+
   get dailyQuests(): DailyQuest[] {
     return this.dailyQuestService.snapshot.quests;
   }
