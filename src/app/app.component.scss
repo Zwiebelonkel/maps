@@ -296,9 +296,9 @@
 
 .control-buttons {
   position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1200;
 
   display: flex;
@@ -306,24 +306,13 @@
   align-items: center;
   gap: 10px;
 
-  padding: 10px;
-  border-radius: 24px;
-
-  background:
-    linear-gradient(
-      150deg,
-      rgba(33, 43, 72, 0.6) 0%,
-      rgba(20, 20, 20, 0.8) 45%,
-      rgba(20, 20, 20, 0.92) 100%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  box-shadow:
-    0 14px 38px rgba(0, 0, 0, 0.34),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  border-radius: 12px 12px 0 0;
+  background: rgba(20, 20, 20, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .control-btn {
@@ -332,16 +321,11 @@
   flex: 1;
   height: 50px;
 
-  background:
-    linear-gradient(
-      160deg,
-      rgba(87, 122, 255, 0.24),
-      rgba(35, 35, 35, 0.95) 55%
-    );
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: white;
 
-  border-radius: 15px;
+  border-radius: 12px;
 
   font-size: 1.35rem;
   cursor: pointer;
@@ -350,9 +334,7 @@
   align-items: center;
   justify-content: center;
 
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
 
   transition:
     transform 0.18s ease,
@@ -366,16 +348,9 @@
 
   &:hover {
     transform: translateY(-1px);
-    border-color: rgba(124, 156, 255, 0.56);
-    background:
-      linear-gradient(
-        160deg,
-        rgba(109, 147, 255, 0.44),
-        rgba(46, 46, 46, 0.94) 58%
-      );
-    box-shadow:
-      0 10px 20px rgba(0, 0, 0, 0.52),
-      0 0 0 1px rgba(146, 173, 255, 0.35) inset;
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
   }
 
   &.reset-btn {
@@ -476,9 +451,9 @@
   }
 
   .control-buttons {
-    left: 12px;
-    right: 12px;
-    bottom: calc(12px + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    bottom: 0;
     top: auto;
   }
 
