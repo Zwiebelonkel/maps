@@ -27,6 +27,7 @@
 .modal {
   width: 100%;
   max-width: 600px;
+  font-size: 0.9rem;
 
   background: rgba(20, 20, 20, 0.95);
   backdrop-filter: blur(10px);
@@ -43,6 +44,24 @@
 
   &.closing {
     animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+}
+
+/* Alle "normalen" Modals etwas kompakter wie das Burger-Menü */
+.modal:not(.burger-modal) {
+  h3 {
+    font-size: 1.05em;
+  }
+
+  p,
+  li,
+  label,
+  small,
+  button,
+  input,
+  select,
+  textarea {
+    font-size: 0.95em;
   }
 }
 
