@@ -15,11 +15,18 @@
 
     <div class="offers" *ngIf="offers.length > 0; else noOffers">
       <div class="offer-card" *ngFor="let offer of offers">
-        <div class="item-name">{{ offer.item.icon }} {{ offer.item.name }}</div>
-        <div class="item-description">{{ offer.item.description }}</div>
+        <div class="item-name">{{ offer.outfit.icon }} {{ offer.outfit.name }}</div>
+        <div class="item-description">{{ offer.outfit.description }}</div>
+        <div class="item-rarity">{{ offer.outfit.rarity | uppercase }}</div>
         <div class="item-price">{{ offer.price | number: '1.2-2' }} 🪙</div>
-        <button [disabled]="!canAfford(offer.price)" (click)="onPurchase(offer)">
-          {{ canAfford(offer.price) ? 'Kaufen' : 'Nicht genug Coins' }}
+        <button [disabled]="!canAfford(offer.price) || isUnlocked(offer.outfit.id)" (click)="onPurchase(offer)">
+          {{
+            isUnlocked(offer.outfit.id)
+              ? 'Bereits freigeschaltet'
+              : canAfford(offer.price)
+                ? 'Kaufen'
+                : 'Nicht genug Coins'
+          }}
         </button>
       </div>
     </div>

@@ -33,7 +33,7 @@ import { MarkerService } from '../services/marker.service';
 import { PlayerService } from '../services/player.service';
 import { SoundService } from '../services/sound.service';
 import { UserMarker } from '../../models/user-marker.model';
-import { OUTFITS } from './config/player.config';
+import { OUTFITS, Outfit } from './config/player.config';
 import { AscensionService } from '../services/ascension.service';
 
 import { InventoryComponent } from './components/inventory/inventory.component';
@@ -86,6 +86,8 @@ interface MapItemShop {
   lat: number;
   lng: number;
 }
+
+type OutfitRarity = Outfit['rarity'];
 
 @Component({
   selector: 'app-root',
@@ -1016,11 +1018,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onPurchaseBlackMarketOffer(offer: BlackMarketOffer) {
     if (this.totalCoins < offer.price) return;
+    if (this.playerService.unlocked.includes(offer.outfit.id)) return;
 
     this.soundService.play('purchase');
     this.vibrate(100);
     this.totalCoins = Math.round((this.totalCoins - offer.price) * 100) / 100;
-    this.inventoryService.add(offer.item);
+    this.playerService.unlock(offer.outfit.id);
+    this.notification.addNewOutfit(offer.outfit.id);
+
+    this.lootPopup?.show({
+      type: 'outfit',
+      label: `${offer.outfit.icon} ${offer.outfit.name} gekauft!`,
+      rarity: offer.outfit.rarity,
+    });
     this.saveProgress();
   }
 
@@ -1086,6 +1096,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     localStorage.removeItem('progression');
     localStorage.removeItem('daily_quests');
     localStorage.removeItem('black_market_offers');
+    localStorage.removeItem('black_market_gear_offers_v2');
 
     this.exploredTiles.clear();
     this.itemShops = [];
@@ -1274,26 +1285,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private ensureItemShops() {
     if (!this.currentLocation || this.itemShops.length > 0) return;
 
-    const origin = L.latLng(this.currentLocation.lat, this.currentLocation.lng);
     const shopCount = 12;
-    const shops: MapItemShop[] = [];
-
-    for (let i = 0; i < shopCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const distanceMeters = 200 + Math.random() * 1500;
-      const deltaLat = (distanceMeters * Math.cos(angle)) / 111320;
-      const deltaLng =
-        (distanceMeters * Math.sin(angle)) /
-        (111320 * Math.cos(this.toRad(origin.lat)));
-
-      shops.push({
-        id: `item_shop_${i}_${Date.now()}`,
-        lat: origin.lat + deltaLat,
-        lng: origin.lng + deltaLng,
-      });
-    }
-
-    this.itemShops = shops;
+    this.itemShops = this.getNearbyDeterministicShops(
+      this.currentLocation.lat,
+      this.currentLocation.lng,
+      shopCount,
+    );
     this.renderItemShopMarkers();
     this.saveProgress();
   }
@@ -1347,20 +1344,20 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private refreshBlackMarketOffers() {
     const today = new Date().toISOString().slice(0, 10);
-    const key = 'black_market_offers';
+    const key = 'black_market_gear_offers_v2';
 
     try {
       const raw = localStorage.getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw) as {
           date: string;
-          offers: Array<{ itemId: string; price: number }>;
+          offers: Array<{ outfitId: string; price: number }>;
         };
         if (parsed.date === today) {
           const offers = parsed.offers
             .map((offer) => {
-              const item = GAME_CONFIG.SHOP_ITEMS.find((i) => i.id === offer.itemId);
-              return item ? { item, price: offer.price } : null;
+              const outfit = OUTFITS.find((o) => o.id === offer.outfitId);
+              return outfit ? { outfit, price: offer.price } : null;
             })
             .filter((offer): offer is BlackMarketOffer => offer !== null);
           if (offers.length > 0) {
@@ -1373,17 +1370,46 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       console.error('black market offers could not be loaded', error);
     }
 
-    const pool = [...GAME_CONFIG.SHOP_ITEMS];
+    const rarityOrder: OutfitRarity[] = [
+      'common',
+      'rare',
+      'epic',
+      'legendary',
+      'exotic',
+      'mythic',
+    ];
+    const rarityPriceMultiplier: Record<OutfitRarity, number> = {
+      common: 1.0,
+      rare: 2.0,
+      epic: 4.2,
+      legendary: 8.5,
+      exotic: 15,
+      mythic: 24,
+    };
     const offers: BlackMarketOffer[] = [];
-    const offerCount = Math.min(3, pool.length);
 
-    for (let i = 0; i < offerCount; i++) {
-      const randomIndex = Math.floor(Math.random() * pool.length);
-      const item = pool.splice(randomIndex, 1)[0];
-      const multiplier = 0.8 + Math.random() * 0.6;
+    for (const rarity of rarityOrder) {
+      const lockedPool = OUTFITS.filter(
+        (outfit) =>
+          outfit.rarity === rarity &&
+          outfit.id !== 'default' &&
+          !this.playerService.unlocked.includes(outfit.id),
+      );
+      const fallbackPool = OUTFITS.filter(
+        (outfit) => outfit.rarity === rarity && outfit.id !== 'default',
+      );
+      const pool = lockedPool.length > 0 ? lockedPool : fallbackPool;
+      if (pool.length === 0) continue;
+
+      const seededIndex = this.getSeededNumber(
+        `${today}-${rarity}-${pool.length}`,
+        pool.length,
+      );
+      const outfit = pool[seededIndex];
+      const basePrice = 800;
       offers.push({
-        item,
-        price: Math.max(1, Math.round(item.cost * multiplier)),
+        outfit,
+        price: Math.round(basePrice * rarityPriceMultiplier[rarity]),
       });
     }
 
@@ -1393,10 +1419,75 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       JSON.stringify({
         date: today,
         offers: offers.map((offer) => ({
-          itemId: offer.item.id,
+          outfitId: offer.outfit.id,
           price: offer.price,
         })),
       }),
     );
+  }
+
+  private getSeededNumber(seed: string, modulo: number): number {
+    if (modulo <= 1) return 0;
+
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+    }
+    return hash % modulo;
+  }
+
+  private getNearbyDeterministicShops(
+    lat: number,
+    lng: number,
+    count: number,
+  ): MapItemShop[] {
+    const gridSizeMeters = 400;
+    const origin = this.latLngToMeters(lat, lng);
+    const gridX = Math.floor(origin.x / gridSizeMeters);
+    const gridY = Math.floor(origin.y / gridSizeMeters);
+    const shops: MapItemShop[] = [];
+
+    for (let ring = 0; shops.length < count && ring <= 6; ring++) {
+      for (let dx = -ring; dx <= ring && shops.length < count; dx++) {
+        for (let dy = -ring; dy <= ring && shops.length < count; dy++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== ring) continue;
+
+          const cellX = gridX + dx;
+          const cellY = gridY + dy;
+          const { lat: shopLat, lng: shopLng } = this.metersToLatLng(
+            (cellX + 0.5) * gridSizeMeters,
+            (cellY + 0.5) * gridSizeMeters,
+          );
+
+          shops.push({
+            id: `item_shop_${cellX}_${cellY}`,
+            lat: shopLat,
+            lng: shopLng,
+          });
+        }
+      }
+    }
+
+    return shops;
+  }
+
+  private latLngToMeters(lat: number, lng: number): { x: number; y: number } {
+    const originShift = 20037508.34;
+    const x = (lng * originShift) / 180;
+    const y =
+      (Math.log(Math.tan(((90 + lat) * Math.PI) / 360)) / (Math.PI / 180) *
+        originShift) /
+      180;
+    return { x, y };
+  }
+
+  private metersToLatLng(x: number, y: number): { lat: number; lng: number } {
+    const originShift = 20037508.34;
+    const lng = (x / originShift) * 180;
+    let lat = (y / originShift) * 180;
+    lat =
+      (180 / Math.PI) *
+      (2 * Math.atan(Math.exp((lat * Math.PI) / 180)) - Math.PI / 2);
+    return { lat, lng };
   }
 }
