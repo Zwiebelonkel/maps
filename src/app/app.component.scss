@@ -318,7 +318,7 @@
   position: fixed;
   left: 10px;
   right: 10px;
-  bottom: calc(env(safe-area-inset-bottom) + 10px);
+  bottom: 0;
   z-index: 1200;
 
   display: flex;
@@ -327,7 +327,8 @@
   gap: 0;
 
   padding: 0;
-  border-radius: 14px;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-radius: 14px 14px 0 0;
   background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
