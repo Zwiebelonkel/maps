@@ -1,20 +1,5 @@
-<div
-  class="loot-panel"
-  *ngIf="visible"
-  [ngClass]="[loot?.rarity, isClosing ? 'closing' : '']"
->
-  <div class="loot-icon">
-    {{
-      loot?.rarity === "epic"
-        ? "👑"
-        : loot?.rarity === "rare"
-        ? "⚡"
-        : "🪙"
-    }}
-  </div>
-
+<div class="loot-panel" *ngIf="visible" [ngClass]="isClosing ? 'closing' : ''">
   <div class="loot-content">
     <div class="loot-label">{{ loot?.label }}</div>
-    <div class="loot-rarity">{{ loot?.rarity | uppercase }}</div>
   </div>
 </div>

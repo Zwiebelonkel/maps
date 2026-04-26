@@ -6,7 +6,7 @@
   background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   padding: 12px 18px;
   display: flex;
@@ -15,40 +15,11 @@
   z-index: 9999;
   pointer-events: none;
   white-space: nowrap;
-
   animation: slideDownCenter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 
   &.closing {
     animation: slideUpCenter 0.18s ease-in forwards;
   }
-
-  &.rare {
-    border-color: rgba(77, 163, 255, 0.4);
-    box-shadow: 0 4px 12px rgba(77, 163, 255, 0.3);
-
-    .loot-rarity {
-      color: #4da3ff;
-    }
-  }
-
-  &.epic {
-    border-color: rgba(255, 100, 255, 0.5);
-    box-shadow: 0 4px 20px rgba(255, 100, 255, 0.4);
-
-    .loot-rarity {
-      color: #ff64ff;
-    }
-  }
-
-  &.common {
-    .loot-rarity {
-      color: #aaa;
-    }
-  }
-}
-
-.loot-icon {
-  font-size: 1.8rem;
 }
 
 .loot-content {
@@ -62,13 +33,6 @@
   color: #ffffff;
 }
 
-.loot-rarity {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* 🔽 Spawn Animation */
 @keyframes slideDownCenter {
   from {
     opacity: 0;
@@ -80,7 +44,6 @@
   }
 }
 
-/* 🔼 Exit Animation */
 @keyframes slideUpCenter {
   from {
     opacity: 1;
