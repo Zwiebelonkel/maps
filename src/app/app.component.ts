@@ -207,6 +207,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.dailyQuestService.snapshot.allCompletedRewardClaimed;
   }
 
+  get hasClaimableDailyRewards(): boolean {
+    return this.dailyQuestService.hasClaimableRewards();
+  }
+
   constructor(
     private upgradeService: UpgradeService,
     private lootService: LootService,
@@ -1236,35 +1240,46 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private trackDailyQuestProgress(type: 'tiles' | 'clicks' | 'lootbox', amount: number) {
     const rewards = this.dailyQuestService.addProgress(type, amount);
-    let shouldPersistProgress = false;
-
-    if (rewards.coinsGranted > 0) {
-      this.totalCoins = Math.round((this.totalCoins + rewards.coinsGranted) * 100) / 100;
-      this.lootPopup?.show({
-        type: 'coins',
-        amount: rewards.coinsGranted,
-        label: `Daily Quest abgeschlossen! +${rewards.coinsGranted} Coins`,
-        rarity: 'rare',
-      });
-      shouldPersistProgress = true;
-    }
-
-    if (rewards.lootboxesGranted > 0) {
-      for (let i = 0; i < rewards.lootboxesGranted; i++) {
-        this.progressionService.addLootbox();
-      }
-
+    if (rewards.newlyCompleted.length > 0) {
       this.lootPopup?.show({
         type: 'trophy',
-        label: `Alle Daily Quests geschafft! +${rewards.lootboxesGranted} Lootboxen`,
-        rarity: 'epic',
+        label: `Daily Quest geschafft! Belohnung im Quest-Menü abholen`,
+        rarity: 'rare',
       });
-      shouldPersistProgress = true;
-    }
-
-    if (shouldPersistProgress) {
       this.saveProgress();
     }
+  }
+
+  onClaimDailyQuestReward(questId: string) {
+    const coinsGranted = this.dailyQuestService.claimQuestReward(questId);
+
+    if (coinsGranted <= 0) return;
+
+    this.totalCoins = Math.round((this.totalCoins + coinsGranted) * 100) / 100;
+    this.lootPopup?.show({
+      type: 'coins',
+      amount: coinsGranted,
+      label: `Quest-Belohnung erhalten! +${coinsGranted} Coins`,
+      rarity: 'rare',
+    });
+    this.saveProgress();
+  }
+
+  onClaimDailyBonusReward() {
+    const lootboxesGranted = this.dailyQuestService.claimAllCompletedReward();
+
+    if (lootboxesGranted <= 0) return;
+
+    for (let i = 0; i < lootboxesGranted; i++) {
+      this.progressionService.addLootbox();
+    }
+
+    this.lootPopup?.show({
+      type: 'trophy',
+      label: `Tagesbonus erhalten! +${lootboxesGranted} Lootboxen`,
+      rarity: 'epic',
+    });
+    this.saveProgress();
   }
 
   retryGPS() {

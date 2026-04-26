@@ -100,6 +100,10 @@
 .reward-row {
   padding-top: 8px;
   padding-bottom: 8px;
+
+  &.claimable-bonus {
+    cursor: pointer;
+  }
 }
 
 .bonus-status {
@@ -114,6 +118,11 @@
     color: #00e676;
     background: rgba(0, 230, 118, 0.16);
   }
+
+  &.claimable {
+    color: #ffd166;
+    background: rgba(255, 209, 102, 0.16);
+  }
 }
 
 .quest-list {
@@ -126,6 +135,7 @@
 }
 
 .quest-card {
+  position: relative;
   padding: 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -134,6 +144,12 @@
   &.completed {
     border-color: rgba(0, 230, 118, 0.35);
     background: rgba(0, 230, 118, 0.08);
+  }
+
+  &.claimable {
+    cursor: pointer;
+    border-color: rgba(255, 209, 102, 0.5);
+    box-shadow: 0 0 14px rgba(255, 209, 102, 0.18);
   }
 }
 
@@ -198,6 +214,21 @@
   &.done {
     color: #00e676;
   }
+
+  &.claimable {
+    color: #ffd166;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #ff5252;
+  box-shadow: 0 0 10px rgba(255, 82, 82, 0.9);
 }
 
 .settings-footer {
