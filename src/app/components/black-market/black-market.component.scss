@@ -1,68 +1,358 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  animation: overlayFadeIn 0.22s ease forwards;
+
+  &.closing {
+    animation: overlayFadeOut 0.32s ease forwards;
+  }
+}
+
 .black-market-modal {
-  .coins-display {
-    margin: 0 16px 16px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.06);
+  width: min(92vw, 420px);
+  max-height: 72vh;
+  background:
+    radial-gradient(circle at top, rgba(130, 80, 255, 0.16), transparent 36%),
+    linear-gradient(180deg, #151515, #070707);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.75),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+  color: #ffffff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.28s cubic-bezier(0.2, 0.9, 0.25, 1.1) forwards;
+
+  &.closing {
+    animation: modalSlideOut 0.32s ease forwards;
+  }
+}
+
+.drag-area {
+  flex-shrink: 0;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.drag-handle {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 4px;
+}
+
+.drag-handle-bar {
+  width: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 16px 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  .modal-subtitle {
+    margin: 5px 0 0;
+    font-size: 0.78rem;
+    color: #a9a9a9;
+  }
+}
+
+.close-btn {
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.coins-display {
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 213, 74, 0.16), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 213, 74, 0.18);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+
+  .coins-label {
+    font-size: 0.76rem;
+    color: #bdbdbd;
+    font-weight: 600;
+  }
+
+  .coins-value {
     color: #ffd54a;
-    font-weight: 700;
+    font-weight: 900;
+  }
+}
+
+.offers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px 16px;
+  overflow-y: auto;
+  max-height: 48vh;
+  overscroll-behavior: contain;
+}
+
+.offers::-webkit-scrollbar {
+  width: 6px;
+}
+
+.offers::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.offers::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.offer-card {
+  --rarity-color: #ffffff;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--rarity-color) 17%, transparent),
+      rgba(255, 255, 255, 0.035)
+    );
+
+  border: 1px solid color-mix(in srgb, var(--rarity-color) 48%, transparent);
+
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--rarity-color) 20%, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--rarity-color);
+    box-shadow: 0 0 14px var(--rarity-color);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -45%;
+    right: -20%;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--rarity-color) 20%, transparent);
+    filter: blur(24px);
+    opacity: 0.8;
+    pointer-events: none;
+  }
+}
+
+.offer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.item-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.item-icon {
+  font-size: 1.25rem;
+}
+
+.item-description {
+  position: relative;
+  z-index: 1;
+  color: #c8c8c8;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.item-rarity {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--rarity-color);
+  background: color-mix(in srgb, var(--rarity-color) 14%, rgba(0, 0, 0, 0.4));
+  border: 1px solid color-mix(in srgb, var(--rarity-color) 45%, transparent);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.offer-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-price {
+  color: #72f4a0;
+  font-size: 0.9rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+button {
+  border: none;
+  border-radius: 11px;
+  padding: 9px 12px;
+  min-width: 96px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--rarity-color) 78%, #111111),
+      #1d1d1d
+    );
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--rarity-color) 25%, transparent);
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    background: #3b3b3b;
+    color: #a8a8a8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.empty-state {
+  padding: 18px 16px 24px;
+  text-align: center;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlayFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(38px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(44px) scale(0.96);
+  }
+}
+
+@media (max-height: 720px) {
+  .black-market-modal {
+    max-height: 68vh;
   }
 
   .offers {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 0 16px;
+    max-height: 42vh;
+  }
+
+  .modal-header {
+    padding-bottom: 8px;
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    .modal-subtitle {
+      display: none;
+    }
   }
 
   .offer-card {
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 12px;
-    display: grid;
+    padding: 10px;
     gap: 8px;
-
-    .item-name {
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .item-description {
-      color: #c5c5c5;
-      font-size: 0.9rem;
-    }
-
-    .item-rarity {
-      font-size: 0.75rem;
-      color: #c39bff;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-    }
-
-    .item-price {
-      color: #72f4a0;
-      font-weight: 700;
-    }
-
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 10px;
-      background: linear-gradient(135deg, #673ab7, #3f51b5);
-      color: #fff;
-      font-weight: 600;
-
-      &:disabled {
-        background: #525252;
-        color: #bbb;
-      }
-    }
-  }
-
-  .empty-state {
-    padding: 16px;
-    text-align: center;
-    color: #aaa;
   }
 }
