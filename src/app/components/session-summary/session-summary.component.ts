@@ -21,6 +21,39 @@ export class SessionSummaryComponent {
 
   constructor(public sessionService: SessionService) {}
 
+  async shareRouteScreenshot() {
+    if (!this.mapImageUrl) return;
+
+    const filename = `route-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+
+    try {
+      const response = await fetch(this.mapImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], filename, { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: 'Meine Session-Route',
+          text: 'Route-Screenshot aus meiner Session',
+          files: [file],
+        });
+        return;
+      }
+
+      this.downloadMapImage(filename);
+    } catch {
+      this.downloadMapImage(filename);
+    }
+  }
+
+  private downloadMapImage(filename: string) {
+    if (!this.mapImageUrl) return;
+    const link = document.createElement('a');
+    link.href = this.mapImageUrl;
+    link.download = filename;
+    link.click();
+  }
+
   closeWithAnimation() {
     if (this.isClosing) return;
 

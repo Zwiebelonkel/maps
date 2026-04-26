@@ -81,6 +81,7 @@
 
 .summary-stats {
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
   margin: 0 24px 16px;
   background: rgba(255, 255, 255, 0.03);
@@ -90,7 +91,7 @@
 }
 
 .summary-stat {
-  flex: 1;
+  flex: 1 1 50%;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -119,6 +120,24 @@
 
 .summary-footer {
   padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.share-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(77, 163, 255, 0.45);
+  border-radius: 12px;
+  background: rgba(77, 163, 255, 0.18);
+  color: #d7eaff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: rgba(77, 163, 255, 0.28); }
 }
 
 .done-btn {

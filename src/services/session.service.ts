@@ -5,6 +5,7 @@ export interface SessionStats {
   startTime: Date;
   endTime?: Date;
   distanceMeters: number;
+  stepCount: number;
   tilesExplored: number;
   routePoints: [number, number][];
 }
@@ -26,6 +27,7 @@ export class SessionService {
     this.session = {
       startTime: new Date(),
       distanceMeters: 0,
+      stepCount: 0,
       tilesExplored: 0,
       routePoints: [],
     };
@@ -53,6 +55,7 @@ export class SessionService {
       this.session.distanceMeters += this.calculateDistance(
         this.lastPoint[0], this.lastPoint[1], lat, lng
       );
+      this.session.stepCount = Math.round(this.session.distanceMeters / 0.78);
     }
 
     this.lastPoint = [lat, lng];

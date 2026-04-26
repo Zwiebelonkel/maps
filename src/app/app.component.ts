@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, interval } from 'rxjs';
 import * as L from 'leaflet';
+import leafletImage from 'leaflet-image';
 import { ShopComponent } from './components/shop/shop.component';
 import { LootPopupComponent } from './components/loot-popup/loot-popup.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -317,18 +318,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Warten damit fitBounds und Render fertig sind
-    setTimeout(() => {
-      try {
-        const mapContainer = document.getElementById('map');
-        const canvas = mapContainer?.querySelector('canvas');
-        if (canvas) {
-          this.sessionMapImageUrl = canvas.toDataURL('image/png');
-        } else {
-          this.sessionMapImageUrl = null;
-        }
-      } catch (e) {
-        this.sessionMapImageUrl = null;
-      }
+    setTimeout(async () => {
+      this.sessionMapImageUrl = await this.captureSessionMapImage();
 
       // Fog wieder hinzufügen
       this.drawFogOfWar();
@@ -342,6 +333,27 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.routePolyline = null;
       }
     }, 500);
+  }
+
+  private captureSessionMapImage(): Promise<string | null> {
+    return new Promise((resolve) => {
+      try {
+        leafletImage(this.map, (error: unknown, canvas: HTMLCanvasElement) => {
+          if (error || !canvas) {
+            resolve(null);
+            return;
+          }
+
+          try {
+            resolve(canvas.toDataURL('image/png'));
+          } catch {
+            resolve(null);
+          }
+        });
+      } catch {
+        resolve(null);
+      }
+    });
   }
 
   closeSessionSummary() {
@@ -542,12 +554,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           attribution: '&copy; OpenStreetMap & CartoDB',
           subdomains: 'abcd',
           maxZoom: 25,
+          crossOrigin: true,
         },
       );
     } else {
       return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap',
         maxZoom: 25,
+        crossOrigin: true,
       });
     }
   }
