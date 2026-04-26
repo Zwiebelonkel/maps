@@ -107,8 +107,9 @@
     <button class="control-btn" (click)="toggleShop()" title="Shop">
       🏪
     </button>
-    <button class="control-btn" (click)="centerOnPlayer()" title="Zentrieren">
-      🎯
+        <button class="control-btn" (click)="isMenuOpen = true">
+      ☰
+      <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
     </button>
     <button class="control-btn" (click)="isDailyQuestsOpen = true" title="Daily Quests">
       ✅
