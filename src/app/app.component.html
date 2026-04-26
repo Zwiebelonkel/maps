@@ -204,6 +204,7 @@
     [isOpen]="isBlackMarketOpen"
     [totalCoins]="totalCoins"
     [offers]="blackMarketOffers"
+    [unlockedOutfitIds]="playerService.unlocked"
     (close)="isBlackMarketOpen = false"
     (purchase)="onPurchaseBlackMarketOffer($event)"
   ></app-black-market>
