@@ -1,5 +1,6 @@
-  import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { DragModalDirective } from '../../directives/drag-modal.directive';
 import { Outfit, RARITY_COLORS } from '../../config/player.config';
 
 export interface BlackMarketOffer {
@@ -10,7 +11,7 @@ export interface BlackMarketOffer {
 @Component({
   selector: 'app-black-market',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DragModalDirective],
   templateUrl: './black-market.component.html',
   styleUrls: ['./black-market.component.scss'],
 })
@@ -24,11 +25,6 @@ export class BlackMarketComponent {
   @Output() purchase = new EventEmitter<BlackMarketOffer>();
 
   isClosing = false;
-
-  private touchStartY = 0;
-  private touchCurrentY = 0;
-  private isDraggingHeader = false;
-
   rarityColors = RARITY_COLORS;
 
   canAfford(price: number): boolean {
@@ -62,41 +58,14 @@ export class BlackMarketComponent {
     }, 320);
   }
 
+  onDraggedDismissed(): void {
+    this.isClosing = false;
+    this.close.emit();
+  }
+
   onPurchase(offer: BlackMarketOffer): void {
     if (!this.canAfford(offer.price) || this.isUnlocked(offer.outfit.id)) return;
 
     this.purchase.emit(offer);
-  }
-
-  onHeaderTouchStart(e: TouchEvent): void {
-    this.touchStartY = e.touches[0].clientY;
-    this.touchCurrentY = this.touchStartY;
-    this.isDraggingHeader = true;
-  }
-
-  onHeaderTouchMove(e: TouchEvent): void {
-    if (!this.isDraggingHeader) return;
-
-    this.touchCurrentY = e.touches[0].clientY;
-  }
-
-  onHeaderTouchEnd(): void {
-    if (!this.isDraggingHeader) return;
-
-    const diff = this.touchCurrentY - this.touchStartY;
-
-    if (diff > 80) {
-      this.closeWithAnimation();
-    }
-
-    this.touchStartY = 0;
-    this.touchCurrentY = 0;
-    this.isDraggingHeader = false;
-  }
-
-  onHeaderTouchCancel(): void {
-    this.touchStartY = 0;
-    this.touchCurrentY = 0;
-    this.isDraggingHeader = false;
   }
 }

@@ -39,7 +39,7 @@
 
 .drag-area {
   flex-shrink: 0;
-  touch-action: pan-y;
+  touch-action: none;
   user-select: none;
 }
 

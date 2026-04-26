@@ -14,6 +14,7 @@
   animation: fadeIn 0.2s ease;
 
   transition:
+    opacity 0.22s ease,
     backdrop-filter 0.3s ease,
     background 0.3s ease;
 
@@ -25,6 +26,8 @@
 
 /* ───────── Modal ───────── */
 .modal {
+  transform: translate3d(0, var(--drag-y, 0px), 0);
+  will-change: transform;
   width: 100%;
   max-width: 600px;
   font-size: 0.9rem;
@@ -45,6 +48,21 @@
   &.closing {
     animation: slideDown 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
+}
+
+.modal.is-dragging {
+  transition: none !important;
+}
+
+.modal.is-drag-resetting {
+  transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.25, 1.1);
+}
+
+.modal.is-drag-dismissing {
+  opacity: 0;
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease;
 }
 
 /* Alle "normalen" Modals etwas kompakter wie das Burger-Menü */
@@ -96,6 +114,17 @@
     background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
   }
+}
+
+.modal-drag-zone,
+.drag-handle,
+.settings-header {
+  touch-action: none;
+  user-select: none;
+}
+
+.modal.is-dragging .drag-handle {
+  cursor: grabbing;
 }
 
 /* ───────── Close Button ───────── */
