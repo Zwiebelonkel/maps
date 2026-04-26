@@ -380,3 +380,8 @@
     </div>
   </div>
 </div>
+
+<app-server-admin-modal
+  [isOpen]="isAdminPanelOpen"
+  (close)="isAdminPanelOpen = false"
+></app-server-admin-modal>
