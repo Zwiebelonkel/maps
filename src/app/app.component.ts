@@ -1257,7 +1257,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     if (rewards.newlyCompleted.length > 0) {
       this.lootPopup?.show({
         type: 'trophy',
-        label: `Daily Quest geschafft! Belohnung im Quest-Menü abholen`,
+        label: `Daily Quest geschafft!`,
         rarity: 'rare',
       });
       this.saveProgress();
