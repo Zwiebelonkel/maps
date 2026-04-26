@@ -40,6 +40,10 @@ import { InventoryComponent } from './components/inventory/inventory.component';
 import { DailyQuestsComponent } from './components/daily-quests/daily-quests.component';
 import { InventoryService } from '../services/inventory.service';
 import { DailyQuestService, DailyQuest } from '../services/daily-quest.service';
+import {
+  BlackMarketComponent,
+  BlackMarketOffer,
+} from './components/black-market/black-market.component';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -77,6 +81,12 @@ interface GridCoordinate {
   gridY: number;
 }
 
+interface MapItemShop {
+  id: string;
+  lat: number;
+  lng: number;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -92,6 +102,7 @@ interface GridCoordinate {
     LootboxComponent,
     InventoryComponent,
     DailyQuestsComponent,
+    BlackMarketComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -133,8 +144,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isSettingsOpen = false;
   isPlayerOpen = false;
   isInventoryOpen = false;
+  isBlackMarketOpen = false;
 
   activeBombItem: ShopItem | null = null;
+  blackMarketOffers: BlackMarketOffer[] = [];
+  private itemShops: MapItemShop[] = [];
+  private itemShopMarkers: L.Marker[] = [];
 
   // Session
   showSessionSummary = false;
@@ -343,6 +358,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.markerService.load();
     this.loadProgress();
+    this.refreshBlackMarketOffers();
     this.updateGameState();
     this.startGPSTracking();
 
@@ -428,10 +444,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         16,
       );
       this.updatePlayerPosition(this.currentLocation);
+      this.ensureItemShops();
     }
 
     this.drawFogOfWar();
     this.renderAllUserMarkers();
+    this.renderItemShopMarkers();
   }
 
   private renderAllUserMarkers() {
@@ -656,6 +674,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.map) {
       this.updatePlayerPosition(newLocation);
       this.exploreCurrentArea(newLocation);
+      this.ensureItemShops();
     }
   }
 
@@ -995,6 +1014,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  onPurchaseBlackMarketOffer(offer: BlackMarketOffer) {
+    if (this.totalCoins < offer.price) return;
+
+    this.soundService.play('purchase');
+    this.vibrate(100);
+    this.totalCoins = Math.round((this.totalCoins - offer.price) * 100) / 100;
+    this.inventoryService.add(offer.item);
+    this.saveProgress();
+  }
+
   onActivateBombFromInventory(item: ShopItem) {
     this.activeBombItem = item;
     document.getElementById('map')!.style.cursor =
@@ -1056,8 +1085,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     localStorage.removeItem('player_data');
     localStorage.removeItem('progression');
     localStorage.removeItem('daily_quests');
+    localStorage.removeItem('black_market_offers');
 
     this.exploredTiles.clear();
+    this.itemShops = [];
+    this.itemShopMarkers.forEach((marker) => this.map.removeLayer(marker));
+    this.itemShopMarkers = [];
     this.totalCoins = 0;
     this.totalTilesExplored = 0;
     this.lastExploredGridKey = null;
@@ -1091,6 +1124,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         totalCoins: this.totalCoins,
         exploredTiles: Array.from(this.exploredTiles.entries()),
         totalTilesExplored: this.totalTilesExplored,
+        itemShops: this.itemShops,
         ...this.upgradeService.serialize(),
       }),
     );
@@ -1123,6 +1157,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.exploredTiles = new Map(data.exploredTiles || []);
         this.totalTilesExplored = data.totalTilesExplored || 0;
         this.upgradeService.deserialize(data);
+        this.itemShops = data.itemShops || [];
       } catch (e) {
         console.error('Error loading progress:', e);
       }
@@ -1234,5 +1269,134 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     if (target.closest('button')) {
       this.soundService.play('button', 0.5);
     }
+  }
+
+  private ensureItemShops() {
+    if (!this.currentLocation || this.itemShops.length > 0) return;
+
+    const origin = L.latLng(this.currentLocation.lat, this.currentLocation.lng);
+    const shopCount = 12;
+    const shops: MapItemShop[] = [];
+
+    for (let i = 0; i < shopCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const distanceMeters = 200 + Math.random() * 1500;
+      const deltaLat = (distanceMeters * Math.cos(angle)) / 111320;
+      const deltaLng =
+        (distanceMeters * Math.sin(angle)) /
+        (111320 * Math.cos(this.toRad(origin.lat)));
+
+      shops.push({
+        id: `item_shop_${i}_${Date.now()}`,
+        lat: origin.lat + deltaLat,
+        lng: origin.lng + deltaLng,
+      });
+    }
+
+    this.itemShops = shops;
+    this.renderItemShopMarkers();
+    this.saveProgress();
+  }
+
+  private renderItemShopMarkers() {
+    if (!this.map) return;
+
+    this.itemShopMarkers.forEach((marker) => this.map.removeLayer(marker));
+    this.itemShopMarkers = [];
+
+    for (const shop of this.itemShops) {
+      const marker = L.marker([shop.lat, shop.lng], {
+        icon: L.divIcon({
+          className: 'item-shop-marker',
+          html: '<div class="item-shop-pin">🕶️</div>',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        }),
+      }).addTo(this.map);
+
+      marker.on('click', () => this.onItemShopClicked(shop));
+      marker.bindTooltip('Black Market', { direction: 'top', offset: [0, -10] });
+      this.itemShopMarkers.push(marker);
+    }
+  }
+
+  private onItemShopClicked(shop: MapItemShop) {
+    if (!this.currentLocation) return;
+
+    const effectiveRadius =
+      this.currentRadius * this.playerService.getRadiusMultiplier();
+    const distance = this.calculateDistance(
+      this.currentLocation.lat,
+      this.currentLocation.lng,
+      shop.lat,
+      shop.lng,
+    );
+
+    if (distance > effectiveRadius) {
+      this.lootPopup?.show({
+        type: 'trophy',
+        label: '🚫 Shop ist außerhalb deines Radius',
+        rarity: 'common',
+      });
+      return;
+    }
+
+    this.refreshBlackMarketOffers();
+    this.isBlackMarketOpen = true;
+  }
+
+  private refreshBlackMarketOffers() {
+    const today = new Date().toISOString().slice(0, 10);
+    const key = 'black_market_offers';
+
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw) as {
+          date: string;
+          offers: Array<{ itemId: string; price: number }>;
+        };
+        if (parsed.date === today) {
+          const offers = parsed.offers
+            .map((offer) => {
+              const item = GAME_CONFIG.SHOP_ITEMS.find((i) => i.id === offer.itemId);
+              return item ? { item, price: offer.price } : null;
+            })
+            .filter((offer): offer is BlackMarketOffer => offer !== null);
+          if (offers.length > 0) {
+            this.blackMarketOffers = offers;
+            return;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('black market offers could not be loaded', error);
+    }
+
+    const pool = [...GAME_CONFIG.SHOP_ITEMS];
+    const offers: BlackMarketOffer[] = [];
+    const offerCount = Math.min(3, pool.length);
+
+    for (let i = 0; i < offerCount; i++) {
+      const randomIndex = Math.floor(Math.random() * pool.length);
+      const item = pool.splice(randomIndex, 1)[0];
+      const multiplier = 0.8 + Math.random() * 0.6;
+      offers.push({
+        item,
+        price: Math.max(1, Math.round(item.cost * multiplier)),
+      });
+    }
+
+    this.blackMarketOffers = offers;
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        date: today,
+        offers: offers.map((offer) => ({
+          itemId: offer.item.id,
+          price: offer.price,
+        })),
+      }),
+    );
   }
 }

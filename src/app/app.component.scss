@@ -38,6 +38,23 @@
   animation: pulse 2s infinite;
 }
 
+::ng-deep .item-shop-marker {
+  background: transparent;
+  border: none;
+}
+
+::ng-deep .item-shop-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  background: radial-gradient(circle at 30% 30%, #2a2a2a, #101010);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 12px rgba(153, 102, 255, 0.45);
+}
+
 @keyframes pulse {
   0%,
   100% {

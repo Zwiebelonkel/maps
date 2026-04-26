@@ -200,6 +200,14 @@
     (close)="isDailyQuestsOpen = false"
   ></app-daily-quests>
 
+  <app-black-market
+    [isOpen]="isBlackMarketOpen"
+    [totalCoins]="totalCoins"
+    [offers]="blackMarketOffers"
+    (close)="isBlackMarketOpen = false"
+    (purchase)="onPurchaseBlackMarketOffer($event)"
+  ></app-black-market>
+
   <!-- Settings -->
   <app-settings
     #settingsRef
