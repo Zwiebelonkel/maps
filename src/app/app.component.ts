@@ -1288,7 +1288,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private ensureItemShops() {
     if (!this.currentLocation) return;
 
-    const shopCount = 12;
+    const shopCount = GAME_CONFIG.BLACK_MARKET_SHOP_COUNT;
     const nextAnchorKey = this.getShopAnchorKey(
       this.currentLocation.lat,
       this.currentLocation.lng,
@@ -1450,60 +1450,64 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getShopAnchorKey(lat: number, lng: number): string {
-    const gridSizeMeters = 400;
-    const origin = this.latLngToMeters(lat, lng);
-    const gridX = Math.floor(origin.x / gridSizeMeters);
-    const gridY = Math.floor(origin.y / gridSizeMeters);
+  const gridSizeMeters = GAME_CONFIG.BLACK_MARKET_GRID_SIZE_METERS;
+  const origin = this.latLngToMeters(lat, lng);
+  const gridX = Math.floor(origin.x / gridSizeMeters);
+  const gridY = Math.floor(origin.y / gridSizeMeters);
 
-    return `${gridX}_${gridY}`;
-  }
+  return `${gridX}_${gridY}`;
+}
 
   private getNearbyDeterministicShops(
-    lat: number,
-    lng: number,
-    count: number,
-  ): MapItemShop[] {
-    const gridSizeMeters = 400;
-    const origin = this.latLngToMeters(lat, lng);
-    const gridX = Math.floor(origin.x / gridSizeMeters);
-    const gridY = Math.floor(origin.y / gridSizeMeters);
-    const shops: MapItemShop[] = [];
+  lat: number,
+  lng: number,
+  count: number,
+): MapItemShop[] {
+  const gridSizeMeters = GAME_CONFIG.BLACK_MARKET_GRID_SIZE_METERS;
+  const origin = this.latLngToMeters(lat, lng);
+  const gridX = Math.floor(origin.x / gridSizeMeters);
+  const gridY = Math.floor(origin.y / gridSizeMeters);
+  const shops: MapItemShop[] = [];
 
-    for (let ring = 0; shops.length < count && ring <= 6; ring++) {
-      for (let dx = -ring; dx <= ring && shops.length < count; dx++) {
-        for (let dy = -ring; dy <= ring && shops.length < count; dy++) {
-          if (Math.max(Math.abs(dx), Math.abs(dy)) !== ring) continue;
+  for (let ring = 0; shops.length < count && ring <= 6; ring++) {
+    for (let dx = -ring; dx <= ring && shops.length < count; dx++) {
+      for (let dy = -ring; dy <= ring && shops.length < count; dy++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== ring) continue;
 
-          const cellX = gridX + dx;
-          const cellY = gridY + dy;
-          const randomOffsetMaxMeters = gridSizeMeters * 0.35;
-          const randomOffsetX =
-            ((this.getSeededNumber(`shop_x_${cellX}_${cellY}`, 10000) / 9999) *
-              2 -
-              1) *
-            randomOffsetMaxMeters;
-          const randomOffsetY =
-            ((this.getSeededNumber(`shop_y_${cellX}_${cellY}`, 10000) / 9999) *
-              2 -
-              1) *
-            randomOffsetMaxMeters;
+        const cellX = gridX + dx;
+        const cellY = gridY + dy;
 
-          const { lat: shopLat, lng: shopLng } = this.metersToLatLng(
-            (cellX + 0.5) * gridSizeMeters + randomOffsetX,
-            (cellY + 0.5) * gridSizeMeters + randomOffsetY,
-          );
+        const randomOffsetMaxMeters =
+          gridSizeMeters * GAME_CONFIG.BLACK_MARKET_RANDOM_OFFSET_FACTOR;
 
-          shops.push({
-            id: `item_shop_${cellX}_${cellY}`,
-            lat: shopLat,
-            lng: shopLng,
-          });
-        }
+        const randomOffsetX =
+          ((this.getSeededNumber(`shop_x_${cellX}_${cellY}`, 10000) / 9999) *
+            2 -
+            1) *
+          randomOffsetMaxMeters;
+
+        const randomOffsetY =
+          ((this.getSeededNumber(`shop_y_${cellX}_${cellY}`, 10000) / 9999) *
+            2 -
+            1) *
+          randomOffsetMaxMeters;
+
+        const { lat: shopLat, lng: shopLng } = this.metersToLatLng(
+          (cellX + 0.5) * gridSizeMeters + randomOffsetX,
+          (cellY + 0.5) * gridSizeMeters + randomOffsetY,
+        );
+
+        shops.push({
+          id: `item_shop_${cellX}_${cellY}`,
+          lat: shopLat,
+          lng: shopLng,
+        });
       }
     }
-
-    return shops;
   }
+
+  return shops;
+}
 
   private latLngToMeters(lat: number, lng: number): { x: number; y: number } {
     const originShift = 20037508.34;
