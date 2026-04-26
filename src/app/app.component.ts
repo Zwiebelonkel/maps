@@ -152,6 +152,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   blackMarketOffers: BlackMarketOffer[] = [];
   private itemShops: MapItemShop[] = [];
   private itemShopMarkers: L.Marker[] = [];
+  private itemShopAnchorKey: string | null = null;
 
   // Session
   showSessionSummary = false;
@@ -1100,6 +1101,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.exploredTiles.clear();
     this.itemShops = [];
+    this.itemShopAnchorKey = null;
     this.itemShopMarkers.forEach((marker) => this.map.removeLayer(marker));
     this.itemShopMarkers = [];
     this.totalCoins = 0;
@@ -1169,6 +1171,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.totalTilesExplored = data.totalTilesExplored || 0;
         this.upgradeService.deserialize(data);
         this.itemShops = data.itemShops || [];
+        this.itemShopAnchorKey = null;
       } catch (e) {
         console.error('Error loading progress:', e);
       }
@@ -1283,9 +1286,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private ensureItemShops() {
-    if (!this.currentLocation || this.itemShops.length > 0) return;
+    if (!this.currentLocation) return;
 
     const shopCount = 12;
+    const nextAnchorKey = this.getShopAnchorKey(
+      this.currentLocation.lat,
+      this.currentLocation.lng,
+    );
+
+    if (this.itemShopAnchorKey === nextAnchorKey && this.itemShops.length > 0) {
+      return;
+    }
+
+    this.itemShopAnchorKey = nextAnchorKey;
     this.itemShops = this.getNearbyDeterministicShops(
       this.currentLocation.lat,
       this.currentLocation.lng,
@@ -1436,6 +1449,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return hash % modulo;
   }
 
+  private getShopAnchorKey(lat: number, lng: number): string {
+    const gridSizeMeters = 400;
+    const origin = this.latLngToMeters(lat, lng);
+    const gridX = Math.floor(origin.x / gridSizeMeters);
+    const gridY = Math.floor(origin.y / gridSizeMeters);
+
+    return `${gridX}_${gridY}`;
+  }
+
   private getNearbyDeterministicShops(
     lat: number,
     lng: number,
@@ -1454,9 +1476,21 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
           const cellX = gridX + dx;
           const cellY = gridY + dy;
+          const randomOffsetMaxMeters = gridSizeMeters * 0.35;
+          const randomOffsetX =
+            ((this.getSeededNumber(`shop_x_${cellX}_${cellY}`, 10000) / 9999) *
+              2 -
+              1) *
+            randomOffsetMaxMeters;
+          const randomOffsetY =
+            ((this.getSeededNumber(`shop_y_${cellX}_${cellY}`, 10000) / 9999) *
+              2 -
+              1) *
+            randomOffsetMaxMeters;
+
           const { lat: shopLat, lng: shopLng } = this.metersToLatLng(
-            (cellX + 0.5) * gridSizeMeters,
-            (cellY + 0.5) * gridSizeMeters,
+            (cellX + 0.5) * gridSizeMeters + randomOffsetX,
+            (cellY + 0.5) * gridSizeMeters + randomOffsetY,
           );
 
           shops.push({
