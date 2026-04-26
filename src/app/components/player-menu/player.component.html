@@ -29,133 +29,136 @@
       (touchend)="onHeaderTouchEnd()"
     >
       <h2>📦 Gear</h2>
+
       <button class="close-btn" (click)="closeWithAnimation()">
-        ✖️
+        ✕
       </button>
     </div>
 
-    <!-- ASCENSION CARD -->
-    <div class="ascension-card" (click)="ascensionPanel.open()">
-      <div class="ascension-left">
-        ✨
+    <div class="modal-body">
+      <!-- ASCENSION CARD -->
+      <div class="ascension-card" (click)="ascensionPanel.open()">
+        <div class="ascension-left">✨</div>
+
+        <div class="ascension-content">
+          <div class="ascension-top">
+            <span class="ascension-title">Ascension</span>
+            <span class="ascension-level">
+              Lv. {{ ascensionService.level }}
+            </span>
+          </div>
+
+          <div class="ascension-bar">
+            <div
+              class="ascension-fill"
+              [style.width.%]="
+                (ascensionService.points / ascensionService.getPointsNeeded()) *
+                100
+              "
+            ></div>
+          </div>
+
+          <div class="ascension-bottom">
+            +{{
+              (ascensionService.getGlobalMultiplier() * 100 - 100).toFixed(0)
+            }}%
+          </div>
+        </div>
       </div>
 
-      <div class="ascension-content">
-        <div class="ascension-top">
-          <span class="ascension-title">Ascension</span>
-          <span class="ascension-level">
-            Lv. {{ ascensionService.level }}
-          </span>
-        </div>
+      <!-- SLOTS -->
+      <div class="gear-slots">
+        <div
+          class="gear-slot"
+          *ngFor="let slot of [0, 1]"
+          [class.filled]="!!player.equipped[slot]"
+        >
+          <ng-container *ngIf="player.equipped[slot] as id">
+            <button class="gear-slot-remove" (click)="unequip(id)">
+              ✕
+            </button>
 
-        <div class="ascension-bar">
-          <div
-            class="ascension-fill"
-            [style.width.%]="
-              (ascensionService.points / ascensionService.getPointsNeeded()) *
-              100
-            "
-          ></div>
-        </div>
+            <div class="gear-slot-icon">{{ getOutfit(id)?.icon }}</div>
 
-        <div class="ascension-bottom">
-          +{{
-            (ascensionService.getGlobalMultiplier() * 100 - 100).toFixed(0)
-          }}%
+            <div class="gear-slot-info">
+              <div class="gear-slot-name">{{ getOutfit(id)?.name }}</div>
+              <div class="gear-slot-effect">
+                {{ getOutfit(id)?.effect?.icon }}
+                {{ getOutfit(id)?.effect?.label }}
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="!player.equipped[slot]">
+            <div class="gear-slot-empty">Leer</div>
+          </ng-container>
         </div>
       </div>
-    </div>
 
-    <!-- SLOTS -->
-    <div class="gear-slots">
-      <div
-        class="gear-slot"
-        *ngFor="let slot of [0, 1]"
-        [class.filled]="!!player.equipped[slot]"
-      >
-        <ng-container *ngIf="player.equipped[slot] as id">
-          <div class="gear-slot-icon">{{ getOutfit(id)?.icon }}</div>
-          <div class="gear-slot-info">
-            <div class="gear-slot-name">{{ getOutfit(id)?.name }}</div>
-            <div class="gear-slot-effect">
-              {{ getOutfit(id)?.effect?.icon }}
-              {{ getOutfit(id)?.effect?.label }}
+      <!-- FILTER -->
+      <div class="filter-bar">
+        <select [(ngModel)]="filters.rarity">
+          <option value="all">Alle Seltenheiten</option>
+          <option value="common">Common</option>
+          <option value="rare">Rare</option>
+          <option value="epic">Epic</option>
+          <option value="legendary">Legendary</option>
+          <option value="exotic">Exotic</option>
+          <option value="mythic">Mythic</option>
+        </select>
+
+        <select [(ngModel)]="filters.unlocked">
+          <option value="all">Alle</option>
+          <option value="unlocked">Freigeschaltet</option>
+          <option value="locked">Gesperrt</option>
+        </select>
+
+        <select [(ngModel)]="filters.category">
+          <option value="all">Alle Effekte</option>
+          <option value="coins">Coins</option>
+          <option value="radius">Radius</option>
+          <option value="loot">Loot</option>
+          <option value="click">Click</option>
+          <option value="xp">XP</option>
+        </select>
+      </div>
+
+      <!-- LIST -->
+      <div class="outfit-list">
+        <div
+          class="outfit-row"
+          *ngFor="let outfit of filteredOutfits"
+          [class.new]="notification.isNewOutfit(outfit.id)"
+          [class.locked]="!isUnlocked(outfit.id)"
+          [class.active]="player.isEquipped(outfit.id)"
+          (click)="equip(outfit)"
+        >
+          <div class="outfit-row-icon">{{ outfit.icon }}</div>
+
+          <div class="outfit-row-content">
+            <div class="outfit-row-name">{{ outfit.name }}</div>
+            <div class="outfit-row-effect">
+              {{ outfit.effect.icon }} {{ outfit.effect.label }}
             </div>
           </div>
-          <button class="gear-slot-remove" (click)="unequip(id)">
-            ✖️
-          </button>
-        </ng-container>
 
-        <ng-container *ngIf="!player.equipped[slot]">
-          <div class="gear-slot-empty">Leer</div>
-        </ng-container>
-      </div>
-    </div>
+          <div class="outfit-row-right">
+            <div class="rarity-dot" [attr.data-rarity]="outfit.rarity"></div>
 
-    <!-- FILTER -->
-    <div class="filter-bar">
-      <select [(ngModel)]="filters.rarity">
-        <option value="all">Alle Seltenheiten</option>
-        <option value="common">Common</option>
-        <option value="rare">Rare</option>
-        <option value="epic">Epic</option>
-        <option value="legendary">Legendary</option>
-        <option value="exotic">Exotic</option>
-        <option value="mythic">Mythic</option>
-      </select>
+            <span
+              class="status-badge equipped"
+              *ngIf="player.isEquipped(outfit.id)"
+            >
+              Aktiv
+            </span>
 
-      <select [(ngModel)]="filters.unlocked">
-        <option value="all">Alle</option>
-        <option value="unlocked">Freigeschaltet</option>
-        <option value="locked">Gesperrt</option>
-      </select>
-
-      <select [(ngModel)]="filters.category">
-        <option value="all">Alle Effekte</option>
-        <option value="coins">Coins</option>
-        <option value="radius">Radius</option>
-        <option value="loot">Loot</option>
-        <option value="click">Click</option>
-        <option value="xp">XP</option>
-      </select>
-    </div>
-
-    <!-- LIST -->
-    <div class="outfit-list">
-      <div
-        class="outfit-row"
-        *ngFor="let outfit of filteredOutfits"
-        [class.new]="notification.isNewOutfit(outfit.id)"
-        [class.locked]="!isUnlocked(outfit.id)"
-        [class.active]="player.isEquipped(outfit.id)"
-        (click)="equip(outfit)"
-      >
-        <div class="outfit-row-icon">{{ outfit.icon }}</div>
-
-        <div class="outfit-row-content">
-          <div class="outfit-row-name">{{ outfit.name }}</div>
-          <div class="outfit-row-effect">
-            {{ outfit.effect.icon }} {{ outfit.effect.label }}
+            <span
+              class="status-badge locked-badge"
+              *ngIf="!isUnlocked(outfit.id)"
+            >
+              🔒
+            </span>
           </div>
-        </div>
-
-        <div class="outfit-row-right">
-          <div class="rarity-dot" [attr.data-rarity]="outfit.rarity"></div>
-
-          <span
-            class="status-badge equipped"
-            *ngIf="player.isEquipped(outfit.id)"
-          >
-            Aktiv
-          </span>
-
-          <span
-            class="status-badge locked-badge"
-            *ngIf="!isUnlocked(outfit.id)"
-          >
-            🔒
-          </span>
         </div>
       </div>
     </div>
