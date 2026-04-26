@@ -36,6 +36,11 @@ export const GAME_CONFIG = {
   XP_PER_CLICK: 0.5,
   XP_PER_TILE: 5,
 
+  // 🕶️ Black Market
+  BLACK_MARKET_GRID_SIZE_METERS: 900,
+  BLACK_MARKET_SHOP_COUNT: 6,
+  BLACK_MARKET_RANDOM_OFFSET_FACTOR: 0.25,
+
   CLICK_UPGRADES: [
     { level: 1, coinsPerClick: 0.05, cost: 0, description: 'Finger Tipper' },
     { level: 2, coinsPerClick: 0.1, cost: 80, description: 'Coin Clicker' },
