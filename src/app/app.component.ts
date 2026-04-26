@@ -75,6 +75,7 @@ interface Location {
   lat: number;
   lng: number;
   accuracy?: number;
+  speed?: number | null;
   timestamp: number;
 }
 interface GridCoordinate {
@@ -662,6 +663,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       lat: position.coords.latitude,
       lng: position.coords.longitude,
       accuracy: position.coords.accuracy,
+      speed: position.coords.speed,
       timestamp: position.timestamp,
     };
 
@@ -740,6 +742,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Exploration ─────────────────────────────────────────────
 
   private exploreCurrentArea(location: Location) {
+    if (this.getSpeedInKmh(location) > GAME_CONFIG.SPEED_LIMIT) {
+      return;
+    }
+
     const currentGrid = this.latLngToGrid(location.lat, location.lng);
     const currentGridKey = this.getTileKey(
       currentGrid.gridX,
@@ -780,6 +786,30 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.lastExploredGridKey = currentGridKey;
+  }
+
+  private getSpeedInKmh(location: Location): number {
+    if (location.speed !== null && location.speed !== undefined) {
+      return location.speed * 3.6;
+    }
+
+    if (!this.lastAcceptedLocation) {
+      return 0;
+    }
+
+    const distanceMeters = this.calculateDistance(
+      this.lastAcceptedLocation.lat,
+      this.lastAcceptedLocation.lng,
+      location.lat,
+      location.lng,
+    );
+
+    const deltaSeconds = (location.timestamp - this.lastAcceptedLocation.timestamp) / 1000;
+    if (deltaSeconds <= 0) {
+      return 0;
+    }
+
+    return (distanceMeters / deltaSeconds) * 3.6;
   }
 
   private latLngToGrid(lat: number, lng: number): GridCoordinate {
