@@ -27,12 +27,12 @@
   align-items: center;
   gap: 10px;
 
-  .settings-icon { font-size: 2rem; }
+  .settings-icon { font-size: clamp(1.1rem, 1rem + 0.9vw, 1.45rem); }
 
   h2 {
     margin: 0;
-    font-size: 1.3rem;
-    font-weight: bold;
+    font-size: clamp(1rem, 0.95rem + 0.6vw, 1.2rem);
+    font-weight: 600;
     color: #ffffff;
   }
 }
@@ -44,7 +44,7 @@
   background: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
   color: #aaa;
-  font-size: 1.1rem;
+  font-size: clamp(0.86rem, 0.82rem + 0.35vw, 0.98rem);
   cursor: pointer;
 
   &:hover {
@@ -144,4 +144,3 @@
   width: fit-content;
   margin: 0 auto;
 }
-
