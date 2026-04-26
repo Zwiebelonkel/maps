@@ -69,9 +69,24 @@
           <div class="summary-stat-label">Tiles</div>
         </div>
       </div>
+
+      <div class="summary-stat">
+        <span class="summary-stat-icon">👣</span>
+        <div class="summary-stat-content">
+          <div class="summary-stat-value">{{ stats.stepCount | number:'1.0-0' }}</div>
+          <div class="summary-stat-label">Schritte</div>
+        </div>
+      </div>
     </div>
 
     <div class="summary-footer">
+      <button
+        class="share-btn"
+        *ngIf="mapImageUrl"
+        (click)="shareRouteScreenshot()"
+      >
+        📤 Route Screenshot teilen
+      </button>
       <button class="done-btn" (click)="closeWithAnimation()">
         Fertig
       </button>
