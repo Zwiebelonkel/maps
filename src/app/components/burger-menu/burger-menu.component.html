@@ -1,20 +1,19 @@
 <div
-  class="modal-overlay black-market-overlay"
-  *ngIf="isOpen"
+  class="modal-overlay burger-overlay"
+  *ngIf="isOpen || isClosing"
   [class.closing]="isClosing"
-  (click)="onOverlayClick()"
+  (click)="closeWithAnimation()"
 >
   <div
-    class="modal black-market-modal"
-    [class.closing]="isClosing"
+    class="modal burger-modal"
     (click)="$event.stopPropagation()"
+    [class.closing]="isClosing"
   >
     <div
       class="drag-handle"
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
       (touchend)="onHeaderTouchEnd()"
-      (touchcancel)="onHeaderTouchCancel()"
     >
       <div class="drag-handle-bar"></div>
     </div>
@@ -24,78 +23,79 @@
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
       (touchend)="onHeaderTouchEnd()"
-      (touchcancel)="onHeaderTouchCancel()"
     >
       <div class="settings-title">
-        <div class="setting-icon">🕶️</div>
-
-        <div>
-          <h2>Black Market</h2>
-          <p class="black-market-subtitle">Seltene Ausrüstung</p>
-        </div>
+        <div class="settings-icon">☰</div>
+        <h2>Menü</h2>
       </div>
 
-      <button class="close-btn" type="button" (click)="onClose()">✕</button>
+      <button class="close-btn" (click)="closeWithAnimation()">
+        ✖️
+      </button>
     </div>
+    <div class="setting-item" (click)="onPlayer()">
+      <div class="setting-info">
+        <div class="setting-icon">👤</div>
 
-    <div class="coins-display">
-      <span class="coins-label">Coins</span>
-      <span class="coins-value">🪙 {{ totalCoins | number: '1.2-2' }}</span>
+        <span *ngIf="notification.hasAnyNewOutfits()" class="badge"></span>
+
+        <div class="setting-content">
+          <div class="setting-label">Player</div>
+          <div class="setting-desc">Ausrüstung auswählen</div>
+        </div>
+      </div>
     </div>
-
-    <div class="black-market-content" *ngIf="offers.length > 0; else noOffers">
-      <div
-        class="setting-item offer-card"
-        *ngFor="let offer of offers"
-        [style.--rarity-color]="getRarityColor(offer.outfit.rarity)"
-      >
-        <div class="setting-info">
-          <div class="setting-icon outfit-icon">
-            {{ offer.outfit.icon }}
+    <div class="setting-item" (click)="onInventory()">
+      <div class="setting-info">
+        <div class="setting-icon">📦</div>
+        <div class="setting-content">
+          <div class="setting-label">Inventar</div>
+          <div class="setting-desc">
+            {{ inventoryService.getBombStacks().length }}
+            Bomben verfügbar
           </div>
-
-          <div class="setting-content">
-            <div class="setting-label">
-              {{ offer.outfit.name }}
-            </div>
-
-            <div class="setting-desc rarity-label">
-              {{ offer.outfit.rarity | uppercase }}
-            </div>
-          </div>
-
-          <div class="rarity-dot"></div>
         </div>
-
-        <div class="item-description">
-          {{ offer.outfit.description }}
+      </div>
+    </div>
+    <div class="setting-item" (click)="onLootbox()">
+      <div class="setting-info">
+        <div class="setting-icon">🎁</div>
+        <div class="setting-content">
+          <div class="setting-label">Lootbox</div>
+          <div class="setting-desc">{{ lootboxes }} verfügbar</div>
         </div>
-
-        <div class="offer-bottom">
-          <div class="item-price">
-            {{ offer.price | number: '1.2-2' }} 🪙
-          </div>
-
-          <button
-            class="buy-btn"
-            type="button"
-            [disabled]="!canAfford(offer.price) || isUnlocked(offer.outfit.id)"
-            (click)="onPurchase(offer)"
-          >
-            {{
-              isUnlocked(offer.outfit.id)
-                ? 'Freigeschaltet'
-                : canAfford(offer.price)
-                  ? 'Kaufen'
-                  : 'Zu teuer'
-            }}
-          </button>
+      </div>
+    </div>
+    <div class="setting-item" (click)="onSession()">
+      <div class="setting-info">
+        <div class="setting-icon">
+          ▶️
+        </div>
+        <div class="setting-content">
+          <div class="setting-label">Session</div>
+          <div class="setting-desc">Start / Stop</div>
         </div>
       </div>
     </div>
 
-    <ng-template #noOffers>
-      <p class="empty-state">Heute gibt es keine Angebote.</p>
-    </ng-template>
+    <div class="setting-item" (click)="onSettings()">
+      <div class="setting-info">
+        <div class="setting-icon">⚙️</div>
+        <div class="setting-content">
+          <div class="setting-label">Settings</div>
+          <div class="setting-desc">App Einstellungen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-item" (click)="onMarkers()">
+      <div class="setting-info">
+        <div class="setting-icon">📍</div>
+        <div class="setting-content">
+          <div class="setting-label">Marker</div>
+          <div class="setting-desc">Liste anzeigen</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
