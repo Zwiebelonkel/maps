@@ -213,6 +213,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.dailyQuestService.hasClaimableRewards();
   }
 
+  get currentSpeedKmh(): number {
+    if (!this.currentLocation?.speed) {
+      return 0;
+    }
+
+    const speedKmh = this.currentLocation.speed * 3.6;
+    return Number.isFinite(speedKmh) && speedKmh > 0 ? speedKmh : 0;
+  }
+
   constructor(
     private upgradeService: UpgradeService,
     private lootService: LootService,

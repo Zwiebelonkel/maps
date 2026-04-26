@@ -102,6 +102,11 @@
     {{ activeBombItem.icon }} Klicke auf die Karte zum Zünden!
   </div>
 
+  <div class="speed-indicator" *ngIf="currentLocation">
+    <span class="speed-value">{{ currentSpeedKmh | number: "1.0-1" }}</span>
+    <span class="speed-unit">km/h</span>
+  </div>
+
   <!-- Control Buttons -->
   <div class="control-buttons">
     <button class="control-btn" (click)="toggleShop()" title="Shop">

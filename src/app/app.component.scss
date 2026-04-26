@@ -576,6 +576,46 @@
   }
 }
 
+.speed-indicator {
+  position: fixed;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom) + 72px);
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(16, 16, 16, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.speed-value {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.speed-unit {
+  margin-top: 3px;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9ecbff;
+}
+
+@media (min-width: 769px) {
+  .speed-indicator {
+    display: none;
+  }
+}
+
 
 .session-btn.active {
   background: rgba(255, 82, 82, 0.95);
