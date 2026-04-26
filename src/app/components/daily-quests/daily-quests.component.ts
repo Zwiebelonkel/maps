@@ -14,6 +14,8 @@ export class DailyQuestsComponent {
   @Input() quests: DailyQuest[] = [];
   @Input() allCompletedRewardClaimed = false;
   @Output() close = new EventEmitter<void>();
+  @Output() claimQuest = new EventEmitter<string>();
+  @Output() claimDailyBonus = new EventEmitter<void>();
 
   isOpen = false;
   isClosing = false;
@@ -66,5 +68,27 @@ export class DailyQuestsComponent {
   progressPercentage(quest: DailyQuest): number {
     if (quest.target <= 0) return 0;
     return (Math.min(quest.progress, quest.target) / quest.target) * 100;
+  }
+
+  isQuestClaimable(quest: DailyQuest): boolean {
+    return quest.completed && !quest.rewardClaimed;
+  }
+
+  canClaimDailyBonus(): boolean {
+    return (
+      this.quests.length > 0 &&
+      this.quests.every((quest) => quest.completed) &&
+      !this.allCompletedRewardClaimed
+    );
+  }
+
+  onQuestClick(quest: DailyQuest): void {
+    if (!this.isQuestClaimable(quest)) return;
+    this.claimQuest.emit(quest.id);
+  }
+
+  onClaimDailyBonus(): void {
+    if (!this.canClaimDailyBonus()) return;
+    this.claimDailyBonus.emit();
   }
 }

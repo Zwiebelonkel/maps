@@ -113,6 +113,7 @@
     </button>
     <button class="control-btn" (click)="isDailyQuestsOpen = true" title="Daily Quests">
       ✅
+      <span *ngIf="hasClaimableDailyRewards" class="badge"></span>
     </button>
     <!-- Session Button -->
     <button
@@ -194,6 +195,8 @@
     *ngIf="isDailyQuestsOpen"
     [quests]="dailyQuests"
     [allCompletedRewardClaimed]="allDailyRewardsClaimed"
+    (claimQuest)="onClaimDailyQuestReward($event)"
+    (claimDailyBonus)="onClaimDailyBonusReward()"
     (close)="isDailyQuestsOpen = false"
   ></app-daily-quests>
 

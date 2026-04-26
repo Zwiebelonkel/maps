@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div class="setting-item reward-row">
+    <div class="setting-item reward-row" [class.claimable-bonus]="canClaimDailyBonus()" (click)="onClaimDailyBonus()">
       <div class="setting-info">
         <span class="setting-icon">📦</span>
         <div class="setting-content">
@@ -52,14 +52,26 @@
             Alle Daily Quests abschließen: +3 Lootboxen
           </div>
         </div>
-        <div class="bonus-status" [class.done]="allCompletedRewardClaimed">
-          {{ allCompletedRewardClaimed ? 'Erhalten' : 'Offen' }}
+        <div class="bonus-status" [class.done]="allCompletedRewardClaimed" [class.claimable]="canClaimDailyBonus()">
+          {{
+            allCompletedRewardClaimed
+              ? 'Erhalten'
+              : canClaimDailyBonus()
+                ? 'Abholen'
+                : 'Offen'
+          }}
         </div>
       </div>
     </div>
 
     <div class="quest-list">
-      <div class="quest-card" *ngFor="let quest of quests" [class.completed]="quest.completed">
+      <div
+        class="quest-card"
+        *ngFor="let quest of quests"
+        [class.completed]="quest.completed"
+        [class.claimable]="isQuestClaimable(quest)"
+        (click)="onQuestClick(quest)"
+      >
         <div class="quest-header">
           <div>
             <div class="quest-title">{{ quest.title }}</div>
@@ -76,10 +88,17 @@
 
         <div class="quest-footer">
           <span class="reward">+100 🪙</span>
-          <span class="status" [class.done]="quest.completed">
-            {{ quest.completed ? 'Abgeschlossen' : 'In Arbeit' }}
+          <span class="status" [class.done]="quest.completed" [class.claimable]="isQuestClaimable(quest)">
+            {{
+              quest.rewardClaimed
+                ? 'Belohnung erhalten'
+                : quest.completed
+                  ? 'Abgeschlossen · Abholen'
+                  : 'In Arbeit'
+            }}
           </span>
         </div>
+        <span *ngIf="isQuestClaimable(quest)" class="badge"></span>
       </div>
     </div>
 

@@ -129,7 +129,6 @@ export class DailyQuestService {
       };
     }
 
-    let coinsGranted = 0;
     const newlyCompleted: DailyQuest[] = [];
 
     this.state.quests = this.state.quests.map((quest) => {
@@ -146,30 +145,68 @@ export class DailyQuestService {
         completed,
       };
 
-      if (completed && !quest.rewardClaimed) {
-        updatedQuest.rewardClaimed = true;
-        coinsGranted += this.QUEST_REWARD_COINS;
+      if (completed && !quest.completed) {
         newlyCompleted.push(updatedQuest);
       }
 
       return updatedQuest;
     });
 
-    let lootboxesGranted = 0;
-
-    if (this.areAllQuestsCompleted() && !this.state.allCompletedRewardClaimed) {
-      this.state.allCompletedRewardClaimed = true;
-      lootboxesGranted = this.ALL_QUESTS_LOOTBOX_REWARD;
-    }
-
     this.save();
 
     return {
-      coinsGranted,
-      lootboxesGranted,
+      coinsGranted: 0,
+      lootboxesGranted: 0,
       newlyCompleted,
       allCompleted: this.areAllQuestsCompleted(),
     };
+  }
+
+  claimQuestReward(questId: string): number {
+    this.ensureToday();
+
+    let coinsGranted = 0;
+
+    this.state.quests = this.state.quests.map((quest) => {
+      if (quest.id !== questId || !quest.completed || quest.rewardClaimed) {
+        return quest;
+      }
+
+      coinsGranted = this.QUEST_REWARD_COINS;
+      return {
+        ...quest,
+        rewardClaimed: true,
+      };
+    });
+
+    if (coinsGranted > 0) {
+      this.save();
+    }
+
+    return coinsGranted;
+  }
+
+  claimAllCompletedReward(): number {
+    this.ensureToday();
+
+    if (!this.areAllQuestsCompleted() || this.state.allCompletedRewardClaimed) {
+      return 0;
+    }
+
+    this.state.allCompletedRewardClaimed = true;
+    this.save();
+    return this.ALL_QUESTS_LOOTBOX_REWARD;
+  }
+
+  hasClaimableRewards(): boolean {
+    this.ensureToday();
+    const hasClaimableQuest = this.state.quests.some(
+      (quest) => quest.completed && !quest.rewardClaimed,
+    );
+    const hasClaimableDailyBonus =
+      this.areAllQuestsCompleted() && !this.state.allCompletedRewardClaimed;
+
+    return hasClaimableQuest || hasClaimableDailyBonus;
   }
 
   resetForToday(): void {
