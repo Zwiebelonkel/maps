@@ -8,11 +8,12 @@ import {
   ShopItem,
 } from '../../config/game.config';
 import { SoundService } from '../../../services/sound.service';
+import { ServerAdminModalComponent } from '../server-admin-modal/server-admin-modal.component';
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ServerAdminModalComponent],
   templateUrl: './shop.component.html',
   styleUrls: ['./shop.component.scss'],
 })
@@ -35,6 +36,7 @@ export class ShopComponent {
   codeMessage = '';
   activeTab: 'radius' | 'click' | 'items' = 'radius';
   isClosing = false;
+  isAdminPanelOpen = false;
 
   private touchStartY = 0;
   private touchCurrentY = 0;
@@ -208,6 +210,11 @@ redeemCode() {
     case '1906-outfits':
       this.unlockAllOutfits.emit();
       this.codeMessage = '🎒 Alle Outfits freigeschaltet!';
+      break;
+
+    case '1906-admin':
+      this.isAdminPanelOpen = true;
+      this.codeMessage = '🛠️ Admin Panel geöffnet';
       break;
 
     default:

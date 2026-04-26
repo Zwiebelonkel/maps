@@ -1,0 +1,26 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
+  <div class="modal admin-modal" (click)="$event.stopPropagation()">
+    <div class="admin-header">
+      <h3>🛠️ Server Admin Panel</h3>
+      <button class="close-btn" (click)="onClose()">✕</button>
+    </div>
+
+    <p class="admin-note">
+      Alle Werte aus <strong>GAME_CONFIG</strong> können hier manuell angepasst werden.
+    </p>
+
+    <div class="entries">
+      <div class="entry" *ngFor="let entry of entries">
+        <label>{{ entry.path }}</label>
+        <input [(ngModel)]="entry.value" [placeholder]="entry.valueType" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="refresh-btn" (click)="refreshEntries()">🔄 Neu laden</button>
+      <button class="save-btn" (click)="saveAll()">💾 Speichern</button>
+    </div>
+
+    <div class="save-message" *ngIf="saveMessage">{{ saveMessage }}</div>
+  </div>
+</div>
