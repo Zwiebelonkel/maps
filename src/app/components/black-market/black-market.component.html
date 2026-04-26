@@ -1,33 +1,80 @@
-<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
-  <div class="modal black-market-modal" (click)="$event.stopPropagation()">
-    <div class="drag-handle">
-      <div class="drag-handle-bar"></div>
-    </div>
+<div
+  class="modal-overlay"
+  *ngIf="isOpen"
+  [class.closing]="isClosing"
+  (click)="onOverlayClick()"
+>
+  <div
+    class="modal black-market-modal"
+    [class.closing]="isClosing"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="drag-area"
+      (touchstart)="onHeaderTouchStart($event)"
+      (touchmove)="onHeaderTouchMove($event)"
+      (touchend)="onHeaderTouchEnd()"
+      (touchcancel)="onHeaderTouchCancel()"
+    >
+      <div class="drag-handle">
+        <div class="drag-handle-bar"></div>
+      </div>
 
-    <div class="modal-header">
-      <h2>🕶️ Black Market</h2>
-      <button class="close-btn" (click)="onClose()">✖️</button>
+      <div class="modal-header">
+        <div>
+          <h2>🕶️ Black Market</h2>
+          <p class="modal-subtitle">Seltene Ausrüstung für echte Explorer</p>
+        </div>
+
+        <button class="close-btn" type="button" (click)="onClose()">✖️</button>
+      </div>
     </div>
 
     <div class="coins-display">
-      <span>🪙 {{ totalCoins | number: '1.2-2' }}</span>
+      <span class="coins-label">Deine Coins</span>
+      <span class="coins-value">🪙 {{ totalCoins | number: '1.2-2' }}</span>
     </div>
 
     <div class="offers" *ngIf="offers.length > 0; else noOffers">
-      <div class="offer-card" *ngFor="let offer of offers">
-        <div class="item-name">{{ offer.outfit.icon }} {{ offer.outfit.name }}</div>
-        <div class="item-description">{{ offer.outfit.description }}</div>
-        <div class="item-rarity">{{ offer.outfit.rarity | uppercase }}</div>
-        <div class="item-price">{{ offer.price | number: '1.2-2' }} 🪙</div>
-        <button [disabled]="!canAfford(offer.price) || isUnlocked(offer.outfit.id)" (click)="onPurchase(offer)">
-          {{
-            isUnlocked(offer.outfit.id)
-              ? 'Bereits freigeschaltet'
-              : canAfford(offer.price)
-                ? 'Kaufen'
-                : 'Nicht genug Coins'
-          }}
-        </button>
+      <div
+        class="offer-card"
+        *ngFor="let offer of offers"
+        [style.--rarity-color]="getRarityColor(offer.outfit.rarity)"
+      >
+        <div class="offer-top">
+          <div class="item-name">
+            <span class="item-icon">{{ offer.outfit.icon }}</span>
+            <span>{{ offer.outfit.name }}</span>
+          </div>
+
+          <div class="item-rarity">
+            {{ offer.outfit.rarity | uppercase }}
+          </div>
+        </div>
+
+        <div class="item-description">
+          {{ offer.outfit.description }}
+        </div>
+
+        <div class="offer-bottom">
+          <div class="item-price">
+            {{ offer.price | number: '1.2-2' }} 🪙
+          </div>
+
+          <button
+            type="button"
+            [disabled]="!canAfford(offer.price) || isUnlocked(offer.outfit.id)"
+            (click)="onPurchase(offer)"
+          >
+            {{
+              isUnlocked(offer.outfit.id)
+                ? 'Freigeschaltet'
+                : canAfford(offer.price)
+                  ? 'Kaufen'
+                  : 'Zu teuer'
+            }}
+          </button>
+        </div>
       </div>
     </div>
 
