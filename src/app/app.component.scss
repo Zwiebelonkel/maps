@@ -316,9 +316,9 @@
 
 .control-buttons {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 10px;
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom) + 10px);
   z-index: 1200;
 
   display: flex;
@@ -326,8 +326,8 @@
   align-items: center;
   gap: 0;
 
-  padding: 0 0 env(safe-area-inset-bottom);
-  border-radius: 0;
+  padding: 0;
+  border-radius: 14px;
   background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -475,9 +475,9 @@
   }
 
   .control-buttons {
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: 10px;
+    right: 10px;
+    bottom: calc(env(safe-area-inset-bottom) + 10px);
     top: auto;
   }
 
