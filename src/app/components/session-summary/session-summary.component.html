@@ -63,6 +63,14 @@
       </div>
 
       <div class="summary-stat">
+        <span class="summary-stat-icon">⚡</span>
+        <div class="summary-stat-content">
+          <div class="summary-stat-value">{{ getAverageSpeedKmh(stats) | number:'1.1-1' }} km/h</div>
+          <div class="summary-stat-label">Ø Geschwindigkeit</div>
+        </div>
+      </div>
+
+      <div class="summary-stat">
         <span class="summary-stat-icon">🗺️</span>
         <div class="summary-stat-content">
           <div class="summary-stat-value">{{ stats.tilesExplored | number:'1.2-2' }}</div>

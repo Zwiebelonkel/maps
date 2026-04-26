@@ -21,6 +21,14 @@ export class SessionSummaryComponent {
 
   constructor(public sessionService: SessionService) {}
 
+  getAverageSpeedKmh(stats: SessionStats): number {
+    if (!stats.endTime) return 0;
+    const durationMs = stats.endTime.getTime() - stats.startTime.getTime();
+    if (durationMs <= 0) return 0;
+    const hours = durationMs / 3_600_000;
+    return (stats.distanceMeters / 1000) / hours;
+  }
+
   async shareRouteScreenshot() {
     if (!this.mapImageUrl) return;
 
