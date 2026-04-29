@@ -99,9 +99,13 @@ export class UpgradeService {
 
   // ── Critical ──────────────────────────────────────────
 
+  private readonly maxCritChanceLevel = 397;
+  private readonly critChancePerLevel = 0.0025;
+  private readonly critMultiplierPerLevel = 0.1;
+
   getNextCritChanceLevel(): number | null {
     const nextLevel = this.snapshot.currentCritChanceLevel + 1;
-    return nextLevel <= 100 ? nextLevel : null;
+    return nextLevel <= this.maxCritChanceLevel ? nextLevel : null;
   }
 
   getCritChanceCost(level: number): number {
@@ -114,7 +118,7 @@ export class UpgradeService {
     this.state.next({
       ...this.snapshot,
       currentCritChanceLevel: nextLevel,
-      critChance: nextLevel / 100,
+      critChance: (nextLevel - 1) * this.critChancePerLevel,
     });
   }
 
@@ -131,7 +135,7 @@ export class UpgradeService {
     this.state.next({
       ...this.snapshot,
       currentCritMultiplierLevel: nextLevel,
-      critMultiplier: nextLevel,
+      critMultiplier: 1 + (nextLevel - 1) * this.critMultiplierPerLevel,
     });
   }
 
@@ -162,7 +166,10 @@ export class UpgradeService {
       GAME_CONFIG.CLICK_UPGRADES.find((u) => u.level === clickLevel) ||
       GAME_CONFIG.CLICK_UPGRADES[0];
 
-    const critChanceLevel = Math.min(data.currentCritChanceLevel || 1, 100);
+    const critChanceLevel = Math.min(
+      data.currentCritChanceLevel || 1,
+      this.maxCritChanceLevel,
+    );
     const critMultiplierLevel = Math.max(data.currentCritMultiplierLevel || 1, 1);
 
     this.state.next({
@@ -173,8 +180,14 @@ export class UpgradeService {
       coinsPerClick: data.coinsPerClick || clickUpgrade.coinsPerClick,
       currentRadius:
         GAME_CONFIG.BASE_RADIUS + radiusLevel * GAME_CONFIG.RADIUS_GROWTH,
-      critChance: Math.min(data.critChance ?? critChanceLevel / 100, 1),
-      critMultiplier: Math.max(data.critMultiplier ?? critMultiplierLevel, 1),
+      critChance: Math.min(
+        data.critChance ?? (critChanceLevel - 1) * this.critChancePerLevel,
+        1,
+      ),
+      critMultiplier: Math.max(
+        data.critMultiplier ?? 1 + (critMultiplierLevel - 1) * this.critMultiplierPerLevel,
+        1,
+      ),
     });
   }
 

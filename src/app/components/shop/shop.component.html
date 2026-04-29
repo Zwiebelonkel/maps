@@ -186,12 +186,12 @@
             <div class="stat-item">
               <span>🎲</span>
               <span class="stat-label">Aktuell:</span>
-              <span class="stat-value">{{ currentCritChanceLevel - 1 }}%</span>
+              <span class="stat-value">{{ currentCritChancePercent | number: "1.2-2" }}%</span>
             </div>
             <div class="stat-item">
               <span>⏫</span>
               <span class="stat-label">Nächstes:</span>
-              <span class="stat-value" *ngIf="nextCritChanceLevel">+1%</span>
+              <span class="stat-value" *ngIf="nextCritChancePercent">{{ nextCritChancePercent | number: "1.2-2" }}%</span>
               <span class="stat-value" *ngIf="!nextCritChanceLevel">MAX</span>
             </div>
           </div>
@@ -211,12 +211,12 @@
             <div class="stat-item">
               <span>💥</span>
               <span class="stat-label">Aktuell:</span>
-              <span class="stat-value">x{{ currentCritMultiplierLevel }}</span>
+              <span class="stat-value">x{{ currentCritMultiplier | number: "1.1-1" }}</span>
             </div>
             <div class="stat-item">
               <span>⏫</span>
               <span class="stat-label">Nächstes:</span>
-              <span class="stat-value">x{{ currentCritMultiplierLevel + 1 }}</span>
+              <span class="stat-value">x{{ nextCritMultiplier | number: "1.1-1" }}</span>
             </div>
           </div>
           <div class="cost-text">Kosten: {{ critMultiplierCost | number: "1.2-2" }} 🪙</div>
