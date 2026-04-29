@@ -1168,7 +1168,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private showCoin(event: MouseEvent) {
     const { earned, isCritical } = this.calculateClickEarned();
     const coin = document.createElement('div');
-    coin.className = 'coin-effect';
+    coin.className = `coin-effect${isCritical ? ' critical-hit' : ''}`;
     coin.textContent = `${isCritical ? '💥 ' : ''}+${Math.round(earned * 100) / 100}🪙`;
     coin.style.left = event.clientX + 'px';
     coin.style.top = event.clientY + 'px';
