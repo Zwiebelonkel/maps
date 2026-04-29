@@ -177,6 +177,54 @@
       </div>
 
       <div class="upgrades-list">
+        <div class="upgrade-card" [class.affordable]="canAfford(critChanceCost)" [class.locked]="!canAfford(critChanceCost)">
+          <div class="upgrade-header">
+            <div class="upgrade-level-badge">Crit Chance Lv. {{ currentCritChanceLevel }}</div>
+            <div class="upgrade-name">🎯 Critical Chance</div>
+          </div>
+          <div class="upgrade-stats">
+            <div class="stat-item">
+              <span>🎲</span>
+              <span class="stat-label">Aktuell:</span>
+              <span class="stat-value">{{ currentCritChanceLevel - 1 }}%</span>
+            </div>
+            <div class="stat-item">
+              <span>⏫</span>
+              <span class="stat-label">Nächstes:</span>
+              <span class="stat-value" *ngIf="nextCritChanceLevel">+1%</span>
+              <span class="stat-value" *ngIf="!nextCritChanceLevel">MAX</span>
+            </div>
+          </div>
+          <div class="cost-text" *ngIf="nextCritChanceLevel">Kosten: {{ critChanceCost | number: "1.2-2" }} 🪙</div>
+          <button class="purchase-btn" [disabled]="!nextCritChanceLevel || !canAfford(critChanceCost)" (click)="onPurchaseCritChance()">
+            <span *ngIf="nextCritChanceLevel">🎯 Chance upgraden</span>
+            <span *ngIf="!nextCritChanceLevel">👑 Max Level erreicht</span>
+          </button>
+        </div>
+
+        <div class="upgrade-card" [class.affordable]="canAfford(critMultiplierCost)" [class.locked]="!canAfford(critMultiplierCost)">
+          <div class="upgrade-header">
+            <div class="upgrade-level-badge">Crit Multi Lv. {{ currentCritMultiplierLevel }}</div>
+            <div class="upgrade-name">💥 Critical Multiplier</div>
+          </div>
+          <div class="upgrade-stats">
+            <div class="stat-item">
+              <span>💥</span>
+              <span class="stat-label">Aktuell:</span>
+              <span class="stat-value">x{{ currentCritMultiplierLevel }}</span>
+            </div>
+            <div class="stat-item">
+              <span>⏫</span>
+              <span class="stat-label">Nächstes:</span>
+              <span class="stat-value">x{{ currentCritMultiplierLevel + 1 }}</span>
+            </div>
+          </div>
+          <div class="cost-text">Kosten: {{ critMultiplierCost | number: "1.2-2" }} 🪙</div>
+          <button class="purchase-btn" [disabled]="!canAfford(critMultiplierCost)" (click)="onPurchaseCritMultiplier()">
+            <span>💥 Multiplikator upgraden</span>
+          </button>
+        </div>
+
         <div
           *ngFor="let upgrade of nextClickUpgrades"
           class="upgrade-card"
