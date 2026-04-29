@@ -1,36 +1,35 @@
 /* Globale Modal-Basis kommt aus src/styles/modal.scss */
-.shop-modal {
-  max-height: 88vh;
-  overflow-y: auto;
-  touch-action: pan-y;
+ .shop-modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 84vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .drag-handle {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 12px 0 4px;
   cursor: grab;
-
-  &-bar {
-    width: 40px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
-  }
+  flex-shrink: 0;
+  touch-action: pan-y;
 }
 
-// Header
 .shop-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 24px 16px;
-  position: sticky;
-  top: 0;
-  background: rgba(20, 20, 20, 0.95);
-  z-index: 10;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+  touch-action: pan-y;
+}
+
+.shop-content {
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+.modal-subtitle {
+  margin: 2px 0 0;
+  font-size: clamp(0.7rem, 0.68rem + 0.2vw, 0.78rem);
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .shop-title {
@@ -48,27 +47,9 @@
   }
 }
 
-.close-btn {
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 50%;
-  color: #aaa;
-  font-size: clamp(0.86rem, 0.82rem + 0.35vw, 0.98rem);
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    transform: scale(1.1);
-  }
-}
-
 // Coins
 .coins-display {
-  margin: 16px 24px;
+  margin: 0 24px 12px;
   padding: 14px 18px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
