@@ -21,21 +21,25 @@
 
     <!-- Header -->
     <div
-      class="shop-header"
+      class="settings-header shop-header"
       (touchstart)="onHeaderTouchStart($event)"
       (touchmove)="onHeaderTouchMove($event)"
       (touchend)="onHeaderTouchEnd()"
     >
-      <div class="shop-title">
+      <div class="settings-title shop-title">
         <span class="shop-icon">🏪</span>
-        <h2>Upgrade Shop</h2>
+        <div>
+          <h2>Upgrade Shop</h2>
+          <p class="modal-subtitle">Upgrades, Crits & Items</p>
+        </div>
       </div>
       <button class="close-btn" (click)="closeWithAnimation()">
         ✕
       </button>
     </div>
 
-    <!-- Coins -->
+    <div class="shop-content">
+      <!-- Coins -->
     <div class="coins-display">
       <span class="coin-icon">🪙</span>
       <span class="coin-amount">{{ totalCoins | number: "1.2-2" }}</span>
