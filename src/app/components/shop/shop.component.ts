@@ -22,9 +22,13 @@ export class ShopComponent {
   @Input() totalCoins = 0;
   @Input() currentLevel = 1;
   @Input() currentClickLevel = 1;
+  @Input() currentCritChanceLevel = 1;
+  @Input() currentCritMultiplierLevel = 1;
   @Output() close = new EventEmitter<void>();
   @Output() purchaseUpgrade = new EventEmitter<RadiusUpgrade>();
   @Output() purchaseClickUpgrade = new EventEmitter<ClickUpgrade>();
+  @Output() purchaseCritChanceUpgrade = new EventEmitter<void>();
+  @Output() purchaseCritMultiplierUpgrade = new EventEmitter<void>();
 @Output() purchaseLootbox = new EventEmitter<void>();
   @Output() purchaseItem = new EventEmitter<ShopItem>();
   @Output() unlockAllOutfits = new EventEmitter<void>();
@@ -89,6 +93,21 @@ export class ShopComponent {
 
   get shopItems(): ShopItem[] {
     return GAME_CONFIG.SHOP_ITEMS;
+  }
+
+  get nextCritChanceLevel(): number | null {
+    const nextLevel = this.currentCritChanceLevel + 1;
+    return nextLevel <= 100 ? nextLevel : null;
+  }
+
+  get critChanceCost(): number {
+    if (!this.nextCritChanceLevel) return 0;
+    return Math.floor(180 * Math.pow(this.nextCritChanceLevel, 1.45));
+  }
+
+  get critMultiplierCost(): number {
+    const nextLevel = this.currentCritMultiplierLevel + 1;
+    return Math.floor(350 * Math.pow(nextLevel, 1.5));
   }
 
   // ── Affordability ────────────────────────────────────────────
@@ -164,6 +183,20 @@ onPurchaseLootbox() {
     if (this.canAfford(upgrade.cost)) {
       this.sound.play('purchase', 0.7);
       this.purchaseClickUpgrade.emit(upgrade);
+    }
+  }
+
+  onPurchaseCritChance() {
+    if (this.nextCritChanceLevel && this.canAfford(this.critChanceCost)) {
+      this.sound.play('purchase', 0.7);
+      this.purchaseCritChanceUpgrade.emit();
+    }
+  }
+
+  onPurchaseCritMultiplier() {
+    if (this.canAfford(this.critMultiplierCost)) {
+      this.sound.play('purchase', 0.7);
+      this.purchaseCritMultiplierUpgrade.emit();
     }
   }
 

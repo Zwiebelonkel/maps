@@ -10,8 +10,12 @@ import {
 export interface UpgradeState {
   currentRadiusLevel: number;
   currentClickLevel: number;
+  currentCritChanceLevel: number;
+  currentCritMultiplierLevel: number;
   coinsPerClick: number;
   currentRadius: number;
+  critChance: number;
+  critMultiplier: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,8 +23,12 @@ export class UpgradeService {
   private state = new BehaviorSubject<UpgradeState>({
     currentRadiusLevel: 1,
     currentClickLevel: 1,
+    currentCritChanceLevel: 1,
+    currentCritMultiplierLevel: 1,
     coinsPerClick: GAME_CONFIG.CLICK_UPGRADES[0].coinsPerClick,
     currentRadius: GAME_CONFIG.BASE_RADIUS + GAME_CONFIG.RADIUS_GROWTH,
+    critChance: 0,
+    critMultiplier: 1,
   });
 
   state$ = this.state.asObservable();
@@ -89,6 +97,44 @@ export class UpgradeService {
     });
   }
 
+  // ── Critical ──────────────────────────────────────────
+
+  getNextCritChanceLevel(): number | null {
+    const nextLevel = this.snapshot.currentCritChanceLevel + 1;
+    return nextLevel <= 100 ? nextLevel : null;
+  }
+
+  getCritChanceCost(level: number): number {
+    return Math.floor(180 * Math.pow(level, 1.45));
+  }
+
+  applyCritChanceUpgrade(): void {
+    const nextLevel = this.getNextCritChanceLevel();
+    if (!nextLevel) return;
+    this.state.next({
+      ...this.snapshot,
+      currentCritChanceLevel: nextLevel,
+      critChance: nextLevel / 100,
+    });
+  }
+
+  getNextCritMultiplierLevel(): number {
+    return this.snapshot.currentCritMultiplierLevel + 1;
+  }
+
+  getCritMultiplierCost(level: number): number {
+    return Math.floor(350 * Math.pow(level, 1.5));
+  }
+
+  applyCritMultiplierUpgrade(): void {
+    const nextLevel = this.getNextCritMultiplierLevel();
+    this.state.next({
+      ...this.snapshot,
+      currentCritMultiplierLevel: nextLevel,
+      critMultiplier: nextLevel,
+    });
+  }
+
   // ── Items ────────────────────────────────────────────
 
   getShopItems(): ShopItem[] {
@@ -101,7 +147,11 @@ export class UpgradeService {
     return {
       currentRadiusLevel: this.snapshot.currentRadiusLevel,
       currentClickLevel: this.snapshot.currentClickLevel,
+      currentCritChanceLevel: this.snapshot.currentCritChanceLevel,
+      currentCritMultiplierLevel: this.snapshot.currentCritMultiplierLevel,
       coinsPerClick: this.snapshot.coinsPerClick,
+      critChance: this.snapshot.critChance,
+      critMultiplier: this.snapshot.critMultiplier,
     };
   }
 
@@ -112,12 +162,19 @@ export class UpgradeService {
       GAME_CONFIG.CLICK_UPGRADES.find((u) => u.level === clickLevel) ||
       GAME_CONFIG.CLICK_UPGRADES[0];
 
+    const critChanceLevel = Math.min(data.currentCritChanceLevel || 1, 100);
+    const critMultiplierLevel = Math.max(data.currentCritMultiplierLevel || 1, 1);
+
     this.state.next({
       currentRadiusLevel: radiusLevel,
       currentClickLevel: clickLevel,
+      currentCritChanceLevel: critChanceLevel,
+      currentCritMultiplierLevel: critMultiplierLevel,
       coinsPerClick: data.coinsPerClick || clickUpgrade.coinsPerClick,
       currentRadius:
         GAME_CONFIG.BASE_RADIUS + radiusLevel * GAME_CONFIG.RADIUS_GROWTH,
+      critChance: Math.min(data.critChance ?? critChanceLevel / 100, 1),
+      critMultiplier: Math.max(data.critMultiplier ?? critMultiplierLevel, 1),
     });
   }
 
@@ -125,8 +182,12 @@ export class UpgradeService {
     this.state.next({
       currentRadiusLevel: 1,
       currentClickLevel: 1,
+      currentCritChanceLevel: 1,
+      currentCritMultiplierLevel: 1,
       coinsPerClick: GAME_CONFIG.CLICK_UPGRADES[0].coinsPerClick,
       currentRadius: GAME_CONFIG.BASE_RADIUS + GAME_CONFIG.RADIUS_GROWTH,
+      critChance: 0,
+      critMultiplier: 1,
     });
   }
 }
