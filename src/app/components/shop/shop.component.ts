@@ -95,9 +95,28 @@ export class ShopComponent {
     return GAME_CONFIG.SHOP_ITEMS;
   }
 
+  private readonly maxCritChanceLevel = 397;
+
+  get currentCritChancePercent(): number {
+    return (this.currentCritChanceLevel - 1) * 0.25;
+  }
+
+  get nextCritChancePercent(): number | null {
+    if (!this.nextCritChanceLevel) return null;
+    return (this.nextCritChanceLevel - 1) * 0.25;
+  }
+
+  get currentCritMultiplier(): number {
+    return 1 + (this.currentCritMultiplierLevel - 1) * 0.1;
+  }
+
+  get nextCritMultiplier(): number {
+    return 1 + this.currentCritMultiplierLevel * 0.1;
+  }
+
   get nextCritChanceLevel(): number | null {
     const nextLevel = this.currentCritChanceLevel + 1;
-    return nextLevel <= 100 ? nextLevel : null;
+    return nextLevel <= this.maxCritChanceLevel ? nextLevel : null;
   }
 
   get critChanceCost(): number {
