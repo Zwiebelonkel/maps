@@ -174,6 +174,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   get coinsPerClick() {
     return this.upgradeService.snapshot.coinsPerClick;
   }
+  get critChanceLevel() {
+    return this.upgradeService.snapshot.currentCritChanceLevel;
+  }
+  get critMultiplierLevel() {
+    return this.upgradeService.snapshot.currentCritMultiplierLevel;
+  }
 
   formatCompactNumber(value: number): string {
     const absValue = Math.abs(value);
@@ -459,8 +465,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         return;
       }
 
-      this.addClickCoins();
-      this.showCoin(e.originalEvent as MouseEvent);
+      const clickResult = this.addClickCoins();
+      this.showCoin(e.originalEvent as MouseEvent, clickResult);
     });
 
     setTimeout(() => {
@@ -1064,6 +1070,31 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  onPurchaseCritChanceUpgrade() {
+    const nextLevel = this.upgradeService.getNextCritChanceLevel();
+    if (!nextLevel) return;
+    const cost = this.upgradeService.getCritChanceCost(nextLevel);
+    if (this.totalCoins >= cost) {
+      this.soundService.play('purchase');
+      this.vibrate([60, 40, 60]);
+      this.totalCoins -= cost;
+      this.upgradeService.applyCritChanceUpgrade();
+      this.saveProgress();
+    }
+  }
+
+  onPurchaseCritMultiplierUpgrade() {
+    const nextLevel = this.upgradeService.getNextCritMultiplierLevel();
+    const cost = this.upgradeService.getCritMultiplierCost(nextLevel);
+    if (this.totalCoins >= cost) {
+      this.soundService.play('purchase');
+      this.vibrate([60, 40, 60]);
+      this.totalCoins -= cost;
+      this.upgradeService.applyCritMultiplierUpgrade();
+      this.saveProgress();
+    }
+  }
+
   onPurchaseShopItem(item: ShopItem) {
     if (this.totalCoins >= item.cost) {
       this.soundService.play('purchase');
@@ -1124,7 +1155,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private addClickCoins() {
-    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
+    const clickResult = this.calculateClickEarned();
+    const earned = clickResult.earned;
     this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
     const leveledUp = this.progressionService.addXP(
       GAME_CONFIG.XP_PER_CLICK * this.playerService.getXPMultiplier(),
@@ -1132,13 +1164,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     if (leveledUp) this.onLevelUp();
     this.trackDailyQuestProgress('clicks', 1);
     this.saveProgress();
+    return clickResult;
   }
 
-  private showCoin(event: MouseEvent) {
-    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
+  private showCoin(
+    event: MouseEvent,
+    clickResult: { earned: number; isCritical: boolean },
+  ) {
+    const { earned, isCritical } = clickResult;
     const coin = document.createElement('div');
     coin.className = 'coin-effect';
-    coin.textContent = `+${Math.round(earned * 100) / 100}🪙`;
+    if (isCritical) coin.classList.add('critical');
+    coin.textContent = `${isCritical ? '💥 ' : ''}+${Math.round(earned * 100) / 100}🪙`;
     coin.style.left = event.clientX + 'px';
     coin.style.top = event.clientY + 'px';
     coin.style.position = 'fixed';
@@ -1273,7 +1310,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private handleAutoClick() {
-    const earned = this.coinsPerClick * this.playerService.getClickMultiplier();
+    const earned = this.calculateClickEarned().earned;
 
     this.totalCoins = Math.round((this.totalCoins + earned) * 100) / 100;
 
@@ -1301,6 +1338,17 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       this.saveProgress();
     }
+  }
+
+  private calculateClickEarned() {
+    const base = this.coinsPerClick * this.playerService.getClickMultiplier();
+    const critChance = this.upgradeService.snapshot.critChance;
+    const critMultiplier = this.upgradeService.snapshot.critMultiplier;
+    const isCritical = Math.random() < critChance;
+    return {
+      earned: base * (isCritical ? critMultiplier : 1),
+      isCritical,
+    };
   }
 
   onClaimDailyQuestReward(questId: string) {
