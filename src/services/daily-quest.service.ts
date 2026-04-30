@@ -89,21 +89,7 @@ export class DailyQuestService {
       title: 'Unboxing',
       description: 'Öffne 1 Lootbox',
       target: 1,
-    },
-    {
-      id: 'daily_lootbox_3',
-      type: 'lootbox',
-      title: 'Schatzsucher',
-      description: 'Öffne 3 Lootboxen',
-      target: 3,
-    },
-    {
-      id: 'daily_lootbox_5',
-      type: 'lootbox',
-      title: 'Loot-Fieber',
-      description: 'Öffne 5 Lootboxen',
-      target: 5,
-    },
+    }
   ];
 
   private state: DailyQuestState = this.createFreshState(this.getDayKey());
