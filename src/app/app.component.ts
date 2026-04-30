@@ -45,6 +45,7 @@ import {
   BlackMarketComponent,
   BlackMarketOffer,
 } from './components/black-market/black-market.component';
+import { RainComponent } from './components/rain/rain.component';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -107,12 +108,14 @@ type OutfitRarity = Outfit['rarity'];
     InventoryComponent,
     DailyQuestsComponent,
     BlackMarketComponent,
+    RainComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(LootPopupComponent) lootPopup!: LootPopupComponent;
+  @ViewChild(RainComponent) rainComponent!: RainComponent;
 
   private destroy$ = new Subject<void>();
   private map!: L.Map;
@@ -1152,6 +1155,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       label: `🎉 Level ${this.progressionService.level} erreicht! +1 Lootbox`,
       rarity: 'epic',
     });
+    this.rainComponent?.emojiRain('🎉', 60);
   }
 
   private addClickCoins() {
@@ -1357,6 +1361,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       label: `Quest-Belohnung erhalten! +${coinsGranted} Coins`,
       rarity: 'rare',
     });
+    this.rainComponent?.emojiRain('✨', 45);
     this.saveProgress();
   }
 
