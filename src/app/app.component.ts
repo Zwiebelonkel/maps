@@ -716,6 +716,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updatePlayerPosition(newLocation);
       this.exploreCurrentArea(newLocation);
       this.ensureItemShops();
+      this.updateItemShopMarkerOpacity();
     }
   }
 
@@ -1443,6 +1444,32 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       marker.bindTooltip('Black Market', { direction: 'top', offset: [0, -10] });
       this.itemShopMarkers.push(marker);
     }
+
+    this.updateItemShopMarkerOpacity();
+  }
+
+  private updateItemShopMarkerOpacity() {
+    if (!this.currentLocation) return;
+
+    const fadeDistance = GAME_CONFIG.BLACK_MARKET_GRID_SIZE_METERS * 1.8;
+    const minOpacity = 0.05;
+    const maxOpacity = 1;
+
+    this.itemShops.forEach((shop, index) => {
+      const marker = this.itemShopMarkers[index];
+      if (!marker) return;
+
+      const distance = this.calculateDistance(
+        this.currentLocation!.lat,
+        this.currentLocation!.lng,
+        shop.lat,
+        shop.lng,
+      );
+
+      const distanceRatio = Math.min(distance / fadeDistance, 1);
+      const opacity = maxOpacity - distanceRatio * (maxOpacity - minOpacity);
+      marker.setOpacity(Math.max(minOpacity, opacity));
+    });
   }
 
   private onItemShopClicked(shop: MapItemShop) {
