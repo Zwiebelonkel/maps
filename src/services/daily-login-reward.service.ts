@@ -11,18 +11,31 @@ export interface DailyReward {
 }
 
 const STORAGE_KEY = 'daily_login_reward_v1';
+const TOTAL_REWARD_DAYS = 31;
 
 @Injectable({ providedIn: 'root' })
 export class DailyLoginRewardService {
-  readonly rewards: DailyReward[] = [
-    { id: 'day-1', label: '1 Lootbox', icon: '🎁', type: 'lootbox', amount: 1 },
-    { id: 'day-2', label: 'Kleine Bombe', icon: '💣', type: 'bomb', amount: 1 },
-    { id: 'day-3', label: '2.500 Coins', icon: '🪙', type: 'coins', amount: 2500 },
-    { id: 'day-4', label: '2 Lootboxen', icon: '🎁', type: 'lootbox', amount: 2 },
-    { id: 'day-5', label: '5.000 Coins', icon: '🪙', type: 'coins', amount: 5000 },
-    { id: 'day-6', label: '2 Kleine Bomben', icon: '💣', type: 'bomb', amount: 2 },
-    { id: 'day-7', label: '10.000 Coins', icon: '👑', type: 'coins', amount: 10000 },
-  ];
+  readonly rewards: DailyReward[] = Array.from({ length: TOTAL_REWARD_DAYS }, (_, index) => {
+    const day = index + 1;
+
+    if (day % 7 === 0) {
+      const amount = Math.round((day / 7) * 10000);
+      return { id: `day-${day}`, label: `${amount.toLocaleString('de-DE')} Coins`, icon: '👑', type: 'coins' as const, amount };
+    }
+
+    if (day % 5 === 0) {
+      const amount = Math.max(1, Math.floor(day / 5)) * 5000;
+      return { id: `day-${day}`, label: `${amount.toLocaleString('de-DE')} Coins`, icon: '🪙', type: 'coins' as const, amount };
+    }
+
+    if (day % 2 === 0) {
+      const amount = Math.max(1, Math.floor(day / 8));
+      return { id: `day-${day}`, label: `${amount} Kleine Bomb${amount > 1 ? 'en' : 'e'}`, icon: '💣', type: 'bomb' as const, amount };
+    }
+
+    const amount = Math.max(1, Math.floor(day / 6) + 1);
+    return { id: `day-${day}`, label: `${amount} Lootbox${amount > 1 ? 'en' : ''}`, icon: '🎁', type: 'lootbox' as const, amount };
+  });
 
   getRewardForToday(): DailyReward {
     const state = this.loadState();
@@ -50,6 +63,14 @@ export class DailyLoginRewardService {
     return reward;
   }
 
+
+  getProgress(): DailyRewardProgress {
+    const state = this.loadState();
+    return {
+      claimedCount: state.cycleDay,
+      currentDayIndex: state.cycleDay % this.rewards.length,
+    };
+  }
   private getTodayKey(): string {
     return new Date().toISOString().slice(0, 10);
   }
@@ -73,4 +94,10 @@ export class DailyLoginRewardService {
   private saveState(state: { lastClaimedDate: string; cycleDay: number }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
+}
+
+
+export interface DailyRewardProgress {
+  claimedCount: number;
+  currentDayIndex: number;
 }
