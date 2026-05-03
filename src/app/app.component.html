@@ -164,6 +164,7 @@
     (giveCoins)="onGiveCoins($event)"
     (resetCoins)="onResetCoins()"
     (giveLootboxes)="onGiveLootboxes($event)"
+    (openDailyRewardModal)="openDailyLoginRewardModal()"
   >
   </app-shop>
 
@@ -218,6 +219,15 @@
     (close)="isBlackMarketOpen = false"
     (purchase)="onPurchaseBlackMarketOffer($event)"
   ></app-black-market>
+
+
+  <app-daily-login-reward-modal
+    [isOpen]="isDailyLoginRewardOpen"
+    [reward]="todayLoginReward"
+    [alreadyClaimedToday]="dailyLoginAlreadyClaimed"
+    (claim)="claimDailyLoginReward()"
+    (close)="isDailyLoginRewardOpen = false"
+  ></app-daily-login-reward-modal>
 
   <!-- Settings -->
   <app-settings

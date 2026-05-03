@@ -35,6 +35,7 @@ export class ShopComponent {
 @Output() resetCoins = new EventEmitter<void>();
 @Output() giveCoins = new EventEmitter<number>();
 @Output() giveLootboxes = new EventEmitter<number>();
+  @Output() openDailyRewardModal = new EventEmitter<void>();
 
   adminCode = '';
   codeMessage = '';

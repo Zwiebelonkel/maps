@@ -20,6 +20,7 @@ interface ConfigEntry {
 export class ServerAdminModalComponent implements OnChanges {
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
+  @Output() openDailyRewardModal = new EventEmitter<void>();
 
   readonly configTarget = GAME_CONFIG;
   entries: ConfigEntry[] = [];

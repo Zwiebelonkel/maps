@@ -46,6 +46,8 @@ import {
   BlackMarketOffer,
 } from './components/black-market/black-market.component';
 import { RainComponent } from './components/rain/rain.component';
+import { DailyLoginRewardModalComponent } from './components/daily-login-reward-modal/daily-login-reward-modal.component';
+import { DailyLoginRewardService, DailyReward } from '../services/daily-login-reward.service';
 
 const iconRetinaUrl =
   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -109,6 +111,7 @@ type OutfitRarity = Outfit['rarity'];
     DailyQuestsComponent,
     BlackMarketComponent,
     RainComponent,
+    DailyLoginRewardModalComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -152,6 +155,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isPlayerOpen = false;
   isInventoryOpen = false;
   isBlackMarketOpen = false;
+  isDailyLoginRewardOpen = false;
+  todayLoginReward: DailyReward | null = null;
+  dailyLoginAlreadyClaimed = false;
 
   activeBombItem: ShopItem | null = null;
   blackMarketOffers: BlackMarketOffer[] = [];
@@ -244,6 +250,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     public dailyQuestService: DailyQuestService,
     public notification: NotificationService,
     public ascensionService: AscensionService,
+    private dailyLoginRewardService: DailyLoginRewardService,
   ) {}
 
   // ── Vibration ───────────────────────────────────────────────
@@ -396,6 +403,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.markerService.load();
     this.loadProgress();
+    this.initializeDailyLoginReward();
     this.refreshBlackMarketOffers();
     this.updateGameState();
     this.startGPSTracking();
@@ -1381,6 +1389,52 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       rarity: 'epic',
     });
     this.saveProgress();
+  }
+
+  openDailyLoginRewardModal() {
+    this.todayLoginReward = this.dailyLoginRewardService.getRewardForToday();
+    this.dailyLoginAlreadyClaimed = !this.dailyLoginRewardService.shouldAutoOpen();
+    this.isDailyLoginRewardOpen = true;
+  }
+
+  claimDailyLoginReward() {
+    const reward = this.dailyLoginRewardService.claimTodayReward();
+    if (!reward) {
+      this.dailyLoginAlreadyClaimed = true;
+      return;
+    }
+
+    if (reward.type === 'coins') {
+      this.totalCoins = Math.round((this.totalCoins + reward.amount) * 100) / 100;
+      this.saveProgress();
+    }
+
+    if (reward.type === 'lootbox') {
+      for (let i = 0; i < reward.amount; i++) this.progressionService.addLootbox();
+    }
+
+    if (reward.type === 'bomb') {
+      const bomb = GAME_CONFIG.SHOP_ITEMS.find((item) => item.id === 'bomb_small');
+      if (bomb) {
+        for (let i = 0; i < reward.amount; i++) this.inventoryService.add(bomb);
+      }
+    }
+
+    this.dailyLoginAlreadyClaimed = true;
+    this.lootPopup?.show({
+      type: 'trophy',
+      label: `Daily Reward: ${reward.icon} ${reward.label}`,
+      rarity: 'rare',
+    });
+  }
+
+  private initializeDailyLoginReward() {
+    this.todayLoginReward = this.dailyLoginRewardService.getRewardForToday();
+    this.dailyLoginAlreadyClaimed = !this.dailyLoginRewardService.shouldAutoOpen();
+
+    if (!this.dailyLoginAlreadyClaimed) {
+      this.isDailyLoginRewardOpen = true;
+    }
   }
 
   retryGPS() {
