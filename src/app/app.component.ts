@@ -158,6 +158,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   isDailyLoginRewardOpen = false;
   todayLoginReward: DailyReward | null = null;
   dailyLoginAlreadyClaimed = false;
+  dailyLoginRewards: DailyReward[] = [];
+  dailyLoginClaimedCount = 0;
 
   activeBombItem: ShopItem | null = null;
   blackMarketOffers: BlackMarketOffer[] = [];
@@ -1394,6 +1396,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   openDailyLoginRewardModal() {
     this.todayLoginReward = this.dailyLoginRewardService.getRewardForToday();
     this.dailyLoginAlreadyClaimed = !this.dailyLoginRewardService.shouldAutoOpen();
+    this.dailyLoginRewards = this.dailyLoginRewardService.rewards;
+    this.dailyLoginClaimedCount = this.dailyLoginRewardService.getProgress().claimedCount;
     this.isDailyLoginRewardOpen = true;
   }
 
@@ -1421,6 +1425,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.dailyLoginAlreadyClaimed = true;
+    this.dailyLoginClaimedCount = this.dailyLoginRewardService.getProgress().claimedCount;
     this.lootPopup?.show({
       type: 'trophy',
       label: `Daily Reward: ${reward.icon} ${reward.label}`,
@@ -1431,6 +1436,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   private initializeDailyLoginReward() {
     this.todayLoginReward = this.dailyLoginRewardService.getRewardForToday();
     this.dailyLoginAlreadyClaimed = !this.dailyLoginRewardService.shouldAutoOpen();
+    this.dailyLoginRewards = this.dailyLoginRewardService.rewards;
+    this.dailyLoginClaimedCount = this.dailyLoginRewardService.getProgress().claimedCount;
 
     if (!this.dailyLoginAlreadyClaimed) {
       this.isDailyLoginRewardOpen = true;

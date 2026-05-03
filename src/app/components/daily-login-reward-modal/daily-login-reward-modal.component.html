@@ -3,6 +3,19 @@
     <h3>📅 Daily Login Reward</h3>
     <p *ngIf="reward">Heute: <strong>{{ reward.icon }} {{ reward.label }}</strong></p>
 
+    <div class="reward-grid" *ngIf="rewardGridItems.length">
+      <div
+        class="reward-card"
+        *ngFor="let item of rewardGridItems"
+        [class.claimed]="item.claimed"
+        [class.today]="item.today"
+      >
+        <div class="day">Tag {{ item.day }}</div>
+        <div class="icon">{{ item.reward.icon }}</div>
+        <div class="label">{{ item.reward.label }}</div>
+      </div>
+    </div>
+
     <div class="actions" *ngIf="!alreadyClaimedToday; else claimedTpl">
       <button class="claim-btn" (click)="claim.emit()">Belohnung abholen</button>
       <button class="close-btn" (click)="close.emit()">Später</button>

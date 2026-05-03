@@ -225,6 +225,8 @@
     [isOpen]="isDailyLoginRewardOpen"
     [reward]="todayLoginReward"
     [alreadyClaimedToday]="dailyLoginAlreadyClaimed"
+    [rewards]="dailyLoginRewards"
+    [claimedCount]="dailyLoginClaimedCount"
     (claim)="claimDailyLoginReward()"
     (close)="isDailyLoginRewardOpen = false"
   ></app-daily-login-reward-modal>

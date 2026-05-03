@@ -1,8 +1,48 @@
 @use '../../../styles/modal.scss';
 
 .daily-reward-modal {
-  max-width: 360px;
+  max-width: 560px;
   text-align: center;
+}
+
+.reward-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.reward-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 8px 6px;
+
+  &.claimed {
+    opacity: 0.55;
+  }
+
+  &.today {
+    border-color: #20bf55;
+    box-shadow: 0 0 0 1px #20bf55;
+  }
+
+  .day {
+    font-size: 0.72rem;
+    opacity: 0.8;
+  }
+
+  .icon {
+    font-size: 1.1rem;
+    margin: 2px 0;
+  }
+
+  .label {
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
 }
 
 .actions {
