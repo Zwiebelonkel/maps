@@ -1,0 +1,16 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="close.emit()">
+  <div class="modal daily-reward-modal" (click)="$event.stopPropagation()">
+    <h3>📅 Daily Login Reward</h3>
+    <p *ngIf="reward">Heute: <strong>{{ reward.icon }} {{ reward.label }}</strong></p>
+
+    <div class="actions" *ngIf="!alreadyClaimedToday; else claimedTpl">
+      <button class="claim-btn" (click)="claim.emit()">Belohnung abholen</button>
+      <button class="close-btn" (click)="close.emit()">Später</button>
+    </div>
+
+    <ng-template #claimedTpl>
+      <p class="claimed">✅ Bereits heute abgeholt. Komm morgen wieder!</p>
+      <button class="close-btn" (click)="close.emit()">Schließen</button>
+    </ng-template>
+  </div>
+</div>

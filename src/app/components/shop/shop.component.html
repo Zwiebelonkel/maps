@@ -432,4 +432,5 @@
 <app-server-admin-modal
   [isOpen]="isAdminPanelOpen"
   (close)="isAdminPanelOpen = false"
+  (openDailyRewardModal)="openDailyRewardModal.emit()"
 ></app-server-admin-modal>

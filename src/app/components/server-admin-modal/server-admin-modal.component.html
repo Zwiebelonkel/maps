@@ -19,6 +19,7 @@
     <div class="actions">
       <button class="refresh-btn" (click)="refreshEntries()">🔄 Neu laden</button>
       <button class="save-btn" (click)="saveAll()">💾 Speichern</button>
+      <button class="refresh-btn" (click)="openDailyRewardModal.emit()">📅 Daily Reward öffnen</button>
     </div>
 
     <div class="save-message" *ngIf="saveMessage">{{ saveMessage }}</div>
